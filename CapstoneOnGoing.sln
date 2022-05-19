@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapstoneOnGoing", "Capstone
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIGateway", "APIGateway\APIGateway.csproj", "{FBBC426F-AFAF-4255-9659-A843FB5D77D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{0978D743-3B49-4309-A864-771957168725}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{A39E541C-4434-4FFE-B248-96B1E7C16291}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{FBBC426F-AFAF-4255-9659-A843FB5D77D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBBC426F-AFAF-4255-9659-A843FB5D77D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBBC426F-AFAF-4255-9659-A843FB5D77D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0978D743-3B49-4309-A864-771957168725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0978D743-3B49-4309-A864-771957168725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0978D743-3B49-4309-A864-771957168725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0978D743-3B49-4309-A864-771957168725}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A39E541C-4434-4FFE-B248-96B1E7C16291}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A39E541C-4434-4FFE-B248-96B1E7C16291}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A39E541C-4434-4FFE-B248-96B1E7C16291}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A39E541C-4434-4FFE-B248-96B1E7C16291}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

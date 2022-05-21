@@ -9,8 +9,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CapstoneOnGoing.Extensions;
+using CapstoneOnGoing.Logger;
+using NLog;
 
 namespace CapstoneOnGoing
 {
@@ -18,6 +22,7 @@ namespace CapstoneOnGoing
     {
         public Startup(IConfiguration configuration)
         {
+	        LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "nlog.config"));
             Configuration = configuration;
         }
 
@@ -26,7 +31,7 @@ namespace CapstoneOnGoing
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+			services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -35,7 +40,7 @@ namespace CapstoneOnGoing
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerManager logger)
         {
             if (env.IsDevelopment())
             {
@@ -43,6 +48,8 @@ namespace CapstoneOnGoing
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CapstoneOnGoing v1"));
             }
+
+            app.ConfigureExceptionHandler(logger);
 
             app.UseHttpsRedirection();
 

@@ -1,13 +1,14 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using CapstoneOnGoing.Logger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Models;
 
-namespace CapstoneOnGoing.Extensions
+namespace CapstoneOnGoing.Middlewares
 {
-	public static class ExceptionMiddlewareExtension
+	public static class ExceptionMiddleware
 	{
 		public static void ConfigureExceptionHandler(this IApplicationBuilder app, ILoggerManager logger)
 		{
@@ -25,7 +26,9 @@ namespace CapstoneOnGoing.Extensions
 						await context.Response.WriteAsync(new ErrorDetails()
 						{
 							StatusCode = context.Response.StatusCode,
-							Message = "Internal Server Error"
+							Details = contextFeature.Error,
+							Message = contextFeature.Error.Message,
+							TimeStamp = DateTime.Now
 						}.ToString());
 					}
 				});

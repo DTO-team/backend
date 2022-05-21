@@ -11,7 +11,8 @@ namespace Models
 	{
 		public int StatusCode { get; set; }
 		public string Message { get; set; }
-
+		public Exception Details { get; set; }
+		public DateTime TimeStamp { get; set; }
 		public override string ToString()
 		{
 			return JsonSerializer.Serialize(this);

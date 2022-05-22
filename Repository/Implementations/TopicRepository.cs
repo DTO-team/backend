@@ -10,5 +10,8 @@ namespace Repository.Implementations
 {
     public class TopicRepository : GenericRepository<Topic>, ITopicRepository
     {
+        public TopicRepository(CAPSTONEONGOINGContext context) : base(context)
+        {
+        }
     }
 }

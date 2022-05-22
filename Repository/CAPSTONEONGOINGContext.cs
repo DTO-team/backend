@@ -22,7 +22,7 @@ namespace Repository
         public virtual DbSet<ApplicationStatus> ApplicationStatuses { get; set; }
         public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<Council> Councils { get; set; }
-        public virtual DbSet<Council> CouncilLecturers { get; set; }
+        public virtual DbSet<CouncilLecturer> CouncilLecturers { get; set; }
         public virtual DbSet<CouncilProject> CouncilProjects { get; set; }
         public virtual DbSet<Criterion> Criteria { get; set; }
         public virtual DbSet<EvaluationSession> EvaluationSessions { get; set; }
@@ -47,6 +47,7 @@ namespace Repository
         public virtual DbSet<TopicLecturer> TopicLecturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserStatus> UserStatuses { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -126,7 +127,7 @@ namespace Repository
                     .HasConstraintName("FK_Council_EvaluationSessionID");
             });
 
-            modelBuilder.Entity<Council>(entity =>
+            modelBuilder.Entity<CouncilLecturer>(entity =>
             {
                 entity.ToTable("CouncilLecturer");
 

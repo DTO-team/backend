@@ -9,7 +9,7 @@ namespace Models.Models
     {
         public Council()
         {
-            CouncilLecturers = new HashSet<Council>();
+            CouncilLecturers = new HashSet<CouncilLecturer>();
             CouncilProjects = new HashSet<CouncilProject>();
             Reviews = new HashSet<Review>();
         }
@@ -18,7 +18,7 @@ namespace Models.Models
         public Guid EvaluationSessionId { get; set; }
 
         public virtual EvaluationSession EvaluationSession { get; set; }
-        public virtual ICollection<Council> CouncilLecturers { get; set; }
+        public virtual ICollection<CouncilLecturer> CouncilLecturers { get; set; }
         public virtual ICollection<CouncilProject> CouncilProjects { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
     }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Models.Models
 {
-    public partial class Council
+    public partial class CouncilLecturer
     {
         public Guid Id { get; set; }
         public Guid CouncilId { get; set; }

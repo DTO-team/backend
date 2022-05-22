@@ -15,6 +15,9 @@ using System.Threading.Tasks;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Middlewares;
 using NLog;
+using Repository;
+using Microsoft.EntityFrameworkCore;
+using CapstoneOnGoing.Extensions;
 
 namespace CapstoneOnGoing
 {
@@ -31,8 +34,12 @@ namespace CapstoneOnGoing
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-	    services.AddSingleton<ILoggerManager, LoggerManager>();
+            services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CapstoneOngoing")));
+            services.AddSingleton<ILoggerManager, LoggerManager>();
+            services.AddRepository();
             services.AddControllers();
+            //services.AddDbContext<CAPSTONEONGOINGContext>(options =>
+            //options.UseSqlServer(Configuration.GetConnectionString("CapstoneOngoing")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CapstoneOnGoing", Version = "v1" });

@@ -38,8 +38,6 @@ namespace CapstoneOnGoing
             services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddRepository();
             services.AddControllers();
-            //services.AddDbContext<CAPSTONEONGOINGContext>(options =>
-            //options.UseSqlServer(Configuration.GetConnectionString("CapstoneOngoing")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CapstoneOnGoing", Version = "v1" });

@@ -19,14 +19,15 @@ namespace Repository
         }
 
         public virtual DbSet<Application> Applications { get; set; }
-        public virtual DbSet<ApplicationStatus> ApplicationStatuses { get; set; }
         public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<Council> Councils { get; set; }
         public virtual DbSet<CouncilLecturer> CouncilLecturers { get; set; }
         public virtual DbSet<CouncilProject> CouncilProjects { get; set; }
         public virtual DbSet<Criterion> Criteria { get; set; }
+        public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<EvaluationSession> EvaluationSessions { get; set; }
         public virtual DbSet<EvaluationSessionCriterion> EvaluationSessionCriteria { get; set; }
+        public virtual DbSet<Evidence> Evidences { get; set; }
         public virtual DbSet<Grade> Grades { get; set; }
         public virtual DbSet<GradeCopy> GradeCopies { get; set; }
         public virtual DbSet<Lecturer> Lecturers { get; set; }
@@ -34,6 +35,7 @@ namespace Repository
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Question> Questions { get; set; }
         public virtual DbSet<QuestionCopy> QuestionCopies { get; set; }
+        public virtual DbSet<Report> Reports { get; set; }
         public virtual DbSet<Review> Reviews { get; set; }
         public virtual DbSet<ReviewGrade> ReviewGrades { get; set; }
         public virtual DbSet<ReviewQuestion> ReviewQuestions { get; set; }
@@ -46,9 +48,8 @@ namespace Repository
         public virtual DbSet<Topic> Topics { get; set; }
         public virtual DbSet<TopicLecturer> TopicLecturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<UserStatus> UserStatuses { get; set; }
 
-
+   
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
@@ -60,15 +61,9 @@ namespace Repository
                 entity.HasIndex(e => new { e.TeamId, e.TopicId }, "AK_Application_TeamId_TopicId")
                     .IsUnique();
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.StatusId).HasDefaultValueSql("((1))");
-
-                entity.HasOne(d => d.Status)
-                    .WithMany(p => p.Applications)
-                    .HasForeignKey(d => d.StatusId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Application_ApplicationStatusID");
 
                 entity.HasOne(d => d.Team)
                     .WithMany(p => p.Applications)
@@ -81,21 +76,6 @@ namespace Repository
                     .HasForeignKey(d => d.TopicId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Application_TopicID");
-            });
-
-            modelBuilder.Entity<ApplicationStatus>(entity =>
-            {
-                entity.ToTable("ApplicationStatus");
-
-                entity.HasIndex(e => e.Name, "ApplicationStatus_Name_uindex")
-                    .IsUnique();
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<Company>(entity =>
@@ -180,13 +160,35 @@ namespace Repository
 
                 entity.Property(e => e.Code)
                     .IsRequired()
-                    .HasMaxLength(2)
+                    .HasMaxLength(3)
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Evaluation)
                     .IsRequired()
                     .HasMaxLength(1000);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(255);
+            });
+
+            modelBuilder.Entity<Department>(entity =>
+            {
+                entity.ToTable("Department");
+
+                entity.HasIndex(e => e.Code, "Department_Code_uindex")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Name, "Department_Name_uindex")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Code)
+                    .IsRequired()
+                    .HasMaxLength(5)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -226,11 +228,29 @@ namespace Repository
                     .HasConstraintName("FK_EvaluationSessionCriteria_EvaluationSessionID");
             });
 
+            modelBuilder.Entity<Evidence>(entity =>
+            {
+                entity.ToTable("Evidence");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Url)
+                    .IsRequired()
+                    .HasMaxLength(2048)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Report)
+                    .WithMany(p => p.Evidences)
+                    .HasForeignKey(d => d.ReportId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Evidence_ReportID");
+            });
+
             modelBuilder.Entity<Grade>(entity =>
             {
                 entity.ToTable("Grade");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Description)
                     .IsRequired()
@@ -276,9 +296,11 @@ namespace Repository
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.Department)
-                    .IsRequired()
-                    .HasMaxLength(255);
+                entity.HasOne(d => d.Department)
+                    .WithMany(p => p.Lecturers)
+                    .HasForeignKey(d => d.DepartmentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Lecturer_DepartmentID");
 
                 entity.HasOne(d => d.IdNavigation)
                     .WithOne(p => p.Lecturer)
@@ -291,7 +313,7 @@ namespace Repository
             {
                 entity.ToTable("Mentor");
 
-                entity.HasIndex(e => new { e.TeamId, e.LecturerId }, "AK_Mentor_TeamId_LecturerId")
+                entity.HasIndex(e => new { e.ProjectId, e.LecturerId }, "AK_Mentor_TeamId_LecturerId")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
@@ -302,11 +324,11 @@ namespace Repository
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Mentor_LecturerID");
 
-                entity.HasOne(d => d.Team)
+                entity.HasOne(d => d.Project)
                     .WithMany(p => p.Mentors)
-                    .HasForeignKey(d => d.TeamId)
+                    .HasForeignKey(d => d.ProjectId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Mentor_TeamID");
+                    .HasConstraintName("FK_Mentor_ProjectID");
             });
 
             modelBuilder.Entity<Project>(entity =>
@@ -348,9 +370,12 @@ namespace Repository
                     .HasMaxLength(255);
 
                 entity.Property(e => e.Priority)
-                    .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.Property(e => e.SubCriteria)
+                    .IsRequired()
+                    .HasMaxLength(255);
 
                 entity.HasOne(d => d.Criteria)
                     .WithMany(p => p.Questions)
@@ -379,6 +404,37 @@ namespace Repository
                     .HasForeignKey(d => d.CriteriaId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_QuestionCopy_CriteriaCopyID");
+            });
+
+            modelBuilder.Entity<Report>(entity =>
+            {
+                entity.ToTable("Report");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.CompletedTasks).HasMaxLength(3000);
+
+                entity.Property(e => e.Feedbacks).HasMaxLength(3000);
+
+                entity.Property(e => e.InProgressTasks).HasMaxLength(3000);
+
+                entity.Property(e => e.NextWeekTasks).HasMaxLength(3000);
+
+                entity.Property(e => e.SelfAssessments).HasMaxLength(3000);
+
+                entity.Property(e => e.UrgentIssues).HasMaxLength(3000);
+
+                entity.HasOne(d => d.Project)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.ProjectId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Report_ProjectID");
+
+                entity.HasOne(d => d.Reporter)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.ReporterId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Report_StudentID");
             });
 
             modelBuilder.Entity<Review>(entity =>
@@ -475,7 +531,7 @@ namespace Repository
                 entity.HasIndex(e => new { e.Year, e.Season }, "AK_Semester_Year_Season")
                     .IsUnique();
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Season)
                     .IsRequired()
@@ -538,7 +594,6 @@ namespace Repository
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.Students)
                     .HasForeignKey(d => d.SemesterId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Student_SemesterID");
             });
 
@@ -645,7 +700,6 @@ namespace Repository
                     .HasMaxLength(255);
 
                 entity.Property(e => e.Password)
-                    .IsRequired()
                     .HasMaxLength(74)
                     .IsUnicode(false)
                     .IsFixedLength(true);
@@ -662,27 +716,6 @@ namespace Repository
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_User_RoleID");
-
-                entity.HasOne(d => d.Status)
-                    .WithMany(p => p.Users)
-                    .HasForeignKey(d => d.StatusId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_User_UserStatusID");
-            });
-
-            modelBuilder.Entity<UserStatus>(entity =>
-            {
-                entity.ToTable("UserStatus");
-
-                entity.HasIndex(e => e.Name, "UserStatus_Name_uindex")
-                    .IsUnique();
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(11)
-                    .IsUnicode(false);
             });
 
             OnModelCreatingPartial(modelBuilder);

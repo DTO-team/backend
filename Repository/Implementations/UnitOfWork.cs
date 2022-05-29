@@ -7,7 +7,6 @@ namespace Repository.Implementations
     {
         private readonly CAPSTONEONGOINGContext _context;
         private readonly IApplicationRepository _applicationRepository;
-        private readonly IApplicationStatusRepository _applicationStatusRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly ICouncilLecturerRepository _councilLecturerRepository;
         private readonly ICouncilProjectRepository _councilProjectRepository;
@@ -35,11 +34,13 @@ namespace Repository.Implementations
         private readonly ITopicRepository _topicRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUserStatusRepository _userStatusRepository;
+        private readonly IDepartmentRepository _departmentRepository;
+        private readonly IEvidenceRepository _evidenceRepository;
+        private readonly IReportRepository _reportRepository;
         private bool _disposed = false;
 
         public UnitOfWork(CAPSTONEONGOINGContext context,
                           IApplicationRepository applicationRepository, 
-                          IApplicationStatusRepository applicationStatusRepository,
                           ICompanyRepository companyRepository, 
                           ICouncilLecturerRepository councilLecturerRepository, 
                           ICouncilProjectRepository councilProjectRepository, 
@@ -66,11 +67,13 @@ namespace Repository.Implementations
                           ITopicLecturerRepository topicLecturerRepository, 
                           ITopicRepository topicRepository, 
                           IUserRepository userRepository, 
-                          IUserStatusRepository userStatusRepository)
+                          IUserStatusRepository userStatusRepository,
+                          IDepartmentRepository departmentRepository,
+                          IEvidenceRepository evidenceRepository,
+                          IReportRepository reportRepository)
         {
             _context = context;
             _applicationRepository = applicationRepository;
-            _applicationStatusRepository = applicationStatusRepository;
             _companyRepository = companyRepository;
             _councilLecturerRepository = councilLecturerRepository;
             _councilProjectRepository = councilProjectRepository;
@@ -98,11 +101,12 @@ namespace Repository.Implementations
             _topicRepository = topicRepository;
             _userRepository = userRepository;
             _userStatusRepository = userStatusRepository;
+            _departmentRepository = departmentRepository;
+            _evidenceRepository = evidenceRepository;
+            _reportRepository = reportRepository;
         }
 
         public IApplicationRepository Applications => _applicationRepository;
-
-        public IApplicationStatusRepository Status => _applicationStatusRepository;
 
         public ICompanyRepository Companies => _companyRepository;
 
@@ -157,6 +161,12 @@ namespace Repository.Implementations
         public IUserRepository User => _userRepository;
 
         public IUserStatusRepository UserStatus => _userStatusRepository;
+
+        public IDepartmentRepository Department => _departmentRepository;
+
+        public IEvidenceRepository Evidence => _evidenceRepository;
+
+        public IReportRepository Report => _reportRepository;
 
         public void Dispose()
         {

@@ -10,6 +10,8 @@ namespace Models.Models
         public Project()
         {
             CouncilProjects = new HashSet<CouncilProject>();
+            Mentors = new HashSet<Mentor>();
+            Reports = new HashSet<Report>();
         }
 
         public Guid Id { get; set; }
@@ -19,5 +21,7 @@ namespace Models.Models
         public virtual Application Application { get; set; }
         public virtual Team Team { get; set; }
         public virtual ICollection<CouncilProject> CouncilProjects { get; set; }
+        public virtual ICollection<Mentor> Mentors { get; set; }
+        public virtual ICollection<Report> Reports { get; set; }
     }
 }

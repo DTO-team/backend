@@ -9,7 +9,6 @@ namespace CapstoneOnGoing.Extensions
         public static void AddRepository(this IServiceCollection services)
         {
             services.AddScoped<IApplicationRepository, ApplicationRepository>();
-            services.AddScoped<IApplicationStatusRepository, ApplicationStatusRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<ICouncilLecturerRepository, CouncilLecturerRepository>();
             services.AddScoped<ICouncilProjectRepository, CouncilProjectRepository>();
@@ -37,6 +36,9 @@ namespace CapstoneOnGoing.Extensions
             services.AddScoped<ITopicRepository, TopicRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserStatusRepository, UserStatusRepository>();
+            services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            services.AddScoped<IEvidenceRepository, EvidenceRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
             services.AddScoped<IUnitOfWork,UnitOfWork>();
         }
     }

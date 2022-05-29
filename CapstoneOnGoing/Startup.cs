@@ -18,6 +18,10 @@ using NLog;
 using Repository;
 using Microsoft.EntityFrameworkCore;
 using CapstoneOnGoing.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace CapstoneOnGoing
 {
@@ -45,6 +49,28 @@ namespace CapstoneOnGoing
             services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(connectionString));
             services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddRepository();
+            //Valid Access Token
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
+                            {
+                                //get JsonWebKeySet from AWS
+                                var json = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+                                //seriablize the result 
+                                var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                                return (IEnumerable<SecurityKey>)keys;
+                            },
+                            ValidIssuer = $"https://cognito-idp.{Configuration.GetValue<string>("REGION")}.amazonaws.com/{Configuration.GetValue<string>("POOLID")}",
+                            ValidateIssuerSigningKey = true,
+                            ValidateIssuer = true,
+                            ValidateLifetime = true,
+                            ValidAudience = "{Cognito AppClientID}",
+                            ValidateAudience = true,
+                        };
+                    });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

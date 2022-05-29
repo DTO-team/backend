@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Interfaces
 {
-    public interface ICouncilLecturerRepository : IGenericRepository<Council>
+    public interface ICouncilLecturerRepository : IGenericRepository<CouncilLecturer>
     {
     }
 }

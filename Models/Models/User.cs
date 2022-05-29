@@ -16,7 +16,6 @@ namespace Models.Models
         public int StatusId { get; set; }
 
         public virtual Role Role { get; set; }
-        public virtual UserStatus Status { get; set; }
         public virtual Company Company { get; set; }
         public virtual Lecturer Lecturer { get; set; }
         public virtual Student Student { get; set; }

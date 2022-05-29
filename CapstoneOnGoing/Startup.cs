@@ -25,8 +25,13 @@ namespace CapstoneOnGoing
     {
         public Startup(IConfiguration configuration)
         {
+            var builder = new ConfigurationBuilder()
+                          .SetBasePath(Directory.GetCurrentDirectory())
+                          .AddJsonFile("appsettings.json", true)
+                          .AddEnvironmentVariables(prefix: "CAPSTONEONGOING_");
+                          
 	        LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
-            Configuration = configuration;
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -34,12 +39,11 @@ namespace CapstoneOnGoing
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CapstoneOngoing")));
+            services.AddAutoMapper(typeof(Startup));
+            services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("CapstoneOnGoing_ConnectionString")));
             services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddRepository();
             services.AddControllers();
-            //services.AddDbContext<CAPSTONEONGOINGContext>(options =>
-            //options.UseSqlServer(Configuration.GetConnectionString("CapstoneOngoing")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CapstoneOnGoing", Version = "v1" });

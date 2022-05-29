@@ -12,7 +12,6 @@ namespace Models.Models
         public Guid TopicId { get; set; }
         public int StatusId { get; set; }
 
-        public virtual ApplicationStatus Status { get; set; }
         public virtual Team Team { get; set; }
         public virtual Topic Topic { get; set; }
         public virtual Project Project { get; set; }

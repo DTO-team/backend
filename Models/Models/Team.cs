@@ -10,7 +10,6 @@ namespace Models.Models
         public Team()
         {
             Applications = new HashSet<Application>();
-            Mentors = new HashSet<Mentor>();
             TeamStudents = new HashSet<TeamStudent>();
         }
 
@@ -19,7 +18,6 @@ namespace Models.Models
 
         public virtual Project Project { get; set; }
         public virtual ICollection<Application> Applications { get; set; }
-        public virtual ICollection<Mentor> Mentors { get; set; }
         public virtual ICollection<TeamStudent> TeamStudents { get; set; }
     }
 }

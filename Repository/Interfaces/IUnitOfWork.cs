@@ -9,7 +9,6 @@ namespace Repository.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IApplicationRepository Applications { get; }
-        IApplicationStatusRepository Status { get; }
         ICompanyRepository Companies { get; }
         ICouncilLecturerRepository CouncilLecturer { get;}
         ICouncilProjectRepository CouncilProject { get; }
@@ -37,6 +36,12 @@ namespace Repository.Interfaces
         ITopicRepository Topic { get; }
         IUserRepository User { get; }
         IUserStatusRepository UserStatus { get; }
+
+        IDepartmentRepository Department { get; }
+
+        public IEvidenceRepository Evidence { get; }
+
+        public IReportRepository Report { get; }
 
         public void Save();
     }

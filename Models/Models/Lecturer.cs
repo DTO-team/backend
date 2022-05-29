@@ -16,8 +16,9 @@ namespace Models.Models
         }
 
         public Guid Id { get; set; }
-        public string Department { get; set; }
+        public Guid DepartmentId { get; set; }
 
+        public virtual Department Department { get; set; }
         public virtual User IdNavigation { get; set; }
         public virtual ICollection<CouncilLecturer> CouncilLecturers { get; set; }
         public virtual ICollection<Mentor> Mentors { get; set; }

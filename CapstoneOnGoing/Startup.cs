@@ -40,7 +40,9 @@ namespace CapstoneOnGoing
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Startup));
-            services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("CapstoneOnGoing_ConnectionString")));
+            var connectionString = $"Server={Configuration.GetValue<string>("SERVER")},{Configuration.GetValue<string>("PORT")};User Id={Configuration.GetValue<string>("USERID")};" +
+                $"Password={Configuration.GetValue<string>("PASSWORD")};Database={Configuration.GetValue<string>("DATABASE")};";
+            services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(connectionString));
             services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddRepository();
             services.AddControllers();

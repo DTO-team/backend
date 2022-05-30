@@ -11,6 +11,7 @@ namespace Models.Models
         public string Description { get; set; }
         public string Priority { get; set; }
         public Guid CriteriaId { get; set; }
+        public string SubCriteria { get; set; }
 
         public virtual Criterion Criteria { get; set; }
     }

@@ -1,8 +1,8 @@
-﻿using CapstoneOnGoing.Services.Interfaces;
+﻿using CapstoneOnGoing.Logger;
+using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace CapstoneOnGoing.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/lecturers")]
     [ApiController]
     public class LecturerController : ControllerBase
     {
         private readonly ILecturerService _lecturerService;
-        private readonly ILogger _logger;
+        private readonly ILoggerManager _logger;
 
-        public LecturerController(ILecturerService lecturerService, ILogger logger)
+        public LecturerController(ILecturerService lecturerService, ILoggerManager logger)
         {
             _lecturerService = lecturerService;
             _logger = logger;
@@ -30,10 +30,10 @@ namespace CapstoneOnGoing.Controllers
             return Ok(lecturers);
         }
 
-        [HttpGet]
-        public IActionResult GetLecturerById(Guid studentId)
+        [HttpGet("{id}")]
+        public IActionResult GetLecturerById([FromQuery]Guid id)
         {
-            Lecturer lecturer = _lecturerService.GetLecturerById(studentId);
+            Lecturer lecturer = _lecturerService.GetLecturerById(id);
             return Ok(lecturer);
         }
 
@@ -43,7 +43,7 @@ namespace CapstoneOnGoing.Controllers
             bool isExisted = _lecturerService.GetLecturerById(lecturer.Id) != null;
             if (isExisted)
             {
-                _logger.Warn($"{nameof(CreateLecturer)} in {nameof(LecturerController)}: Lecturer with {lecturer.Id} is existed");
+                _logger.LogWarn($"{nameof(CreateLecturer)} in {nameof(LecturerController)}: Lecturer with {lecturer.Id} is existed");
                 return BadRequest("lecturer is existed");
             } else
             {
@@ -64,7 +64,7 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
-                _logger.Error($"{nameof(UpdateLecturer)} in {nameof(LecturerController)}: Lecturer with {lecturer.Id} is not existed in database");
+                _logger.LogError($"{nameof(UpdateLecturer)} in {nameof(LecturerController)}: Lecturer with {lecturer.Id} is not existed in database");
                 return BadRequest("Student is not existed to update");
             }
         }

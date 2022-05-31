@@ -1,23 +1,23 @@
-﻿using CapstoneOnGoing.Services.Interfaces;
+﻿using CapstoneOnGoing.Logger;
+using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net;
 
 namespace CapstoneOnGoing.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/students")]
     [ApiController]
     public class StudentController : ControllerBase
     {
         private readonly IStudentService _studentService;
-        private readonly ILogger _logger;
+        private readonly ILoggerManager _logger;
 
-        public StudentController(IStudentService studentService, ILogger logger)
+        public StudentController(IStudentService studentService, ILoggerManager logger)
         {
             _studentService = studentService;
             _logger = logger;
@@ -30,10 +30,10 @@ namespace CapstoneOnGoing.Controllers
             return Ok(students);
         }
 
-        [HttpGet]
-        public IActionResult GetStudentById(Guid studentId)
+        [HttpGet("{id}")]
+        public IActionResult GetStudentById([FromQuery]Guid id)
         {
-            Student student = _studentService.GetStudentById(studentId);
+            Student student = _studentService.GetStudentById(id);
             return Ok(student);
         }
 
@@ -44,7 +44,7 @@ namespace CapstoneOnGoing.Controllers
             bool isExisted = _studentService.GetStudentById(student.Id) != null;
             if (isExisted)
             {
-                _logger.Warn($"{nameof(CreateStudent)} in {nameof(StudentController)} : Student Existed with {student.Id}");
+                _logger.LogWarn($"{nameof(CreateStudent)} in {nameof(StudentController)} : Student Existed with {student.Id}");
                 return Conflict($"{student.Id} is existed");
             }
             else
@@ -65,7 +65,7 @@ namespace CapstoneOnGoing.Controllers
                 return CreatedAtAction(nameof(UpdateStudent), $"{student.ToString()} is updated");
             } else
             {
-                _logger.Error($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
+                _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
                 return BadRequest("Student is not existed to update");
             }
         }

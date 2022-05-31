@@ -17,7 +17,6 @@ namespace CapstoneOnGoing.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        [Authorize]
         [HttpGet]
         public IActionResult GetStudent()
         {

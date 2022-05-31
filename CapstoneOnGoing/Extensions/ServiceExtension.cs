@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CapstoneOnGoing.Services.Implements;
+using CapstoneOnGoing.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Repository.Implementations;
 using Repository.Interfaces;
 
@@ -40,6 +42,8 @@ namespace CapstoneOnGoing.Extensions
             services.AddScoped<IEvidenceRepository, EvidenceRepository>();
             services.AddScoped<IReportRepository, ReportRepository>();
             services.AddScoped<IUnitOfWork,UnitOfWork>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<ILecturerService, LecturerService>();
         }
     }
 }

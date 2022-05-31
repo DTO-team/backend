@@ -51,14 +51,16 @@ namespace Repository.Implementations
             }
             else
             {
-                return query.ToList();
+                return query.AsNoTracking().ToList();
             }
 
         }
 
         public TEntity GetById(Guid id)
         {
-            return dbSet.Find(id);
+            TEntity result = dbSet.Find(id);
+            context.Entry(result).State = EntityState.Detached;
+            return result;
         }
 
         public void Insert(TEntity newEntity)

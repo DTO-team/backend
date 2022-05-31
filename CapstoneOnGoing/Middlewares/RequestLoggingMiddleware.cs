@@ -22,7 +22,7 @@ namespace CapstoneOnGoing.Middlewares
 		public async Task Invoke(HttpContext context)
 		{
 			context.Request.EnableBuffering();
-			byte[] buffer = new byte[Convert.ToInt32(context.Request.ContentType)];
+			byte[] buffer = new byte[Convert.ToInt32(context.Request.ContentLength)];
 			await context.Request.Body.ReadAsync(buffer, 0, buffer.Length);
 			string requestBody = Encoding.UTF8.GetString(buffer);
 			context.Request.Body.Seek(0, SeekOrigin.Begin);

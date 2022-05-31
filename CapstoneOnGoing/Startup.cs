@@ -94,6 +94,10 @@ namespace CapstoneOnGoing
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CapstoneOnGoing v1"));
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CapstoneOnGoing v1"));
+            
             app.ConfigureExceptionHandler(logger);
             app.UseMiddleware<RequestLoggingMiddleware>();
 

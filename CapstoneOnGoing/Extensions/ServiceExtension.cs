@@ -44,6 +44,7 @@ namespace CapstoneOnGoing.Extensions
             services.AddScoped<IUnitOfWork,UnitOfWork>();
             services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<ILecturerService, LecturerService>();
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }

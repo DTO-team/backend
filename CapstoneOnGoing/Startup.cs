@@ -39,7 +39,7 @@ namespace CapstoneOnGoing
             Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
+        public static IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -52,33 +52,33 @@ namespace CapstoneOnGoing
                                     });
             });
             services.AddAutoMapper(typeof(Startup));
-            var connectionString = $"Server={Configuration.GetValue<string>("SERVER")},{Configuration.GetValue<string>("PORT")};User Id={Configuration.GetValue<string>("USERID")};" +
-                $"Password={Configuration.GetValue<string>("PASSWORD")};Database={Configuration.GetValue<string>("DATABASE")};";
+            var connectionString = $"Server={Configuration.GetValue<string>("DATABASE_HOST")},{Configuration.GetValue<string>("DATABASE_PORT")};User Id={Configuration.GetValue<string>("DATABASE_USERNAME")};" +
+                $"Password={Configuration.GetValue<string>("DATABASE_PASSWORD")};Database={Configuration.GetValue<string>("DATABASE_NAME")};";
             services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(connectionString));
             services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddRepository();
             //Valid Access Token
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        options.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
-                            {
-                                //get JsonWebKeySet from AWS
-                                var json = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
-                                //seriablize the result 
-                                var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
-                                return (IEnumerable<SecurityKey>)keys;
-                            },
-                            ValidIssuer = $"https://cognito-idp.{Configuration.GetValue<string>("REGION")}.amazonaws.com/{Configuration.GetValue<string>("POOLID")}",
-                            ValidateIssuerSigningKey = true,
-                            ValidateIssuer = true,
-                            ValidateLifetime = true,
-                            ValidAudience = "{Cognito AppClientID}",
-                            ValidateAudience = true,
-                        };
-                    });
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //        .AddJwtBearer(options =>
+            //        {
+            //            options.TokenValidationParameters = new TokenValidationParameters
+            //            {
+            //                IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
+            //                {
+            //                    //get JsonWebKeySet from AWS
+            //                    var json = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+            //                    //seriablize the result 
+            //                    var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+            //                    return (IEnumerable<SecurityKey>)keys;
+            //                },
+            //                ValidIssuer = $"https://cognito-idp.{Configuration.GetValue<string>("REGION")}.amazonaws.com/{Configuration.GetValue<string>("POOLID")}",
+            //                ValidateIssuerSigningKey = true,
+            //                ValidateIssuer = true,
+            //                ValidateLifetime = true,
+            //                ValidAudience = "{Cognito AppClientID}",
+            //                ValidateAudience = true,
+            //            };
+            //        });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

@@ -96,7 +96,6 @@ namespace CapstoneOnGoing
             }
             app.ConfigureExceptionHandler(logger);
             app.UseMiddleware<RequestLoggingMiddleware>();
-            // app.UseHttpsRedirection();
 
             app.UseRouting();
 

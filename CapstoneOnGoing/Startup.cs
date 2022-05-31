@@ -27,6 +27,7 @@ namespace CapstoneOnGoing
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             var builder = new ConfigurationBuilder()
@@ -43,6 +44,12 @@ namespace CapstoneOnGoing
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => {
+                options.AddPolicy(name: MyAllowSpecificOrigins, 
+                                    policy => {
+                                        policy.WithOrigins("dto.codes","localhost");
+                                    });
+            });
             services.AddAutoMapper(typeof(Startup));
             var connectionString = $"Server={Configuration.GetValue<string>("SERVER")},{Configuration.GetValue<string>("PORT")};User Id={Configuration.GetValue<string>("USERID")};" +
                 $"Password={Configuration.GetValue<string>("PASSWORD")};Database={Configuration.GetValue<string>("DATABASE")};";
@@ -87,12 +94,13 @@ namespace CapstoneOnGoing
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CapstoneOnGoing v1"));
             }
-
             app.ConfigureExceptionHandler(logger);
             app.UseMiddleware<RequestLoggingMiddleware>();
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthorization();
 

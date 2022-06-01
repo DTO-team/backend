@@ -3,6 +3,7 @@ using CapstoneOnGoing.Services.Interfaces;
 using CapstoneOnGoing.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Models.Dtos;
 using Models.Models;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -22,13 +23,13 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[HttpPost("login")]
-		public IActionResult Login([FromBody]string idToken){
+		public IActionResult Login([FromBody]CognitoIdToken cognitoIdToken){
 
-			JwtSecurityToken validatedJwtToken = JwtUtil.ValidateToken(idToken);
+			JwtSecurityToken validatedJwtToken = JwtUtil.ValidateToken(cognitoIdToken.IdToken);
 			string email = JwtUtil.GetEmailFromJwtToken(validatedJwtToken);
 			User user = _userService.GetUserByUserEmail(email);
-			string jwtToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
-			return Ok(jwtToken);
+			string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
+			return Ok(accessToken);
 		}
 	}
 }

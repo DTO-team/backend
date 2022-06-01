@@ -1,10 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
+using System.Text;
 
 namespace CapstoneOnGoing.Utils
 {
@@ -16,8 +19,6 @@ namespace CapstoneOnGoing.Utils
 
 		public static JwtSecurityToken ValidateToken(string accesstoken)
 		{
-			string test = Startup.Configuration.GetValue<string>("REGION");
-
 			JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 			tokenHandler.ValidateToken(accesstoken, new TokenValidationParameters
 			{
@@ -51,8 +52,22 @@ namespace CapstoneOnGoing.Utils
 			email = jwtToken.Claims.First(x => x.Type == "email").Value;
 			return email;
 		}
+
 		public static string GenerateJwtToken(string email,string role){
-            return "";
+			var jwtHanlder = new JwtSecurityTokenHandler();
+			var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Startup.Configuration.GetValue<string>("JWT_SECRET_KEY")));
+			var credentials = new SigningCredentials(secretKey,SecurityAlgorithms.HmacSha256Signature);
+			var issuer = Startup.Configuration.GetValue<string>("JWT_ISSUER");
+			var claims = new List<Claim>(){
+				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+				new Claim(JwtRegisteredClaimNames.Sub,email),
+				new Claim(ClaimTypes.Role,role)
+			};
+			var expires = DateTime.Now.AddMinutes(Startup.Configuration.GetValue<long>("JWT_TOKEN_EXPIRE_TIME_IN_MINUTES"));
+
+			var token = new JwtSecurityToken(issuer,null, claims, notBefore: DateTime.Now, expires, credentials);
+			
+			return jwtHanlder.WriteToken(token);
 		}
 	}
 }

@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace CapstoneOnGoing
 {
@@ -45,40 +46,32 @@ namespace CapstoneOnGoing
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks();
-            services.AddCors(options => {
-                options.AddPolicy(name: MyAllowSpecificOrigins, 
-                                    policy => {
-                                        policy.WithOrigins("dto.codes","localhost");
-                                    });
-            });
+            //services.AddCors(options => {
+            //    options.AddPolicy(name: MyAllowSpecificOrigins, 
+            //                        policy => {
+            //                            policy.WithOrigins("dto.codes","localhost");
+            //                        });
+            //});
             services.AddAutoMapper(typeof(Startup));
             var connectionString = $"Server={Configuration.GetValue<string>("DATABASE_HOST")},{Configuration.GetValue<string>("DATABASE_PORT")};User Id={Configuration.GetValue<string>("DATABASE_USERNAME")};" +
                 $"Password={Configuration.GetValue<string>("DATABASE_PASSWORD")};Database={Configuration.GetValue<string>("DATABASE_NAME")};";
             services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(connectionString));
             services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddRepository();
-            //Valid Access Token
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //        .AddJwtBearer(options =>
-            //        {
-            //            options.TokenValidationParameters = new TokenValidationParameters
-            //            {
-            //                IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
-            //                {
-            //                    //get JsonWebKeySet from AWS
-            //                    var json = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
-            //                    //seriablize the result 
-            //                    var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
-            //                    return (IEnumerable<SecurityKey>)keys;
-            //                },
-            //                ValidIssuer = $"https://cognito-idp.{Configuration.GetValue<string>("REGION")}.amazonaws.com/{Configuration.GetValue<string>("POOLID")}",
-            //                ValidateIssuerSigningKey = true,
-            //                ValidateIssuer = true,
-            //                ValidateLifetime = true,
-            //                ValidAudience = "{Cognito AppClientID}",
-            //                ValidateAudience = true,
-            //            };
-            //        });
+            services.AddAuthentication(options =>{
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+            .AddJwtBearer(options => {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidIssuer = Configuration.GetValue<string>("JWT_ISSUER"),
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JWT_SECRET_KEY"))),
+            };
+			});
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -104,8 +97,13 @@ namespace CapstoneOnGoing
 
             app.UseRouting();
 
-            app.UseCors(MyAllowSpecificOrigins);
+			app.UseCors(x => x
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .SetIsOriginAllowed(origin => true)
+                        .AllowCredentials());
 
+			app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

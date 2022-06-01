@@ -52,8 +52,8 @@ namespace CapstoneOnGoing.Controllers
             if (isExist)
             {
                 _studentService.UpdateStudent(student);
-                //return CreatedAtAction(nameof(UpdateStudent), $"{student.ToString()} is updated");
                 return Ok(student.Id);
+
             } else
             {
                 _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");

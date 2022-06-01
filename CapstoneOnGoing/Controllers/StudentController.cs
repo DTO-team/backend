@@ -24,14 +24,14 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetStudent()
+        public IActionResult GetAllStudents()
         {
             IEnumerable<Student> students = _studentService.GetAllStudents();
             return Ok(students);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetStudentById([FromQuery]Guid id)
+        public IActionResult GetStudentById(Guid id)
         {
             Student student = _studentService.GetStudentById(id);
             return Ok(student);
@@ -40,18 +40,8 @@ namespace CapstoneOnGoing.Controllers
         [HttpPost]
         public IActionResult CreateStudent(Student student)
         {
-            //if student is existed, not create and return error
-            bool isExisted = _studentService.GetStudentById(student.Id) != null;
-            if (isExisted)
-            {
-                _logger.LogWarn($"{nameof(CreateStudent)} in {nameof(StudentController)} : Student Existed with {student.Id}");
-                return Conflict($"{student.Id} is existed");
-            }
-            else
-            {
-                _studentService.CreateStudent(student);
-                return CreatedAtAction(nameof(CreateStudent), new {student.Id});
-            }
+            _studentService.CreateStudent(student);
+            return CreatedAtAction(nameof(CreateStudent), new { student.Id });
         }
 
         [HttpPut]
@@ -62,7 +52,8 @@ namespace CapstoneOnGoing.Controllers
             if (isExist)
             {
                 _studentService.UpdateStudent(student);
-                return CreatedAtAction(nameof(UpdateStudent), $"{student.ToString()} is updated");
+                //return CreatedAtAction(nameof(UpdateStudent), $"{student.ToString()} is updated");
+                return Ok(student.Id);
             } else
             {
                 _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");

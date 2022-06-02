@@ -29,7 +29,8 @@ namespace CapstoneOnGoing.Controllers
             IEnumerable<Student> students = _studentService.GetAllStudents();
             return Ok(students);
         }
-
+        
+        [Authorize(Roles = "STUDENT")]
         [HttpGet("{id}")]
         public IActionResult GetStudentById(Guid id)
         {

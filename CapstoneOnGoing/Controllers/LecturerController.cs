@@ -24,14 +24,14 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllLecturer()
+        public IActionResult GetAllLecturers()
         {
-            IEnumerable<Lecturer> lecturers =_lecturerService.GetAllLecturers();
+            IEnumerable<Lecturer> lecturers = _lecturerService.GetAllLecturers();
             return Ok(lecturers);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetLecturerById([FromQuery]Guid id)
+        public IActionResult GetLecturerById(Guid id)
         {
             Lecturer lecturer = _lecturerService.GetLecturerById(id);
             return Ok(lecturer);
@@ -40,16 +40,8 @@ namespace CapstoneOnGoing.Controllers
         [HttpPost]
         public IActionResult CreateLecturer(Lecturer lecturer)
         {
-            bool isExisted = _lecturerService.GetLecturerById(lecturer.Id) != null;
-            if (isExisted)
-            {
-                _logger.LogWarn($"{nameof(CreateLecturer)} in {nameof(LecturerController)}: Lecturer with {lecturer.Id} is existed");
-                return BadRequest("lecturer is existed");
-            } else
-            {
-                _lecturerService.CreateLecturer(lecturer);
-                return CreatedAtAction(nameof(CreateLecturer), new { lecturer.Id });
-            }
+            _lecturerService.CreateLecturer(lecturer);
+            return CreatedAtAction(nameof(CreateLecturer), new { lecturer.Id });
         }
 
         [HttpPut]
@@ -60,7 +52,7 @@ namespace CapstoneOnGoing.Controllers
             if (isExist)
             {
                 _lecturerService.UpdateLecturer(lecturer);
-                return CreatedAtAction(nameof(UpdateLecturer), $"{lecturer} is updated");
+                return Ok(lecturer.Id);
             }
             else
             {

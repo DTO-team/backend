@@ -1,6 +1,6 @@
 ﻿using Models.Models;
 using Repository.Interfaces;
-
+using System.Linq;
 
 namespace Repository.Implementations
 {
@@ -8,6 +8,11 @@ namespace Repository.Implementations
     {
         public RoleRepository(CAPSTONEONGOINGContext context) : base(context)
         {
+        }
+
+        public Role GetRoleByName(string name)
+        {
+            return dbSet.FirstOrDefault(x => x.Name == name);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace CapstoneOnGoing.Services.Implements
         public void CreateStudent(Student newStudent)
         {
             _unitOfWork.Student.Insert(newStudent);
+            _unitOfWork.Save();
         }
 
         //Get list student
@@ -39,20 +40,21 @@ namespace CapstoneOnGoing.Services.Implements
         public void UpdateStudent(Student studentToUpate)
         {
             _unitOfWork.Student.Update(studentToUpate);
+            _unitOfWork.Save();
         }
         
         //Delete student
         public void DeleteStudent(Student studentToDelete)
         {
             _unitOfWork.Student.Delete(studentToDelete);
+            _unitOfWork.Save();
         }
 
         //Delete student by Student id
         public void DeleteStudentById(Guid studentId)
         {
             _unitOfWork.Student.DeleteById(studentId);
+            _unitOfWork.Save();
         }
-
-
     }
 }

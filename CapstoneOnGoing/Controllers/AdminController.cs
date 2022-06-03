@@ -79,11 +79,19 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        //[Authorize(Roles = "ADMIN")]
-        //[HttpPut("user")]
-        //public IActionResult UpdateUser()
-        //{
-
-        //}
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("user")]
+        public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
+        {
+            User user = _userService.GetUserById(userInAdminToUpdate.Id);
+            if(user != null)
+            {
+                _userService.UpdateUser(user, userInAdminToUpdate.Role);
+                return Ok(user);
+            } else
+            {
+                return BadRequest($"User with {userInAdminToUpdate.Id} is not existed");
+            }
+        }
     }
 }

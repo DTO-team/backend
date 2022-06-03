@@ -10,6 +10,7 @@ namespace Models.Models
         public Guid Id { get; set; }
         public Guid TeamId { get; set; }
         public Guid StudentId { get; set; }
+        public int? Status { get; set; }
 
         public virtual Student Student { get; set; }
         public virtual Team Team { get; set; }

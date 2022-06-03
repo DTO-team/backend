@@ -12,6 +12,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<CreateNewUserDTO, User>();
             CreateMap<User, UserInAdminDTO>()
                     .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
+            CreateMap<UpdateUserInAdminDTO, User>()
+                    .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role));
         }
     }
 }

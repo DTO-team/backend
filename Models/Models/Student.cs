@@ -15,7 +15,6 @@ namespace Models.Models
 
         public Guid Id { get; set; }
         public string Code { get; set; }
-        public bool InProgress { get; set; }
         public Guid? SemesterId { get; set; }
 
         public virtual User IdNavigation { get; set; }

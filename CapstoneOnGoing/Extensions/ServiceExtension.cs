@@ -37,7 +37,6 @@ namespace CapstoneOnGoing.Extensions
             services.AddScoped<ITopicLecturerRepository, TopicLecturerRepository>();
             services.AddScoped<ITopicRepository, TopicRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserStatusRepository, UserStatusRepository>();
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IEvidenceRepository, EvidenceRepository>();
             services.AddScoped<IReportRepository, ReportRepository>();

@@ -13,10 +13,13 @@ namespace CapstoneOnGoing.Services.Implements
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public UserService(IUnitOfWork unitOfWork)
+
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
+
         public User GetUserWithRoleByEmail(string email)
         {
             User user = null;
@@ -36,7 +39,8 @@ namespace CapstoneOnGoing.Services.Implements
             User user = null;
             if (!string.IsNullOrEmpty(email))
             {
-                user = _unitOfWork.User.Get(x => x.Email == email).First();
+                //user = _unitOfWork.User.Get(x => x.Email == email).First();
+                user = _unitOfWork.User.Get(x => x.Email == email).FirstOrDefault();
             }
             return user;
         }
@@ -58,14 +62,19 @@ namespace CapstoneOnGoing.Services.Implements
         {
             Role studentRole = _unitOfWork.Role.GetRoleByName("STUDENT");
             user.RoleId = studentRole.Id;
-            _unitOfWork.User.Insert(_mapper.Map<User>(user));
+            User userToUpdate = _mapper.Map<User>(user);
+            _unitOfWork.User.Insert(userToUpdate);
             _unitOfWork.Save();
         }
 
-        public void UpdateUser(User user)
+        public void UpdateUser(User user, string updateRole)
         {
+            Role userRole = _unitOfWork.Role.GetRoleByName(updateRole);
+            user.RoleId = userRole.Id;
             _unitOfWork.User.Update(user);
             _unitOfWork.Save();
         }
+
+
     }
 }

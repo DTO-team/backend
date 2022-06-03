@@ -13,6 +13,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 		IEnumerable<User> GetAllUsers();
 		//void CreateUser(User user);
 		void CreateUser(CreateNewUserDTO user);
-		void UpdateUser(User user);
+		void UpdateUser(User user, string updateRole);
 	}
 }

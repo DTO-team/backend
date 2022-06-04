@@ -86,8 +86,8 @@ namespace CapstoneOnGoing.Controllers
             User user = _userService.GetUserById(userInAdminToUpdate.Id);
             if(user != null)
             {
-                _userService.UpdateUser(user, userInAdminToUpdate.Role);
-                return Ok(user);
+                _userService.UpdateUser(user, userInAdminToUpdate.Role, userInAdminToUpdate.StatusId);
+                return Ok(userInAdminToUpdate);
             } else
             {
                 return BadRequest($"User with {userInAdminToUpdate.Id} is not existed");

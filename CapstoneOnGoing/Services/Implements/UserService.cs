@@ -67,10 +67,11 @@ namespace CapstoneOnGoing.Services.Implements
             _unitOfWork.Save();
         }
 
-        public void UpdateUser(User user, string updateRole)
+        public void UpdateUser(User user, string updateRole, int StatusId)
         {
             Role userRole = _unitOfWork.Role.GetRoleByName(updateRole);
             user.RoleId = userRole.Id;
+            user.StatusId = StatusId;
             _unitOfWork.User.Update(user);
             _unitOfWork.Save();
         }

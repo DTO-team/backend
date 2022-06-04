@@ -12,7 +12,7 @@ using System.Net;
 
 namespace CapstoneOnGoing.Controllers
 {
-    [Route("api/admin")]
+    [Route("api/v1/admin")]
     [ApiController]
     public class AdminController : ControllerBase
     {
@@ -31,11 +31,11 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Roles = "ADMIN")]
-        [HttpGet("users")]
-        public IActionResult GetAllUser()
+		[Authorize(Roles = "ADMIN")]
+		[HttpGet("users")]
+        public IActionResult GetAllUser([FromQuery]string name,[FromQuery]int page, [FromQuery]int limit)
         {
-            IEnumerable<User> users = _userService.GetAllUsers();
+            IEnumerable<User> users = _userService.GetAllUsers(name,page,limit);
 
             if (users != null)
             {
@@ -64,7 +64,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        [HttpPost("user")]
+        [HttpPost("users")]
         public IActionResult CreateNewUser([FromBody] CreateNewUserDTO createNewUserDTO)
         {
             User user = _userService.GetUserByEmail(createNewUserDTO.Email);
@@ -80,7 +80,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        [HttpPut("user")]
+        [HttpPut("users/{id}")]
         public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
         {
             User user = _userService.GetUserById(userInAdminToUpdate.Id);
@@ -93,5 +93,19 @@ namespace CapstoneOnGoing.Controllers
                 return BadRequest($"User with {userInAdminToUpdate.Id} is not existed");
             }
         }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet("semesters")]
+        public IActionResult GetAllSemester(){
+
+            return Ok();
+		}
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost("semesters")]
+        public IActionResult CreateNewSemester(CreateNewSemesterDTO newSemesterDTO){
+
+            return CreatedAtAction(nameof(CreateNewSemester),newSemesterDTO);
+		}
     }
 }

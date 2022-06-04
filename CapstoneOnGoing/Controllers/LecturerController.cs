@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneOnGoing.Controllers
 {
-    [Route("api/lecturers")]
+    [Route("api/v1/lecturers")]
     [ApiController]
     public class LecturerController : ControllerBase
     {

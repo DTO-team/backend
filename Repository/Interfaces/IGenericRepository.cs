@@ -17,7 +17,7 @@ namespace Repository.Interfaces
         /// <param name="includedProperties">Implement eager loading with particular properties</param>
         /// <returns></returns>
         IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            string includedProperties = "");
+            string includedProperties = "", int page = 0, int limit = 0);
 
         /// <summary>
         /// Return TEntity base on ID

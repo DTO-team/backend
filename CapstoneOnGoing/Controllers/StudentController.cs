@@ -10,7 +10,7 @@ using System.Net;
 
 namespace CapstoneOnGoing.Controllers
 {
-    [Route("api/students")]
+    [Route("api/v1/students")]
     [ApiController]
     public class StudentController : ControllerBase
     {

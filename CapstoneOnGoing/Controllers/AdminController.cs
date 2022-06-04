@@ -64,7 +64,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        [HttpPost("user")]
+        [HttpPost("users")]
         public IActionResult CreateNewUser([FromBody] CreateNewUserDTO createNewUserDTO)
         {
             User user = _userService.GetUserByEmail(createNewUserDTO.Email);
@@ -80,7 +80,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        [HttpPut("user")]
+        [HttpPut("users/{id}")]
         public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
         {
             User user = _userService.GetUserById(userInAdminToUpdate.Id);
@@ -93,5 +93,19 @@ namespace CapstoneOnGoing.Controllers
                 return BadRequest($"User with {userInAdminToUpdate.Id} is not existed");
             }
         }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet("semesters")]
+        public IActionResult GetAllSemester(){
+
+            return Ok();
+		}
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost("semesters")]
+        public IActionResult CreateNewSemester(CreateNewSemesterDTO newSemesterDTO){
+
+            return CreatedAtAction(nameof(CreateNewSemester),newSemesterDTO);
+		}
     }
 }

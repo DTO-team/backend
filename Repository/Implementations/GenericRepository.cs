@@ -34,7 +34,7 @@ namespace Repository.Implementations
             Delete(entityToDelete);
         }
 
-        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includedProperties = "")
+        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includedProperties = "", int page = 0, int limit = 0)
         {
             IQueryable<TEntity> query = dbSet;
             if(filter != null)
@@ -51,7 +51,8 @@ namespace Repository.Implementations
             }
             else
             {
-                return query.AsNoTracking().ToList();
+                var offset = (page - 1) * limit;
+                return query.Skip(offset).Take(limit).AsNoTracking().ToList();
             }
 
         }

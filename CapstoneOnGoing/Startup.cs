@@ -28,7 +28,6 @@ namespace CapstoneOnGoing
 {
     public class Startup
     {
-        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             var builder = new ConfigurationBuilder()

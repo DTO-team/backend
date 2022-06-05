@@ -20,18 +20,21 @@ namespace CapstoneOnGoing.Services.Implements
         public void CreateLecturer(Lecturer lecturer)
         {
             _unitOfWork.Lecturer.Insert(lecturer);
+            _unitOfWork.Save();
         }
 
         //Delete lecturer
         public void DeleteLecturer(Lecturer lecturerToDelete)
         {
             _unitOfWork.Lecturer.Delete(lecturerToDelete);
+            _unitOfWork.Save();
         }
 
         //Delete lecturer by id
         public void DeleteLecturerById(Guid lecturerId)
         {
             _unitOfWork.Lecturer.DeleteById(lecturerId);
+            _unitOfWork.Save();
         }
 
         //Get Lecturer list
@@ -52,6 +55,7 @@ namespace CapstoneOnGoing.Services.Implements
         public void UpdateLecturer(Lecturer lecturerToUpdate)
         {
             _unitOfWork.Lecturer.Update(lecturerToUpdate);
+            _unitOfWork.Save();
         }
     }
 }

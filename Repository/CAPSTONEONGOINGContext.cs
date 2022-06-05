@@ -49,7 +49,6 @@ namespace Repository
         public virtual DbSet<TopicLecturer> TopicLecturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
-   
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
@@ -606,6 +605,11 @@ namespace Repository
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(255);
+
+                entity.HasOne(d => d.Semester)
+                    .WithMany(p => p.Teams)
+                    .HasForeignKey(d => d.SemesterId)
+                    .HasConstraintName("FK_Team_SemesterID");
             });
 
             modelBuilder.Entity<TeamStudent>(entity =>

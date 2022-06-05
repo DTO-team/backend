@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace CapstoneOnGoing.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/v1/auth")]
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
@@ -27,7 +27,7 @@ namespace CapstoneOnGoing.Controllers
 
 			JwtSecurityToken validatedJwtToken = JwtUtil.ValidateToken(cognitoIdToken.IdToken);
 			string email = JwtUtil.GetEmailFromJwtToken(validatedJwtToken);
-			User user = _userService.GetUserByUserEmail(email);
+			User user = _userService.GetUserWithRoleByEmail(email);
 			string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
 			return Ok(accessToken);
 		}

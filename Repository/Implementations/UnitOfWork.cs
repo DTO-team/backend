@@ -33,7 +33,6 @@ namespace Repository.Implementations
         private readonly ITopicLecturerRepository _topicLecturerRepository;
         private readonly ITopicRepository _topicRepository;
         private readonly IUserRepository _userRepository;
-        private readonly IUserStatusRepository _userStatusRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IEvidenceRepository _evidenceRepository;
         private readonly IReportRepository _reportRepository;
@@ -67,7 +66,6 @@ namespace Repository.Implementations
                           ITopicLecturerRepository topicLecturerRepository, 
                           ITopicRepository topicRepository, 
                           IUserRepository userRepository, 
-                          IUserStatusRepository userStatusRepository,
                           IDepartmentRepository departmentRepository,
                           IEvidenceRepository evidenceRepository,
                           IReportRepository reportRepository)
@@ -100,7 +98,6 @@ namespace Repository.Implementations
             _topicLecturerRepository = topicLecturerRepository;
             _topicRepository = topicRepository;
             _userRepository = userRepository;
-            _userStatusRepository = userStatusRepository;
             _departmentRepository = departmentRepository;
             _evidenceRepository = evidenceRepository;
             _reportRepository = reportRepository;
@@ -159,8 +156,6 @@ namespace Repository.Implementations
         public ITopicRepository Topic => _topicRepository;
 
         public IUserRepository User => _userRepository;
-
-        public IUserStatusRepository UserStatus => _userStatusRepository;
 
         public IDepartmentRepository Department => _departmentRepository;
 

@@ -8,7 +8,7 @@ namespace Models.Dtos
 {
     public class UpdateUserInAdminDTO
     {
-        public Guid Id { get; set; }
+      /*  public Guid Id { get; set; }*/
         public string Role { get; set; }
         public int StatusId { get; set; }
     }

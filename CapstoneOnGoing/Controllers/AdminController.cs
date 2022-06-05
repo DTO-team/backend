@@ -31,7 +31,7 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
-		[Authorize(Roles = "ADMIN")]
+		//[Authorize(Roles = "ADMIN")]
 		[HttpGet("users")]
         public IActionResult GetAllUser([FromQuery]string name,[FromQuery]int page, [FromQuery]int limit)
         {
@@ -48,7 +48,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         [HttpGet("users/{id}")]
         public IActionResult GetUserById(Guid id)
         {
@@ -63,7 +63,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         [HttpPost("users")]
         public IActionResult CreateNewUser([FromBody] CreateNewUserDTO createNewUserDTO)
         {
@@ -79,29 +79,31 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         [HttpPut("users/{id}")]
-        public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
+        public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate, [FromQuery] Guid id)
         {
-            User user = _userService.GetUserById(userInAdminToUpdate.Id);
+            //User user = _userService.GetUserById(userInAdminToUpdate.Id);
+            User user = _userService.GetUserById(id);
             if(user != null)
             {
                 _userService.UpdateUser(user, userInAdminToUpdate.Role, userInAdminToUpdate.StatusId);
                 return Ok(userInAdminToUpdate);
             } else
             {
-                return BadRequest($"User with {userInAdminToUpdate.Id} is not existed");
+                //return BadRequest($"User with {userInAdminToUpdate.Id} is not existed");
+                return BadRequest($"User with {id} is not existed");
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         [HttpGet("semesters")]
         public IActionResult GetAllSemester(){
 
             return Ok();
 		}
 
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         [HttpPost("semesters")]
         public IActionResult CreateNewSemester(CreateNewSemesterDTO newSemesterDTO){
 

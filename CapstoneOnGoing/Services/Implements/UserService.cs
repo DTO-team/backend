@@ -47,8 +47,13 @@ namespace CapstoneOnGoing.Services.Implements
 
 		public User GetUserById(Guid id)
 		{
-			User user = _unitOfWork.User.GetById(id);
-			return user;
+			User user = null;
+			user = _unitOfWork.User.GetById(id);
+			if(user != null)
+            {
+				return user;
+            }
+			return null;
 		}
 
 		public IEnumerable<User> GetAllUsers(string name, int page, int limit)

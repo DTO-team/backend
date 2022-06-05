@@ -45,5 +45,58 @@ namespace CapstoneOnGoing.Services.Implements
 		{
 			return _unitOfWork.Semester.GetById(id);
 		}
+
+		public bool UpdateSemester(Semester updatedSemester, UpdateSemesterDTO semesterDto)
+		{
+			bool isSuccessful = false;
+			switch (updatedSemester.Status)
+			{
+				case 1:
+					if (semesterDto.Status == 2)
+					{
+						updatedSemester.Status = semesterDto.Status;
+						_unitOfWork.Semester.Update(updatedSemester);
+						_unitOfWork.Save();
+						isSuccessful = true;
+					}
+					break;
+				case 2:
+					if (semesterDto.Status == 3)
+					{
+						updatedSemester.Status = semesterDto.Status;
+						_unitOfWork.Semester.Update(updatedSemester);
+						_unitOfWork.Save();
+						isSuccessful = true;
+					}
+					else if (semesterDto.Status == 1)
+					{
+						updatedSemester.Status = semesterDto.Status;
+						_unitOfWork.Semester.Update(updatedSemester);
+						_unitOfWork.Save();
+						isSuccessful = true;
+					}
+					break;
+				case 3:
+					if (semesterDto.Status == 4)
+					{
+						updatedSemester.Status = semesterDto.Status;
+						_unitOfWork.Semester.Update(updatedSemester);
+						_unitOfWork.Save();
+						isSuccessful = true;
+					}
+					else if (semesterDto.Status == 2)
+					{
+						updatedSemester.Status = semesterDto.Status;
+						_unitOfWork.Semester.Update(updatedSemester);
+						_unitOfWork.Save();
+						isSuccessful = true;
+					}
+					break;
+				case 4:
+					break;
+			}
+
+			return isSuccessful;
+		}
 	}
 }

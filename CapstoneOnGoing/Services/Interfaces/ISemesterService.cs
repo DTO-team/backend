@@ -12,6 +12,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 
 		IEnumerable<Semester> GetAllSemesters(int page, int limit);
 
-		bool UpdateSemester(Semester updatedSemester);
+		bool UpdateSemester(Semester updatedSemester, UpdateSemesterDTO semesterDto);
 	}
 }

@@ -100,7 +100,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpGet("semesters")]
 		public IActionResult GetAllSemester([FromQuery] int page, [FromQuery] int limit)
 		{
@@ -109,7 +109,7 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(semestersDTO);
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpPost("semesters")]
 		public IActionResult CreateNewSemester([FromBody] CreateNewSemesterDTO newSemesterDTO)
 		{
@@ -134,23 +134,19 @@ namespace CapstoneOnGoing.Controllers
 			Semester updatedSemester = _semesterService.GetSemesterById(updateSemesterDTO.Id);
 			if (updatedSemester != null)
 			{
-				updatedSemester = _mapper.Map<Semester>(updateSemesterDTO);
-				bool isSuccessful = _semesterService.UpdateSemester(updatedSemester);
+				bool isSuccessful = _semesterService.UpdateSemester(updatedSemester,updateSemesterDTO);
 				if (isSuccessful)
 				{
 					return Ok(updateSemesterDTO);
 				}
-				else
-				{
-					return BadRequest();
-				}
+				_logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(UpdateSemester)}, The {updatedSemester.Year} - {updatedSemester.Season} update failed");
+				return BadRequest($"The semester {updatedSemester.Year} - {updatedSemester.Season} updated failed");
 			}
 			else
 			{
 				_logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(UpdateSemester)}, The {updateSemesterDTO.Id} is not existed");
 				return BadRequest($"Semester does not exist");
 			}
-			return Ok();
 		}
 	}
 }

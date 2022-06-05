@@ -23,6 +23,7 @@ namespace CapstoneOnGoing.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetAllStudents()
         {
@@ -38,6 +39,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(student);
         }
 
+        [Authorize]
         [HttpPost]
         public IActionResult CreateStudent(Student student)
         {
@@ -45,6 +47,7 @@ namespace CapstoneOnGoing.Controllers
             return CreatedAtAction(nameof(CreateStudent), new { student.Id });
         }
 
+	    [Authorize]
         [HttpPut]
         public IActionResult UpdateStudent(Student student)
         {

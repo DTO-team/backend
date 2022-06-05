@@ -47,27 +47,38 @@ namespace CapstoneOnGoing.Services.Implements
 
 		public User GetUserById(Guid id)
 		{
-			User user = _unitOfWork.User.GetById(id);
-			return user;
+			User user = null;
+			user = _unitOfWork.User.GetById(id);
+			if(user != null)
+            {
+				return user;
+            }
+			return null;
 		}
 
-		public IEnumerable<User> GetAllUsers(string name, int page, int limit)
-		{
-			IEnumerable<User> users;
-			if (!string.IsNullOrEmpty(name))
-			{
-				users = _unitOfWork.User.Get(x => x.UserName.Contains(name), null, "Role", page, limit);
-			}
-			else
-			{
-				users = _unitOfWork.User.Get(null, null, "Role", page, limit);
-			}
+        public IEnumerable<User> GetAllUsers(string name, int page, int limit)
+        {
+            IEnumerable<User> users;
+			//default is page 1 and limit is 10 if not have value of page and limit parameter
+            if (page == 0 || limit == 0 || page < 0 || limit < 0)
+            {
+                page = 1;
+                limit = 10;
+            }
 
-			return users;
-		}
+            if (!string.IsNullOrEmpty(name))
+            {
+                users = _unitOfWork.User.Get(x => x.UserName.Contains(name), null, "Role", page, limit);
+            }
+            else
+            {
+                users = _unitOfWork.User.Get(null, null, "Role", page, limit);
+            }
 
-		//public void CreateUser(User user)
-		public void CreateUser(CreateNewUserDTO user)
+            return users;
+        }
+
+        public void CreateUser(CreateNewUserDTO user)
 		{
 			Role studentRole = _unitOfWork.Role.GetRoleByName("STUDENT");
 			user.RoleId = studentRole.Id;
@@ -76,13 +87,14 @@ namespace CapstoneOnGoing.Services.Implements
 			_unitOfWork.Save();
 		}
 
-		public void UpdateUser(User user, string updateRole)
-		{
-			Role userRole = _unitOfWork.Role.GetRoleByName(updateRole);
-			user.RoleId = userRole.Id;
-			_unitOfWork.User.Update(user);
-			_unitOfWork.Save();
-		}
+        public void UpdateUser(User user, string updateRole, int StatusId)
+        {
+            Role userRole = _unitOfWork.Role.GetRoleByName(updateRole);
+            user.RoleId = userRole.Id;
+            user.StatusId = StatusId;
+            _unitOfWork.User.Update(user);
+            _unitOfWork.Save();
+        }
 
 
 	}

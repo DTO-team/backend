@@ -26,7 +26,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "ADMIN")]
-		[HttpGet("semesters")]
+		[HttpGet]
 		public IActionResult GetAllSemester([FromQuery] int page, [FromQuery] int limit)
 		{
 			IEnumerable<Semester> semesters = _semesterService.GetAllSemesters(page, limit);
@@ -35,7 +35,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "ADMIN")]
-		[HttpPost("semesters")]
+		[HttpPost]
 		public IActionResult CreateNewSemester([FromBody] CreateNewSemesterDTO newSemesterDTO)
 		{
 			Semester newSemester = _mapper.Map<Semester>(newSemesterDTO);
@@ -54,7 +54,7 @@ namespace CapstoneOnGoing.Controllers
 
 
 		[Authorize(Roles = "ADMIN")]
-		[HttpPut("semesters/{id}")] 
+		[HttpPut("{id}")] 
 		public IActionResult UpdateSemester([FromBody] UpdateSemesterDTO updateSemesterDTO)
 		{
 			Semester updatedSemester = _semesterService.GetSemesterById(updateSemesterDTO.Id);

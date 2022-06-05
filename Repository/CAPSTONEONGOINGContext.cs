@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 using Models.Models;
 
 #nullable disable
@@ -602,6 +600,12 @@ namespace Repository
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
+                entity.Property(e => e.JoinCode)
+                    .IsRequired()
+                    .HasMaxLength(7)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(255);
@@ -693,6 +697,8 @@ namespace Repository
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.AvatarUrl).HasMaxLength(2048);
 
                 entity.Property(e => e.Email)
                     .IsRequired()

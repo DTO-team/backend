@@ -42,15 +42,18 @@ namespace CapstoneOnGoing.Utils
 			return jwtToken != null ? jwtToken : null;
 		}
 
-		public static string GetEmailFromJwtToken(JwtSecurityToken jwtToken)
+		public static (string email, string name) GetEmailFromJwtToken(JwtSecurityToken jwtToken)
 		{
 			string email = string.Empty;
+			string name = string.Empty;
 			if (jwtToken == null)
 			{
 				//Handle later
 			}
 			email = jwtToken.Claims.First(x => x.Type == "email").Value;
-			return email;
+			name = jwtToken.Claims.First(x => x.Type == "name").Value;
+			name = name.Split('-')[0].Trim();
+			return (email, name);
 		}
 
 		public static string GenerateJwtToken(string email,string role){

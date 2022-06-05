@@ -14,5 +14,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		//void CreateUser(User user);
 		void CreateUser(CreateNewUserDTO user);
 		void UpdateUser(User user, string updateRole, int statusId);
+
+		User CreateUserByEmailAndName(string email, string name);
 	}
 }

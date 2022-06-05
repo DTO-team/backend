@@ -30,6 +30,20 @@ namespace CapstoneOnGoing.Services.Implements
 			else
 			{
 				user = _unitOfWork.User.Get(x => x.Email == email, null, "Role").First();
+				switch (user.RoleId)
+				{
+					case 2:
+						user.Lecturer = _unitOfWork.Lecturer.Get(x => x.Id == user.Id,null,"Department",0,0).FirstOrDefault();
+						break;
+					case 3:
+						user.Student = _unitOfWork.Student.Get(x => x.Id == user.Id, null, "Semester",0,0).FirstOrDefault();
+						break;
+					case 4:
+						user.Company = _unitOfWork.Companies.Get(x => x.Id == user.Id,null,null,0,0).FirstOrDefault();
+						break;
+					default:
+						break;
+				}
 			}
 			return user;
 		}
@@ -96,6 +110,22 @@ namespace CapstoneOnGoing.Services.Implements
             _unitOfWork.Save();
         }
 
+        public User CreateUserByEmailAndName(string email, string name)
+        {
+	        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name))
+	        {
+		        return null;
+	        }
 
+	        User newUser = null;
+
+			if (email.Contains("@fpt.edu.vn"))
+	        {
+		        newUser = new User { Email = email, FullName = name, RoleId = 3, StatusId = 1,UserName = email.Substring(0,email.IndexOf('@'))};
+				_unitOfWork.User.Insert(newUser);
+				_unitOfWork.Save();
+			}
+			return newUser;
+        }
 	}
 }

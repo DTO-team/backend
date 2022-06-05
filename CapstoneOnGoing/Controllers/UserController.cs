@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using AutoMapper;
@@ -26,7 +27,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "ADMIN")]
-		[HttpGet("users")]
+		[HttpGet]
 		public IActionResult GetAllUser([FromQuery] string username, [FromQuery] int page, [FromQuery] int limit)
 		{
 
@@ -41,7 +42,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "ADMIN,STUDENT")]
-		[HttpGet("users/{id}")]
+		[HttpGet("{id}")]
 		public IActionResult GetUserById(Guid id)
 		{
 			User user = _userService.GetUserById(id);
@@ -56,8 +57,8 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize(Roles = "ADMIN")]
-		[HttpPost("users")]
+		[Authorize(Roles = "ADMIN")]
+		[HttpPost]
 		public IActionResult CreateNewUser([FromBody] CreateNewUserDTO createNewUserDTO)
 		{
 			User user = _userService.GetUserByEmail(createNewUserDTO.Email);
@@ -79,7 +80,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "ADMIN,STUDENT")]
-		[HttpPut("users/{id}")]
+		[HttpPut("{id}")]
 		public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
 		{
 			//Get user from database base on userInAdminToUpdate id

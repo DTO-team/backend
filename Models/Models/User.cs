@@ -14,6 +14,7 @@ namespace Models.Models
         public string FullName { get; set; }
         public int RoleId { get; set; }
         public int StatusId { get; set; }
+        public string AvatarUrl { get; set; }
 
         public virtual Role Role { get; set; }
         public virtual Company Company { get; set; }

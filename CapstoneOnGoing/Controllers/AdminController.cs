@@ -19,16 +19,18 @@ namespace CapstoneOnGoing.Controllers
         private readonly IUserService _userService;
         private readonly IStudentService _studentService;
         private readonly ILecturerService _lecturerService;
+        private readonly ISemesterService _semesterService;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
 
-        public AdminController(IUserService userService, IStudentService studentService, ILecturerService lecturerService, ILoggerManager logger, IMapper mapper)
+        public AdminController(IUserService userService, IStudentService studentService, ILecturerService lecturerService, ILoggerManager logger, IMapper mapper, ISemesterService semesterService)
         {
             _userService = userService;
             _studentService = studentService;
             _lecturerService = lecturerService;
             _logger = logger;
             _mapper = mapper;
+            _semesterService = semesterService;
         }
 
 		[Authorize(Roles = "ADMIN")]
@@ -59,7 +61,8 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
-                return BadRequest($"User with {id} is not exist");
+                _logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(GetUserById)}, The user {id} do not exist");
+                return BadRequest($"User is not exist");
             }
         }
 
@@ -70,6 +73,7 @@ namespace CapstoneOnGoing.Controllers
             User user = _userService.GetUserByEmail(createNewUserDTO.Email);
             if (user != null)
             {
+                _logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(CreateNewUser)}, The user {createNewUserDTO.Email} is already exist");
                 return Conflict(new ErrorDetails { StatusCode = (int)HttpStatusCode.Conflict, Message = $"{createNewUserDTO.Email} is already exist" });
             }
             else
@@ -79,8 +83,8 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
-        [HttpPut("users/{id}")]
+		[Authorize(Roles = "ADMIN")]
+		[HttpPut("users/{id}")]
         public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
         {
             User user = _userService.GetUserById(userInAdminToUpdate.Id);
@@ -90,7 +94,8 @@ namespace CapstoneOnGoing.Controllers
                 return Ok(user);
             } else
             {
-                return BadRequest($"User with {userInAdminToUpdate.Id} is not existed");
+                _logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(UpdateUser)}, The user {userInAdminToUpdate.Id} do not exist");
+                return BadRequest($"User is not existed");
             }
         }
 
@@ -104,7 +109,8 @@ namespace CapstoneOnGoing.Controllers
         [Authorize(Roles = "ADMIN")]
         [HttpPost("semesters")]
         public IActionResult CreateNewSemester(CreateNewSemesterDTO newSemesterDTO){
-
+            Semester newSemester = _mapper.Map<Semester>(newSemesterDTO);
+            _semesterService.CreateNewSemester(newSemester);
             return CreatedAtAction(nameof(CreateNewSemester),newSemesterDTO);
 		}
     }

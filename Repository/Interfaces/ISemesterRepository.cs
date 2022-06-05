@@ -9,5 +9,6 @@ namespace Repository.Interfaces
 {
     public interface ISemesterRepository : IGenericRepository<Semester>
     {
+        Semester GetSemesterByYearAndSession(int year, string season);
     }
 }

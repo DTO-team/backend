@@ -1,6 +1,6 @@
 ﻿using Models.Models;
 using Repository.Interfaces;
-
+using System.Linq;
 
 namespace Repository.Implementations
 {
@@ -9,5 +9,10 @@ namespace Repository.Implementations
         public SemesterRepository(CAPSTONEONGOINGContext context) : base(context)
         {
         }
-    }
+
+		public Semester GetSemesterByYearAndSession(int year, string season)
+		{
+			return context.Semesters.FirstOrDefault(semester => (semester.Year == year && semester.Season.Equals(season)));
+		}
+	}
 }

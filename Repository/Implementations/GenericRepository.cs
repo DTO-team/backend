@@ -60,7 +60,9 @@ namespace Repository.Implementations
         public TEntity GetById(Guid id)
         {
             TEntity result = dbSet.Find(id);
-            context.Entry(result).State = EntityState.Detached;
+            if(result != null){
+                context.Entry(result).State = EntityState.Detached;
+            }
             return result;
         }
 

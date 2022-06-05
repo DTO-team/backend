@@ -1,9 +1,10 @@
 ﻿using Models.Dtos;
+using Models.Models;
 
 namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface ISemesterService
 	{
-		CreateNewSemesterDTO CreateNewSemester(CreateNewSemesterDTO newSemester);
+		bool CreateNewSemester(Semester newSemester);
 	}
 }

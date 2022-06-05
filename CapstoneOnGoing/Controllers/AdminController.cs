@@ -33,11 +33,12 @@ namespace CapstoneOnGoing.Controllers
             _semesterService = semesterService;
         }
 
-		//[Authorize(Roles = "ADMIN")]
-		[HttpGet("users")]
-        public IActionResult GetAllUser([FromQuery]string name,[FromQuery]int page, [FromQuery]int limit)
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet("users")]
+        public IActionResult GetAllUser([FromQuery] string name, [FromQuery] int page, [FromQuery] int limit)
         {
-            IEnumerable<User> users = _userService.GetAllUsers(name,page,limit);
+
+            IEnumerable<User> users = _userService.GetAllUsers(name, page, limit);
 
             if (users != null)
             {
@@ -50,14 +51,14 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("users/{id}")]
         public IActionResult GetUserById(Guid id)
         {
             User user = _userService.GetUserById(id);
             if (user != null)
             {
-                return Ok(user);
+                return Ok(_mapper.Map<UserByIdDTO>(user));
             }
             else
             {
@@ -66,7 +67,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("users")]
         public IActionResult CreateNewUser([FromBody] CreateNewUserDTO createNewUserDTO)
         {
@@ -78,40 +79,97 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
+                //User activated immediately at the time user is created
+                if (createNewUserDTO.StatusId != 1)
+                {
+                    createNewUserDTO.StatusId = 1;
+                }
                 _userService.CreateUser(createNewUserDTO);
                 return CreatedAtAction(nameof(CreateNewUser), createNewUserDTO.Email);
             }
         }
 
-		[Authorize(Roles = "ADMIN")]
-		[HttpPut("users/{id}")]
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("users/{id}")]
         public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
         {
+            //Get user from database base on userInAdminToUpdate id
             User user = _userService.GetUserById(userInAdminToUpdate.Id);
-            if(user != null)
+
+            if (user != null)
             {
+                //Cannot update user when user is inactivated
+                if (user.StatusId != 1)
+                {
+                    return BadRequest("User is not activated to update");
+                }
+
+                //Auto change status id to 1 if user is activated and you want to update user 
+                if (!string.IsNullOrEmpty(userInAdminToUpdate.Role) && userInAdminToUpdate.StatusId == 0)
+                {
+                    userInAdminToUpdate.StatusId = 1;
+                }
                 _userService.UpdateUser(user, userInAdminToUpdate.Role, userInAdminToUpdate.StatusId);
                 return Ok(userInAdminToUpdate);
-            } else
+            }
+            else
             {
                 _logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(UpdateUser)}, The user {userInAdminToUpdate.Id} do not exist");
                 return BadRequest($"User is not existed");
             }
         }
 
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("semesters")]
-        public IActionResult GetAllSemester(){
+        public IActionResult GetAllSemester([FromQuery] int page, [FromQuery] int limit)
+        {
+            IEnumerable<Semester> semesters = _semesterService.GetAllSemesters(page, limit);
+            IEnumerable<GetSemesterDTO> semestersDTO = _mapper.Map<IEnumerable<GetSemesterDTO>>(semesters);
+            return Ok(semestersDTO);
+        }
 
-            return Ok();
-		}
-
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("semesters")]
-        public IActionResult CreateNewSemester(CreateNewSemesterDTO newSemesterDTO){
+        public IActionResult CreateNewSemester([FromBody] CreateNewSemesterDTO newSemesterDTO)
+        {
             Semester newSemester = _mapper.Map<Semester>(newSemesterDTO);
-            _semesterService.CreateNewSemester(newSemester);
-            return CreatedAtAction(nameof(CreateNewSemester),newSemesterDTO);
-		}
+            newSemester = _semesterService.CreateNewSemester(newSemester);
+            if (newSemester != null)
+            {
+                GetSemesterDTO result = _mapper.Map<GetSemesterDTO>(newSemester);
+                return CreatedAtAction(nameof(CreateNewSemester), result);
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(CreateNewSemester)}, The {newSemesterDTO.Year} - {newSemesterDTO.Season} is already existed");
+                return BadRequest($"Semester {newSemesterDTO.Year} - {newSemesterDTO.Season} is already existed");
+            }
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("semesters/{id}")]
+        public IActionResult UpdateSemester([FromBody] UpdateSemesterDTO updateSemesterDTO)
+        {
+            Semester updatedSemester = _semesterService.GetSemesterById(updateSemesterDTO.Id);
+            if (updatedSemester != null)
+            {
+                updatedSemester = _mapper.Map<Semester>(updateSemesterDTO);
+                bool isSuccessful = _semesterService.UpdateSemester(updatedSemester);
+                if (isSuccessful)
+                {
+                    return Ok(updateSemesterDTO);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(AdminController)},Method: {nameof(UpdateSemester)}, The {updateSemesterDTO.Id} is not existed");
+                return BadRequest($"Semester does not exist");
+            }
+            return Ok();
+        }
     }
 }

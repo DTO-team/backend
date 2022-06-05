@@ -34,7 +34,7 @@ namespace Repository.Implementations
             Delete(entityToDelete);
         }
 
-        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includedProperties = "", int page = 0, int limit = 0)
+        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includedProperties = "", int page = 0, int limit = 10)
         {
             IQueryable<TEntity> query = dbSet;
             if(filter != null)

@@ -9,6 +9,6 @@ namespace Models.Dtos
 		[Required]
 		public int Year { get; set; }
 		[Required]
-		public string Session { get; set; }
+		public string Season { get; set; }
 	}
 }

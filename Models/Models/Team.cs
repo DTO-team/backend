@@ -17,6 +17,7 @@ namespace Models.Models
         public string Name { get; set; }
         public int Status { get; set; }
         public Guid? SemesterId { get; set; }
+        public string JoinCode { get; set; }
 
         public virtual Semester Semester { get; set; }
         public virtual Project Project { get; set; }

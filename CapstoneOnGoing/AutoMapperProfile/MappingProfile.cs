@@ -15,6 +15,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<UpdateUserInAdminDTO, User>()
                     .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role));
             CreateMap<CreateNewSemesterDTO, Semester>();
+            CreateMap<Semester, GetSemesterDTO>();
         }
     }
 }

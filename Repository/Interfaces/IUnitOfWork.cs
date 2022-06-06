@@ -35,7 +35,6 @@ namespace Repository.Interfaces
         ITopicLecturerRepository TopicLecturer { get; }
         ITopicRepository Topic { get; }
         IUserRepository User { get; }
-        IUserStatusRepository UserStatus { get; }
 
         IDepartmentRepository Department { get; }
 

@@ -10,7 +10,7 @@ using System.Net;
 
 namespace CapstoneOnGoing.Controllers
 {
-    [Route("api/students")]
+    [Route("api/v1/students")]
     [ApiController]
     public class StudentController : ControllerBase
     {
@@ -23,8 +23,9 @@ namespace CapstoneOnGoing.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpGet]
-        public IActionResult GetStudent()
+        public IActionResult GetAllStudents()
         {
             IEnumerable<Student> students = _studentService.GetAllStudents();
             return Ok(students);
@@ -38,23 +39,15 @@ namespace CapstoneOnGoing.Controllers
             return Ok(student);
         }
 
+        [Authorize]
         [HttpPost]
         public IActionResult CreateStudent(Student student)
         {
-            //if student is existed, not create and return error
-            bool isExisted = _studentService.GetStudentById(student.Id) != null;
-            if (isExisted)
-            {
-                _logger.LogWarn($"{nameof(CreateStudent)} in {nameof(StudentController)} : Student Existed with {student.Id}");
-                return Conflict($"{student.Id} is existed");
-            }
-            else
-            {
-                _studentService.CreateStudent(student);
-                return CreatedAtAction(nameof(CreateStudent), new {student.Id});
-            }
+            _studentService.CreateStudent(student);
+            return CreatedAtAction(nameof(CreateStudent), new { student.Id });
         }
 
+	    [Authorize]
         [HttpPut]
         public IActionResult UpdateStudent(Student student)
         {
@@ -63,12 +56,19 @@ namespace CapstoneOnGoing.Controllers
             if (isExist)
             {
                 _studentService.UpdateStudent(student);
-                return CreatedAtAction(nameof(UpdateStudent), $"{student.ToString()} is updated");
+                return Ok(student.Id);
+
             } else
             {
                 _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
                 return BadRequest("Student is not existed to update");
             }
         }
+
+        //[Authorize(Roles = "ADMIN")]
+        //public IActionResult ImportInprogressStudents()
+        //{
+
+        //}
     }
 }

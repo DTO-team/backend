@@ -15,7 +15,11 @@ namespace Models.Models
 
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public int Status { get; set; }
+        public Guid? SemesterId { get; set; }
+        public string JoinCode { get; set; }
 
+        public virtual Semester Semester { get; set; }
         public virtual Project Project { get; set; }
         public virtual ICollection<Application> Applications { get; set; }
         public virtual ICollection<TeamStudent> TeamStudents { get; set; }

@@ -6,6 +6,7 @@ using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Models.Request;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -127,5 +128,52 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 			return newUser;
         }
+
+        public bool ImportInProgressStudents(IEnumerable<InProgressStudentsRequest> inProgressStudentsRequests)
+        {
+	        bool isSuccessful = true;
+	        Semester currentPreparingSemester = _unitOfWork.Semester.Get(x => (x.Status == 1 && x.Year == DateTime.Now.Year)).FirstOrDefault();
+	        if (currentPreparingSemester != null)
+	        {
+		        foreach (var inProgressStudent in inProgressStudentsRequests)
+		        {
+			        User newStudent = _mapper.Map<User>(inProgressStudent);
+			        User isExistedStudent = _unitOfWork.User.Get(x => (x.Email == inProgressStudent.Email && x.RoleId == 3)).FirstOrDefault();
+
+					if (isExistedStudent == null)
+			        {
+				        //Create new user for student
+				        newStudent = new User { Email = inProgressStudent.Email, FullName = inProgressStudent.FullName, RoleId = 3, StatusId = 1, UserName = inProgressStudent.Email.Substring(0, inProgressStudent.Email.IndexOf('@')) };
+				        newStudent.Student = new Student { Id = newStudent.Id, Code = inProgressStudent.StudentCode, SemesterId = currentPreparingSemester.Id };
+				        _unitOfWork.User.Insert(newStudent);
+			        }
+			        else
+					{
+						
+						bool isExisted = (_unitOfWork.Student.Get(x => (x.Id == isExistedStudent.Id && x.SemesterId != null)).FirstOrDefault() != null);
+						if (!isExisted)
+						{
+							Student insertedStudent = new Student { Id = isExistedStudent.Id, Code = inProgressStudent.StudentCode, SemesterId = currentPreparingSemester.Id };
+							_unitOfWork.Student.Insert(insertedStudent);
+						}
+						else
+						{
+							isSuccessful = false;
+							break;
+						}
+					}
+		        }
+			}
+	        else
+	        {
+		        isSuccessful = false;
+	        }
+
+	        if (isSuccessful)
+	        {
+		        _unitOfWork.Save();
+			}
+	        return isSuccessful;
+		}
 	}
 }

@@ -39,15 +39,15 @@ namespace Repository.Implementations
 			IQueryable<TEntity> query = dbSet;
 			if (filter != null)
 			{
-				query = query.Where(filter);
+				query = query.AsNoTracking().Where(filter);
 			}
 			foreach (string includeProperty in includedProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
 			{
-				query = query.Include(includeProperty);
+				query = query.AsNoTracking().Include(includeProperty);
 			}
 			if (orderBy != null)
 			{
-				return orderBy(query).ToList();
+				return orderBy(query).AsNoTracking().ToList();
 			}
 
 			if (page != 0 && limit != 0)

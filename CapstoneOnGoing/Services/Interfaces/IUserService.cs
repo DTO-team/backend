@@ -2,6 +2,7 @@
 using Models.Models;
 using System;
 using System.Collections.Generic;
+using Models.Request;
 
 namespace CapstoneOnGoing.Services.Interfaces
 {
@@ -16,5 +17,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		void UpdateUser(User user, string updateRole, int statusId);
 
 		User CreateUserByEmailAndName(string email, string name);
+
+		bool ImportInProgressStudents(IEnumerable<InProgressStudentsRequest> inProgressStudentsRequests);
 	}
 }

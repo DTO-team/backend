@@ -28,6 +28,21 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.DepartmentName, src => src.MapFrom(src => src.Lecturer.Department.Name.ToString()));
 			CreateMap<User, LoginUserCompanyResponse>()
 				.ForMember(dest => dest.AccessToken, src => src.Ignore());
+			CreateMap<LecturerResquest, CreateNewUserDTO>();
+			CreateMap<LecturerResquest, Lecturer>();
+			CreateMap<UpdateLecturerRequestDTO, User>();
+			CreateMap<Lecturer, LecturerResponse>()
+				.ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department.Name));
+			CreateMap<User, LecturerResponse>()
+				.ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department.Name))
+				.ForMember(dest => dest.Role, src => src.MapFrom(src=>src.Role.Name));
+
+			CreateMap<Student, StudentResponse>();
+
+			CreateMap<User, StudentResponse>()
+				.ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Season))
+				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name))
+				.ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code));
 		}
 	}
 }

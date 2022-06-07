@@ -10,5 +10,6 @@ namespace Repository.Interfaces
     public interface IRoleRepository : IGenericRepository<Role>
     {
         Role GetRoleByName(string name);
+        Role GetRoleById(int id);
     }
 }

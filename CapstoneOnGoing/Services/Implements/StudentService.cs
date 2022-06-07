@@ -23,17 +23,65 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Get list student
-        public IEnumerable<Student> GetAllStudents()
+        public IEnumerable<User> GetAllStudents(int page, int limit)
         {
-            IEnumerable<Student> students = _unitOfWork.Student.Get();
+            IEnumerable<User> students;
+            if (page == 0 || limit == 0 || page < 0 || limit < 0)
+            { 
+                 students = _unitOfWork.User.Get(x=> (x.Role.Name == "STUDENT" && x.RoleId == 3),null, page:1, limit:10);
+                 foreach(User student in students)
+                {
+                    student.Student = _unitOfWork.Student.GetById(student.Id);
+                    if (student.Student != null)
+                    {
+                        if(student.Student.SemesterId != null)
+                        {
+                            student.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
+                        }
+                        if(student.RoleId != 0)
+                        { 
+                            student.Role = _unitOfWork.Role.GetRoleById(student.RoleId);
+                        }
+                    }
+                }
+            } else
+            {
+                students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3), null, page: page, limit: limit);
+                foreach (User student in students)
+                {
+                    student.Student = _unitOfWork.Student.GetById(student.Id);
+                    if (student.Student != null)
+                    {
+                        if (student.Student.SemesterId != null)
+                        {
+                            student.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
+                        }
+                        if (student.RoleId != 0)
+                        {
+                            student.Role = _unitOfWork.Role.GetRoleById(student.RoleId);
+                        }
+                    }
+                }
+            }
             return students;
         }
 
         //Get student by student ID
-        public Student GetStudentById(Guid studentId)
+        public User GetStudentById(Guid studentId)
         {
+            User studentToReturn = _unitOfWork.User.GetById(studentId);
             Student student = _unitOfWork.Student.GetById(studentId);
-            return student;
+            if (student != null)
+            {
+                studentToReturn.Student = student;
+                studentToReturn.Student.Code = student.Code;
+                studentToReturn.Role = _unitOfWork.Role.GetRoleById(3);
+                if (student.SemesterId != null)
+                {
+                    studentToReturn.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.SemesterId);
+                }
+            }
+            return studentToReturn;
         }
 
         //Update student

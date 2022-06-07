@@ -26,7 +26,7 @@ namespace CapstoneOnGoing.Controllers
 			_logger = logger;
 		}
 
-		[Authorize(Roles = "ADMIN")]
+		//[Authorize(Roles = "ADMIN")]
 		[HttpGet]
 		public IActionResult GetAllUser([FromQuery] string username, [FromQuery] int page, [FromQuery] int limit)
 		{
@@ -57,7 +57,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize(Roles = "ADMIN")]
+		//[Authorize(Roles = "ADMIN")]
 		[HttpPost]
 		public IActionResult CreateNewUser([FromBody] CreateNewUserDTO createNewUserDTO)
 		{

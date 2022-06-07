@@ -9,24 +9,24 @@ using Models.Request;
 
 namespace CapstoneOnGoing.Controllers
 {
-	[Route("api/ongoing")]
+	[Route("api/ongoingstudents")]
 	[ApiController]
-	public class OnGoingController : ControllerBase
+	public class OnGoingStudentsController : ControllerBase
 	{
 		private readonly IMapper _mapper;
 		private readonly IUserService _userService;
 		private readonly ILoggerManager _logger;
 
-		public OnGoingController(IMapper mapper, IUserService userService, ILoggerManager logger)
+		public OnGoingStudentsController(IMapper mapper, IUserService userService, ILoggerManager logger)
 		{
-				_mapper = mapper;
-				_userService = userService;
-				_logger = logger;
+			_mapper = mapper;
+			_userService = userService;
+			_logger = logger;
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpPost]
-		public IActionResult ImportInProgressStudents([FromBody]IEnumerable<InProgressStudentsRequest> inProgressStudentsRequest)
+		public IActionResult ImportInProgressStudents([FromBody] IEnumerable<InProgressStudentsRequest> inProgressStudentsRequest)
 		{
 			bool isImportSuccessfully = _userService.ImportInProgressStudents(inProgressStudentsRequest);
 			if (isImportSuccessfully)
@@ -36,7 +36,7 @@ namespace CapstoneOnGoing.Controllers
 			else
 			{
 				_logger.LogWarn(
-					$"Controller: {nameof(OnGoingController)}, Method: {nameof(ImportInProgressStudents)}, Import in-progress students list failed");
+					$"Controller: {nameof(OnGoingStudentsController)}, Method: {nameof(ImportInProgressStudents)}, Import in-progress students list failed");
 				return BadRequest("Import in-progress students failed");
 			}
 		}

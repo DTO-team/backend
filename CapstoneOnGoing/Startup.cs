@@ -99,8 +99,8 @@ namespace CapstoneOnGoing
 			app.UseCors(x => x
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .AllowAnyOrigin()
-                        .AllowCredentials());
+                        .AllowAnyOrigin());
+
 
 			app.UseAuthentication();
             app.UseAuthorization();

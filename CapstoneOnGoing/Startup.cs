@@ -51,6 +51,7 @@ namespace CapstoneOnGoing
             //                            policy.WithOrigins("dto.codes","localhost");
             //                        });
             //});
+            services.AddCors();
             services.AddAutoMapper(typeof(Startup));
             var connectionString = $"Server={Configuration.GetValue<string>("DATABASE_HOST")},{Configuration.GetValue<string>("DATABASE_PORT")};User Id={Configuration.GetValue<string>("DATABASE_USERNAME")};" +
                 $"Password={Configuration.GetValue<string>("DATABASE_PASSWORD")};Database={Configuration.GetValue<string>("DATABASE_NAME")};";
@@ -96,13 +97,17 @@ namespace CapstoneOnGoing
 
             app.UseRouting();
 
-			app.UseCors(x => x
-                        .AllowAnyMethod()
+            app.UseCors(x => x
+                        //.AllowAnyMethod()
+                        //.AllowAnyHeader()
+                        //.AllowAnyOrigin());
+                        .AllowAnyOrigin()
                         .AllowAnyHeader()
-                        .AllowAnyOrigin());
+                        .AllowAnyMethod());
 
 
-			app.UseAuthentication();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

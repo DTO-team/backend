@@ -19,5 +19,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		User CreateUserByEmailAndName(string email, string name);
 
 		bool ImportInProgressStudents(IEnumerable<InProgressStudentsRequest> inProgressStudentsRequests);
+		bool CreateNewLectuer(LecturerResquest user);
+		bool CreateNewStudent(StudentRequest user);
 	}
 }

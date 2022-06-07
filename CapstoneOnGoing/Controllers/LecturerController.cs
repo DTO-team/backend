@@ -62,18 +62,29 @@ namespace CapstoneOnGoing.Controllers
             {
                 lecturer.StatusId = 1;
             }
-            //Create new user
-            CreateNewUserDTO newUserDTO = _mapper.Map<CreateNewUserDTO>(lecturer);
-            _userService.CreateUser(newUserDTO);
+            ////Create new user
+            //CreateNewUserDTO newUserDTO = _mapper.Map<CreateNewUserDTO>(lecturer);
+            //_userService.CreateUser(newUserDTO);
 
-            //Get id of new created user
-            Guid userId = _userService.GetUserIdByUserName(lecturer.UserName);
-            Guid departmentId = lecturer.DepartmentId;
+            ////Get id of new created user
+            //Guid userId = _userService.GetUserIdByUserName(lecturer.UserName);
+            //Guid departmentId = lecturer.DepartmentId;
 
-            Lecturer lecturerDTO = _mapper.Map<Lecturer>(lecturer);
-            _lecturerService.CreateLecturer(lecturerDTO, userId, departmentId);
+            //Lecturer lecturerDTO = _mapper.Map<Lecturer>(lecturer);
+            //_lecturerService.CreateLecturer(lecturerDTO, userId, departmentId);
 
-            return CreatedAtAction(nameof(CreateLecturer), new { lecturer.UserName });
+            bool isSuccess = _userService.CreateNewLectuer(lecturer);
+
+            if (isSuccess)
+            {
+                return CreatedAtAction(nameof(CreateLecturer), new { lecturer.UserName });
+            }
+            else
+            {
+                return BadRequest("Cannot Create lecturer");
+            }
+
+
         }
 
         [HttpPut("{id}")]

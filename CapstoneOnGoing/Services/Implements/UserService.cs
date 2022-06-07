@@ -194,5 +194,61 @@ namespace CapstoneOnGoing.Services.Implements
 			User user = _unitOfWork.User.Get(x => x.UserName == userName).First();
 			return user.Id;
         }
+
+        public bool CreateNewLectuer(LecturerResquest user)
+        {
+            bool isSuccess;
+            User userToCreate;
+            if (GetUserByEmail(user.Email) == null)
+            {
+                Role userRole = _unitOfWork.Role.GetRoleById(user.RoleId);
+                user.RoleId = userRole.Id;
+                userToCreate = _mapper.Map<User>(user);
+                userToCreate.Role = userRole;
+
+                _unitOfWork.User.Insert(userToCreate);
+                _unitOfWork.Save();
+
+                Guid userId = GetUserByEmail(user.Email).Id;
+                Guid departmentId = user.DepartmentId;
+
+                Lecturer lecturerDTO = _mapper.Map<Lecturer>(user);
+                lecturerDTO.Id = userId;
+                lecturerDTO.DepartmentId = departmentId;
+
+                _unitOfWork.Lecturer.Insert(lecturerDTO);
+                _unitOfWork.Save();
+
+                isSuccess = true;
+            }
+            else
+            {
+                isSuccess = false;
+            }
+            return isSuccess;
+        }
+
+        public bool CreateNewStudent(StudentRequest user)
+        {
+            //bool isSuccess;
+            //User userToCreate;
+            //if(GetUserByEmail(user.Email) != null)
+            //         {
+            //	Role userRole = _unitOfWork.Role.GetRoleById(user.RoleId);
+            //	userToCreate = _mapper.Map<User>(user);
+            //	userToCreate.Role = userRole;
+
+            //	_unitOfWork.User.Insert(userToCreate);
+            //	_unitOfWork.Save();
+
+            //	Guid userId = GetUserByEmail(user.Email).Id;
+            //         }
+            //         else
+            //         {
+            //	isSuccess = false;
+            //         }
+            //return isSuccess;
+            return true;
+        }
     }
 }

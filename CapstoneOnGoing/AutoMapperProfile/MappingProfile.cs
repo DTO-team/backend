@@ -44,6 +44,19 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Season))
 				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name))
 				.ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code));
+			CreateMap<LecturerResquest, User>()
+				.ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
+				.ForMember(dest => dest.UserName, src => src.MapFrom(src => src.UserName))
+				.ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
+				.ForMember(dest => dest.RoleId, src => src.MapFrom(src => src.RoleId))
+				.ForMember(dest => dest.StatusId, src => src.MapFrom(src => src.StatusId));
+
+			CreateMap<StudentRequest, User>()
+				.ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
+				.ForMember(dest => dest.UserName, src => src.MapFrom(src => src.UserName))
+				.ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
+				.ForMember(dest => dest.RoleId, src => src.MapFrom(src => src.RoleId))
+				.ForMember(dest => dest.StatusId, src => src.MapFrom(src => src.StatusId));
 		}
 	}
 }

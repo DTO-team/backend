@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using AutoMapper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Request;
+using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -31,13 +34,23 @@ namespace CapstoneOnGoing.Controllers
 			bool isImportSuccessfully = _userService.ImportInProgressStudents(inProgressStudentsRequest);
 			if (isImportSuccessfully)
 			{
-				return Ok("Import in-progress students successfully");
+				return Ok(new GenericResponse 
+				{
+					HttpStatus = (int)HttpStatusCode.OK,
+					Message = "Import in-progress students successfully",
+					TimeStamp = DateTime.Now,
+				});
 			}
 			else
 			{
 				_logger.LogWarn(
 					$"Controller: {nameof(OnGoingStudentsController)}, Method: {nameof(ImportInProgressStudents)}, Import in-progress students list failed");
-				return BadRequest("Import in-progress students failed");
+				return BadRequest(new GenericResponse
+				{
+					HttpStatus = (int)HttpStatusCode.BadRequest,
+					Message = "Import in-progress students failed",
+					TimeStamp = DateTime.Now,
+				});
 			}
 		}
 

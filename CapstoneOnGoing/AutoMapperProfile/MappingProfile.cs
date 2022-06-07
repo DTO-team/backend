@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Models.Dtos;
 using Models.Models;
+using Models.Request;
 using Models.Response;
 
 namespace CapstoneOnGoing.AutoMapperProfile
@@ -28,6 +29,10 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.DepartmentName, src => src.MapFrom(src => src.Lecturer.Department.Name.ToString()));
 			CreateMap<User, LoginUserCompanyResponse>()
 				.ForMember(dest => dest.AccessToken, src => src.Ignore());
+			CreateMap<InProgressStudentsRequest, User>()
+				.ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
+				.ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
+				.ForPath(dest => dest.Student.Code, src => src.MapFrom(src => src.StudentCode));
 		}
 	}
 }

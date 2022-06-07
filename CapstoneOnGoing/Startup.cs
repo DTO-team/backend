@@ -101,6 +101,7 @@ namespace CapstoneOnGoing
                         .AllowAnyHeader()
                         .AllowAnyOrigin());
 
+
 			app.UseAuthentication();
             app.UseAuthorization();
 

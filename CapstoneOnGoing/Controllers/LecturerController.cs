@@ -62,17 +62,6 @@ namespace CapstoneOnGoing.Controllers
             {
                 lecturer.StatusId = 1;
             }
-            ////Create new user
-            //CreateNewUserDTO newUserDTO = _mapper.Map<CreateNewUserDTO>(lecturer);
-            //_userService.CreateUser(newUserDTO);
-
-            ////Get id of new created user
-            //Guid userId = _userService.GetUserIdByUserName(lecturer.UserName);
-            //Guid departmentId = lecturer.DepartmentId;
-
-            //Lecturer lecturerDTO = _mapper.Map<Lecturer>(lecturer);
-            //_lecturerService.CreateLecturer(lecturerDTO, userId, departmentId);
-
             bool isSuccess = _userService.CreateNewLectuer(lecturer);
 
             if (isSuccess)
@@ -81,31 +70,30 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
+                _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(CreateLecturer)}, The user is exist");
                 return BadRequest("Cannot Create lecturer");
             }
-
-
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequestDTO lecturerToUpdate)
-        {
-            if (!lecturerToUpdate.RoleId.Equals(2))
-            {
-                lecturerToUpdate.RoleId = 2;
-            }
+        //[HttpPut("{id}")]
+        //public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequestDTO lecturerToUpdate)
+        //{
+        //    if (!lecturerToUpdate.RoleId.Equals(2))
+        //    {
+        //        lecturerToUpdate.RoleId = 2;
+        //    }
 
-            User userUpdated = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerToUpdate));
-            if (userUpdated != null)
-            {
-                User lecturer = _lecturerService.GetLecturerById(userUpdated.Id);
-                return Ok(_mapper.Map<LecturerResponse>(lecturer));
-            }
-            else
-            {
-                _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerToUpdate.Id} do not exist");
-                return BadRequest($"User is not existed");
-            }
-        }
+        //    User userUpdated = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerToUpdate));
+        //    if (userUpdated != null)
+        //    {
+        //        User lecturer = _lecturerService.GetLecturerById(userUpdated.Id);
+        //        return Ok(_mapper.Map<LecturerResponse>(lecturer));
+        //    }
+        //    else
+        //    {
+        //        _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerToUpdate.Id} do not exist");
+        //        return BadRequest($"User is not existed");
+        //    }
+        //}
     }
 }

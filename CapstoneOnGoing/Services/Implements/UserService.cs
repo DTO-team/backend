@@ -56,7 +56,6 @@ namespace CapstoneOnGoing.Services.Implements
             User user = null;
             if (!string.IsNullOrEmpty(email))
             {
-                //user = _unitOfWork.User.Get(x => x.Email == email).First();
                 user = _unitOfWork.User.Get(x => x.Email == email).FirstOrDefault();
             }
             return user;
@@ -206,17 +205,11 @@ namespace CapstoneOnGoing.Services.Implements
                 userToCreate = _mapper.Map<User>(user);
                 userToCreate.Role = userRole;
 
-                _unitOfWork.User.Insert(userToCreate);
-                _unitOfWork.Save();
-
-                Guid userId = GetUserByEmail(user.Email).Id;
-                Guid departmentId = user.DepartmentId;
-
                 Lecturer lecturerDTO = _mapper.Map<Lecturer>(user);
-                lecturerDTO.Id = userId;
-                lecturerDTO.DepartmentId = departmentId;
+				lecturerDTO.DepartmentId = user.DepartmentId;
+				userToCreate.Lecturer = lecturerDTO;
 
-                _unitOfWork.Lecturer.Insert(lecturerDTO);
+                _unitOfWork.User.Insert(userToCreate);
                 _unitOfWork.Save();
 
                 isSuccess = true;
@@ -230,25 +223,30 @@ namespace CapstoneOnGoing.Services.Implements
 
         public bool CreateNewStudent(StudentRequest user)
         {
-            //bool isSuccess;
-            //User userToCreate;
-            //if(GetUserByEmail(user.Email) != null)
-            //         {
-            //	Role userRole = _unitOfWork.Role.GetRoleById(user.RoleId);
-            //	userToCreate = _mapper.Map<User>(user);
-            //	userToCreate.Role = userRole;
+            bool isSuccess;
+            User userToCreate;
+            if (GetUserByEmail(user.Email) == null)
+            {
+                Role userRole = _unitOfWork.Role.GetRoleById(user.RoleId);
+                userToCreate = _mapper.Map<User>(user);
+				userToCreate.RoleId = 3;
+                userToCreate.Role = userRole;
 
-            //	_unitOfWork.User.Insert(userToCreate);
-            //	_unitOfWork.Save();
+				Student studentDTO = _mapper.Map<Student>(user);
+				studentDTO.Code = user.Code;
+				studentDTO.SemesterId = user.SemesterId;
 
-            //	Guid userId = GetUserByEmail(user.Email).Id;
-            //         }
-            //         else
-            //         {
-            //	isSuccess = false;
-            //         }
-            //return isSuccess;
-            return true;
+				userToCreate.Student = studentDTO;
+                _unitOfWork.User.Insert(userToCreate);
+                _unitOfWork.Save();
+
+				isSuccess = true;
+            }
+            else
+            {
+                isSuccess = false;
+            }
+            return isSuccess;
         }
     }
 }

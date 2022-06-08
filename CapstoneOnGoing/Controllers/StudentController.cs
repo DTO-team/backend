@@ -4,7 +4,9 @@ using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Models.Dtos;
 using Models.Models;
+using Models.Request;
 using Models.Response;
 using System;
 using System.Collections.Generic;
@@ -53,30 +55,44 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        //[Authorize(Roles = "ADMIN")]
         [HttpPost]
-        public IActionResult CreateStudent(Student student)
+        public IActionResult CreateStudent(StudentRequest student)
         {
-            _studentService.CreateStudent(student);
-            return CreatedAtAction(nameof(CreateStudent), new { student.Id });
-        }
-
-	    [Authorize(Roles = "ADMIN,LECTURER")]
-        [HttpPut]
-        public IActionResult UpdateStudent(Student student)
-        {
-            //if student is exist, Update student, if not return error
-            bool isExist = _studentService.GetStudentById(student.Id) != null;
-            if (isExist)
+            if (!student.RoleId.Equals(3))
             {
-                _studentService.UpdateStudent(student);
-                return Ok(student.Id);
-
-            } else
+                student.RoleId = 3;
+            }
+            if (!student.StatusId.Equals(1))
             {
-                _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
-                return BadRequest("Student is not existed to update");
+                student.StatusId = 1;
+            }
+            bool isCreated = _userService.CreateNewStudent(student);
+            if (isCreated)
+            {
+            return CreatedAtAction(nameof(CreateStudent), new { student.UserName });
+            }
+            else
+            {
+                return BadRequest("Cannot Create Student");
             }
         }
+
+	    //[Authorize(Roles = "ADMIN,LECTURER")]
+        //[HttpPut]
+        //public IActionResult UpdateStudent(StudentUpdateRequest student)
+        //{
+        //    //if student is exist, Update student, if not return error
+        //    User userUpdate = _studentService.UpdateStudent(student);
+        //    if (userUpdate != null)
+        //    {
+        //        return Ok(_mapper.Map<StudentUpdateResponseDTO>(userUpdate));
+
+        //    } else
+        //    {
+        //        _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
+        //        return BadRequest("Student is not existed to update");
+        //    }
+        //}
     }
 }

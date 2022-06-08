@@ -1,5 +1,7 @@
-﻿using CapstoneOnGoing.Services.Interfaces;
+﻿using AutoMapper;
+using CapstoneOnGoing.Services.Interfaces;
 using Models.Models;
+using Models.Request;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -9,11 +11,15 @@ namespace CapstoneOnGoing.Services.Implements
     public class StudentService : IStudentService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public StudentService(IUnitOfWork unitOfWork)
+        public StudentService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
+
+
 
         //Create student
         public void CreateStudent(Student newStudent)
@@ -85,10 +91,25 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Update student
-        public void UpdateStudent(Student studentToUpate)
+        public User UpdateStudent(StudentUpdateRequest studentToUpate)
         {
-            _unitOfWork.Student.Update(studentToUpate);
-            _unitOfWork.Save();
+            Student student = _unitOfWork.Student.GetById(studentToUpate.Id);
+            if (student != null)
+            {
+                User userToUpdateDTO = _mapper.Map<User>(studentToUpate);
+                Student studentToUpdateDTO = _mapper.Map<Student>(studentToUpate);
+                studentToUpdateDTO.Code = studentToUpate.Code;
+                userToUpdateDTO.Student = studentToUpdateDTO;
+
+                _unitOfWork.User.Update(userToUpdateDTO);
+                _unitOfWork.Save();
+
+                User userUpdated = _unitOfWork.User.GetById(studentToUpate.Id);
+                return userUpdated;
+            } else
+            {
+                return null;
+            }
         }
         
         //Delete student

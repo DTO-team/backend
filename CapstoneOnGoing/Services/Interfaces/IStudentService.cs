@@ -1,4 +1,5 @@
 ﻿using Models.Models;
+using Models.Request;
 using System;
 using System.Collections.Generic;
 
@@ -9,7 +10,7 @@ namespace CapstoneOnGoing.Services.Interfaces
         IEnumerable<User> GetAllStudents(int page, int limit);
         void CreateStudent(Student newStudent);
         User GetStudentById(Guid studentId);
-        void UpdateStudent(Student studentToUpate);
+        User UpdateStudent(StudentUpdateRequest studentToUpate);
         void DeleteStudent(Student studentToDelete);
         void DeleteStudentById(Guid studentId);
     }

@@ -33,6 +33,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
 				.ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
 				.ForPath(dest => dest.Student.Code, src => src.MapFrom(src => src.StudentCode));
+			CreateMap<User, LoginUserAdminResponse>()
+				.ForMember(dest => dest.AccessToken, src => src.Ignore());
 		}
 	}
 }

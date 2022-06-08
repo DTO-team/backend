@@ -18,7 +18,7 @@ namespace Models.Response
 
 		public string Role { get; set; }
 
-		public int Status { get; set; }
+		public int StatusId { get; set; }
 
 		public string AvatarUrl { get; set; }
 

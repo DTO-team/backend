@@ -19,8 +19,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
 			CreateMap<CreateNewSemesterDTO, Semester>();
 			CreateMap<Semester, GetSemesterDTO>();
 			CreateMap<User, UserByIdDTO>().ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
-			CreateMap<User, LoginUserStudentResponse>().ForMember(dest => dest.Status,
-				src => src.MapFrom(src => src.StatusId))
+			CreateMap<User, LoginUserStudentResponse>()
 				.ForMember(dest => dest.StudentCode, src => src.MapFrom(src => src.Student.Code))
 				.ForMember(dest => dest.Semester, src => src.MapFrom(src => (src.Student.Semester.Year.ToString() + " - " + src.Student.Semester.Season.ToString())))
 				.ForMember(dest => dest.AccessToken, src => src.Ignore())
@@ -30,7 +29,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.DepartmentName, src => src.MapFrom(src => src.Lecturer.Department.Name.ToString()))
 				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name)); ;
 			CreateMap<User, LoginUserCompanyResponse>()
-				.ForMember(dest => dest.AccessToken, src => src.Ignore());
+				.ForMember(dest => dest.AccessToken, src => src.Ignore())
+				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 			CreateMap<InProgressStudentsRequest, User>()
 				.ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
 				.ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))

@@ -9,10 +9,10 @@ jobs:
     name: build capstone-ongoing
     runs-on: ubuntu-latest
     steps:
-      - name: Clear useless artifacts
-        uses: c-hive/gha-remove-artifacts@v1.2.0
-        with:
-          age: '14 days'
+#      - name: Clear useless artifacts
+#        uses: c-hive/gha-remove-artifacts@v1.2.0
+#        with:
+#          age: '14 days'
 
       - uses: actions/checkout@v3
 

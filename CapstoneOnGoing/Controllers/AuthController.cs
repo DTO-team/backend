@@ -1,4 +1,5 @@
-﻿using CapstoneOnGoing.Logger;
+﻿using System;
+using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using CapstoneOnGoing.Utils;
 using Microsoft.AspNetCore.Http;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
 using Models.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using AutoMapper;
 using Models.Response;
 
@@ -37,12 +39,16 @@ namespace CapstoneOnGoing.Controllers
 				user = _userService.CreateUserByEmailAndName(result.email, result.name);
 				if (user == null)
 				{
-					return BadRequest($"Login Failed");
+					return BadRequest(new GenericResponse {HttpStatus = (int)HttpStatusCode.BadRequest,Message = "Login Failed", TimeStamp = DateTime.Now});
 				}
 			}
 			string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
 			switch (user.RoleId)
 			{
+				case 1:
+					LoginUserAdminResponse loginUserAdminResponse = _mapper.Map<LoginUserAdminResponse>(user);
+					loginUserAdminResponse.AccessToken = accessToken;
+					return Ok(loginUserAdminResponse);
 				case 2:
 					LoginUserLecturerResponse loginUserLecturerResponseResponse =
 						_mapper.Map<LoginUserLecturerResponse>(user);
@@ -58,7 +64,7 @@ namespace CapstoneOnGoing.Controllers
 					return Ok(loginUserCompanyResponse);
 			}
 
-			return BadRequest($"Login Failed");
+			return BadRequest(new GenericResponse { HttpStatus = (int)HttpStatusCode.BadRequest, Message = "Login Failed", TimeStamp = DateTime.Now });
 		}
 	}
 }

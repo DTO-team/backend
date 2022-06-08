@@ -89,6 +89,7 @@ namespace CapstoneOnGoing
 											.AllowAnyHeader()
 											.AllowAnyMethod());
 
+
 			app.UseAuthentication();
 			app.UseAuthorization();
 

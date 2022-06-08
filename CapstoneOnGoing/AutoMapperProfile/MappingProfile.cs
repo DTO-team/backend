@@ -30,7 +30,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.DepartmentName, src => src.MapFrom(src => src.Lecturer.Department.Name.ToString()))
 				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name)); ;
 			CreateMap<User, LoginUserCompanyResponse>()
-				.ForMember(dest => dest.AccessToken, src => src.Ignore());
+				.ForMember(dest => dest.AccessToken, src => src.Ignore())
+				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 			CreateMap<InProgressStudentsRequest, User>()
 				.ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
 				.ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))

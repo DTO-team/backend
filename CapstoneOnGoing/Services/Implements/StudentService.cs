@@ -91,20 +91,35 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Update student
-        public User UpdateStudent(StudentUpdateRequest studentToUpate)
+        public User UpdateStudent(UpdateStudentRequest updateStudentRequest)
         {
-            Student student = _unitOfWork.Student.GetById(studentToUpate.Id);
+            Student student = _unitOfWork.Student.GetById(updateStudentRequest.Id);
             if (student != null)
             {
-                User userToUpdateDTO = _mapper.Map<User>(studentToUpate);
-                Student studentToUpdateDTO = _mapper.Map<Student>(studentToUpate);
-                studentToUpdateDTO.Code = studentToUpate.Code;
-                userToUpdateDTO.Student = studentToUpdateDTO;
 
-                _unitOfWork.User.Update(userToUpdateDTO);
+                User studentToUpdate = _unitOfWork.User.GetById(updateStudentRequest.Id);
+
+                if (!string.IsNullOrEmpty(updateStudentRequest.Email))
+                {
+                    studentToUpdate.Email = updateStudentRequest.Email;
+                } if (!string.IsNullOrEmpty(updateStudentRequest.UserName))
+                {
+                    studentToUpdate.UserName = updateStudentRequest.UserName;
+                } if (!string.IsNullOrEmpty(updateStudentRequest.FullName))
+                {
+                    studentToUpdate.FullName = updateStudentRequest.FullName;
+                } if (!string.IsNullOrEmpty(updateStudentRequest.Code))
+                {
+                    student.Code = updateStudentRequest.Code;
+                    studentToUpdate.Student = student;
+                }
+                Role studentRole = _unitOfWork.Role.GetRoleByName("STUDENT");
+                studentToUpdate.Role = studentRole;
+
+                _unitOfWork.User.Update(studentToUpdate);
                 _unitOfWork.Save();
 
-                User userUpdated = _unitOfWork.User.GetById(studentToUpate.Id);
+                User userUpdated = _unitOfWork.User.GetById(updateStudentRequest.Id);
                 return userUpdated;
             } else
             {

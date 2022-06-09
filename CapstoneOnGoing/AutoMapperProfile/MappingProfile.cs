@@ -62,13 +62,13 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest=>dest.Code, src => src.MapFrom(src => src.Code))
 				.ForMember(dest=>dest.SemesterId, src => src.MapFrom(src => src.SemesterId));
 
-			CreateMap<StudentUpdateRequest, User>();
+			CreateMap<UpdateStudentRequest, User>();
 
 			CreateMap<User, StudentUpdateResponseDTO>()
 				.ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
 				.ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Season));
 
-			CreateMap<StudentUpdateRequest, Student>()
+			CreateMap<UpdateStudentRequest, Student>()
 				.ForMember(dest => dest.Code, src => src.MapFrom(src => src.Code));
 		}
 	}

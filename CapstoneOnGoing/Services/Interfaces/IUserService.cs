@@ -3,6 +3,7 @@ using Models.Models;
 using System;
 using System.Collections.Generic;
 using Models.Request;
+using Models.Response;
 
 namespace CapstoneOnGoing.Services.Interfaces
 {
@@ -19,7 +20,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		User CreateUserByEmailAndName(string email, string name);
 
 		bool ImportInProgressStudents(IEnumerable<InProgressStudentsRequest> inProgressStudentsRequests);
-		bool CreateNewLectuer(LecturerResquest user);
-		bool CreateNewStudent(StudentRequest user);
+		GenericResponse CreateNewLectuer(LecturerResquest user);
+		GenericResponse CreateNewStudent(StudentRequest user);
 	}
 }

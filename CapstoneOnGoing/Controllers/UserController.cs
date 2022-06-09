@@ -41,7 +41,7 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(new List<UserInAdminDTO>());
 		}
 
-		[Authorize(Roles = "ADMIN,STUDENT")]
+		//[Authorize(Roles = "ADMIN,STUDENT")]
 		[HttpGet("{id}")]
 		public IActionResult GetUserById(Guid id)
 		{

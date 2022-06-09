@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Models.Request;
+using System.Net.Mail;
+using Models.Response;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -64,7 +66,7 @@ namespace CapstoneOnGoing.Services.Implements
 		public User GetUserById(Guid id)
 		{
 			User user = null;
-			user = _unitOfWork.User.GetById(id);
+			user = _unitOfWork.User.Get(x=>x.Id == id, null, "Role").FirstOrDefault();
 			if (user != null)
 			{
 				return user;
@@ -194,59 +196,101 @@ namespace CapstoneOnGoing.Services.Implements
 			return user.Id;
         }
 
-        public bool CreateNewLectuer(LecturerResquest user)
+        public GenericResponse CreateNewLectuer(LecturerResquest user)
         {
-            bool isSuccess;
             User userToCreate;
+            GenericResponse response;
+
             if (GetUserByEmail(user.Email) == null)
             {
                 Role userRole = _unitOfWork.Role.GetRoleById(user.RoleId);
                 user.RoleId = userRole.Id;
+
+				//Set role of user to lecturer
                 userToCreate = _mapper.Map<User>(user);
                 userToCreate.Role = userRole;
 
-                Lecturer lecturerDTO = _mapper.Map<Lecturer>(user);
-				lecturerDTO.DepartmentId = user.DepartmentId;
-				userToCreate.Lecturer = lecturerDTO;
+				//Set entity Lecturer in User
+				Lecturer lecturerDTO = _mapper.Map<Lecturer>(user);
+                lecturerDTO.DepartmentId = user.DepartmentId;
+                userToCreate.Lecturer = lecturerDTO;
 
                 _unitOfWork.User.Insert(userToCreate);
                 _unitOfWork.Save();
 
-                isSuccess = true;
+				//Set GenericResponse: Created
+				response = new GenericResponse();
+                response.HttpStatus = 201;
+                response.Message = "Student Created";
+                response.TimeStamp = DateTime.Now;
             }
             else
             {
-                isSuccess = false;
+                //Set GenericResponse: Bad request
+                response = new GenericResponse();
+                response.HttpStatus = 400;
+                response.Message = "Lecturer (user) is existed !";
+                response.TimeStamp = DateTime.Now;
             }
-            return isSuccess;
+            return response;
         }
 
-        public bool CreateNewStudent(StudentRequest user)
+        public GenericResponse CreateNewStudent(StudentRequest user)
         {
-            bool isSuccess;
             User userToCreate;
-            if (GetUserByEmail(user.Email) == null)
+            GenericResponse response;
+
+            MailAddress email = new MailAddress(user.Email);
+            string username = email.User;
+            string domain = email.Host;
+
+            if (domain != "@fpt.edu.vn")
             {
-                Role userRole = _unitOfWork.Role.GetRoleById(user.RoleId);
-                userToCreate = _mapper.Map<User>(user);
-				userToCreate.RoleId = 3;
-                userToCreate.Role = userRole;
+                //Set GenericResponse: Bad request
+                response = new GenericResponse();
+                response.HttpStatus = 400;
+                response.Message = "Wrong email domain format";
+                response.TimeStamp = DateTime.Now;
 
-				Student studentDTO = _mapper.Map<Student>(user);
-				studentDTO.Code = user.Code;
-				studentDTO.SemesterId = user.SemesterId;
-
-				userToCreate.Student = studentDTO;
-                _unitOfWork.User.Insert(userToCreate);
-                _unitOfWork.Save();
-
-				isSuccess = true;
+                return response;
             }
             else
             {
-                isSuccess = false;
+                if (GetUserByEmail(user.Email) == null)
+                {
+                    Role userRole = _unitOfWork.Role.GetRoleById(user.RoleId);
+
+                    userToCreate = _mapper.Map<User>(user);
+
+                    //Set role of user to student
+                    userToCreate.RoleId = 3;
+                    userToCreate.Role = userRole;
+
+                    //Set entity Student in User
+                    Student studentDTO = _mapper.Map<Student>(user);
+                    studentDTO.Code = user.Code;
+                    studentDTO.SemesterId = user.SemesterId;
+                    userToCreate.Student = studentDTO;
+
+                    _unitOfWork.User.Insert(userToCreate);
+                    _unitOfWork.Save();
+
+                    //Set GenericResponse: Created
+                    response = new GenericResponse();
+                    response.HttpStatus = 201;
+                    response.Message = "Student Created";
+                    response.TimeStamp = DateTime.Now;
+                }
+                else
+                {
+                    //Set GenericResponse: Bad request
+                    response = new GenericResponse();
+                    response.HttpStatus = 400;
+                    response.Message = "Student (user) is existed !";
+                    response.TimeStamp = DateTime.Now;
+                }
             }
-            return isSuccess;
+            return response;
         }
     }
 }

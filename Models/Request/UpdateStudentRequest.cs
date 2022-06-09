@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Models.Request
 {
-    public class StudentUpdateRequest
+    public class UpdateStudentRequest
     {
         [Required]
         public Guid Id { get; set; }

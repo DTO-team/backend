@@ -57,7 +57,7 @@ namespace CapstoneOnGoing.Controllers
 
         //[Authorize(Roles = "ADMIN")]
         [HttpPost]
-        public IActionResult CreateStudent(StudentRequest student)
+        public IActionResult CreateStudent([FromBody] StudentRequest student)
         {
             if (!student.RoleId.Equals(3))
             {
@@ -67,32 +67,34 @@ namespace CapstoneOnGoing.Controllers
             {
                 student.StatusId = 1;
             }
-            bool isCreated = _userService.CreateNewStudent(student);
-            if (isCreated)
+            GenericResponse response = _userService.CreateNewStudent(student);
+            if (response.HttpStatus == 201)
             {
-            return CreatedAtAction(nameof(CreateStudent), new { student.UserName });
+                return CreatedAtAction(nameof(CreateStudent), new { response.Message });
             }
             else
             {
-                return BadRequest("Cannot Create Student");
+                return BadRequest(response.Message);
             }
         }
 
-	    //[Authorize(Roles = "ADMIN,LECTURER")]
-        //[HttpPut]
-        //public IActionResult UpdateStudent(StudentUpdateRequest student)
-        //{
-        //    //if student is exist, Update student, if not return error
-        //    User userUpdate = _studentService.UpdateStudent(student);
-        //    if (userUpdate != null)
-        //    {
-        //        return Ok(_mapper.Map<StudentUpdateResponseDTO>(userUpdate));
+        //[Authorize(Roles = "ADMIN,LECTURER")]
+        [HttpPut]
+        public IActionResult UpdateStudent(UpdateStudentRequest student)
+        {
+            //if student is exist, Update student, if not return error
+            User userUpdate = _studentService.UpdateStudent(student);
+            if (userUpdate != null)
+            {
+                return Ok(_mapper.Map<StudentUpdateResponseDTO>(userUpdate));
 
-        //    } else
-        //    {
-        //        _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
-        //        return BadRequest("Student is not existed to update");
-        //    }
-        //}
+            } else
+            {
+                _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
+                return BadRequest("Student is not existed to update");
+            }
+        }
+
+
     }
 }

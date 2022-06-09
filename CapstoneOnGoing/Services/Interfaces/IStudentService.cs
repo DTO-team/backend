@@ -10,7 +10,7 @@ namespace CapstoneOnGoing.Services.Interfaces
         IEnumerable<User> GetAllStudents(int page, int limit);
         void CreateStudent(Student newStudent);
         User GetStudentById(Guid studentId);
-        User UpdateStudent(StudentUpdateRequest studentToUpate);
+        User UpdateStudent(UpdateStudentRequest studentDataToUpate);
         void DeleteStudent(Student studentToDelete);
         void DeleteStudentById(Guid studentId);
     }

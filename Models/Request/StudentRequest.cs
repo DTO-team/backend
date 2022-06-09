@@ -16,8 +16,6 @@ namespace Models.Request
         [Required]
         public string FullName { get; set; }
         [Required]
-        public string Code { get; set; }
-        [Required]
         public int RoleId { get; set; }
         [Required]
         public int StatusId { get; set; }

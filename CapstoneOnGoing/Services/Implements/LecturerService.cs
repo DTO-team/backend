@@ -93,9 +93,27 @@ namespace CapstoneOnGoing.Services.Implements
         //Update lecturer
         public User UpdateLecturer(User lecturerToUpdate)
         {
+
             User lecturer = _unitOfWork.User.GetById(lecturerToUpdate.Id);
             if(lecturer != null)
             {
+                if (string.IsNullOrEmpty(lecturerToUpdate.Email))
+                {
+                    lecturerToUpdate.Email = lecturer.Email;
+                }
+                if (string.IsNullOrEmpty(lecturerToUpdate.UserName))
+                {
+                    lecturerToUpdate.UserName = lecturer.UserName;
+                }
+                if (string.IsNullOrEmpty(lecturerToUpdate.FullName))
+                {
+                    lecturerToUpdate.FullName = lecturer.FullName;
+                }
+                if (string.IsNullOrEmpty(lecturerToUpdate.UserName))
+                {
+                    lecturerToUpdate.UserName = lecturer.UserName;
+                }
+
                 _unitOfWork.User.Update(lecturerToUpdate);
                 _unitOfWork.Save();
                 return lecturer;

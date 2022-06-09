@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
@@ -30,6 +31,7 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
+        //[Authorize(Roles = "ADMIN")]
         [HttpGet]
         public IActionResult GetAllLecturers([FromQuery] int page, [FromQuery] int limit)
         {
@@ -37,6 +39,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(lecturers);
         }
 
+        //[Authorize(Roles = "ADMIN")]
         [HttpGet("{id}")]
         public IActionResult GetLecturerById(Guid id)
         {
@@ -51,6 +54,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
+        //[Authorize(Roles = "ADMIN")]
         [HttpPost]
         public IActionResult CreateLecturer([FromBody] LecturerResquest lecturer)
         {
@@ -62,28 +66,28 @@ namespace CapstoneOnGoing.Controllers
             {
                 lecturer.StatusId = 1;
             }
-            GenericResponse response = _userService.CreateNewLectuer(lecturer);
-
-            if (response.HttpStatus == 201)
+            bool isSuccessful = _userService.CreateNewLectuer(lecturer);
+            GenericResponse response;
+            if (isSuccessful)
             {
-                return CreatedAtAction(nameof(CreateLecturer), new { lecturer.UserName });
+                response = new GenericResponse();
+                response.HttpStatus = 201;
+                response.Message = "Lecturer Created";
+                response.TimeStamp = DateTime.Now;
+                return CreatedAtAction(nameof(CreateLecturer), new { response });
             }
             else
             {
                 _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(CreateLecturer)}, The user is exist");
-                return BadRequest(response.Message);
+                return BadRequest();
             }
         }
 
+        //[Authorize(Roles = "ADMIN")]
         [HttpPut("{id}")]
-        public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequestDTO lecturerToUpdate)
+        public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequest lecturerUpdateRequest)
         {
-            if (!lecturerToUpdate.RoleId.Equals(2))
-            {
-                lecturerToUpdate.RoleId = 2;
-            }
-
-            User userUpdated = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerToUpdate));
+            User userUpdated = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
             if (userUpdated != null)
             {
                 User lecturer = _lecturerService.GetLecturerById(userUpdated.Id);
@@ -91,7 +95,7 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
-                _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerToUpdate.Id} do not exist");
+                _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerUpdateRequest.Id} do not exist");
                 return BadRequest($"User is not existed");
             }
         }

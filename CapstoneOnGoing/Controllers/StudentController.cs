@@ -39,7 +39,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(students);
         }
         
-        //[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        //[Authorize(Roles = "ADMIN,LECTURER")]
         [HttpGet("{id}")]
         public IActionResult GetStudentById(Guid id)
         {
@@ -67,14 +67,20 @@ namespace CapstoneOnGoing.Controllers
             {
                 student.StatusId = 1;
             }
-            GenericResponse response = _userService.CreateNewStudent(student);
-            if (response.HttpStatus == 201)
+            bool isSuccessful = _userService.CreateNewStudent(student);
+            GenericResponse response;
+            //Set GenericResponse: Created
+            if (isSuccessful)
             {
-                return CreatedAtAction(nameof(CreateStudent), new { response.Message });
+                response = new GenericResponse();
+                response.HttpStatus = 201;
+                response.Message = "Student Created";
+                response.TimeStamp = DateTime.Now;
+                return CreatedAtAction(nameof(CreateStudent), response);
             }
             else
             {
-                return BadRequest(response.Message);
+                return BadRequest();
             }
         }
 
@@ -86,7 +92,7 @@ namespace CapstoneOnGoing.Controllers
             User userUpdate = _studentService.UpdateStudent(student);
             if (userUpdate != null)
             {
-                return Ok(_mapper.Map<StudentUpdateResponseDTO>(userUpdate));
+                return Ok(_mapper.Map<StudentUpdateResponse>(userUpdate));
 
             } else
             {

@@ -11,10 +11,10 @@ namespace CapstoneOnGoing.AutoMapperProfile
 		public MappingProfile()
 		{
 			//Config Mapping in here
-			CreateMap<CreateNewUserDTO, User>();
+			CreateMap<CreateNewUserRequest, User>();
 			CreateMap<User, UserInAdminDTO>()
 					.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
-			CreateMap<UpdateUserInAdminDTO, User>()
+			CreateMap<UpdateUserInAdminRequest, User>()
 					.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role));
 			CreateMap<CreateNewSemesterDTO, Semester>();
 			CreateMap<Semester, GetSemesterDTO>();
@@ -39,11 +39,15 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
 			//===============================================================================
-			CreateMap<LecturerResquest, CreateNewUserDTO>();
+			CreateMap<LecturerResquest, CreateNewUserRequest>();
+			
 			CreateMap<LecturerResquest, Lecturer>();
-			CreateMap<UpdateLecturerRequestDTO, User>();
+
+			CreateMap<UpdateLecturerRequest, User>();
+
 			CreateMap<Lecturer, LecturerResponse>()
 				.ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department.Name));
+
 			CreateMap<User, LecturerResponse>()
 				.ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department.Name))
 				.ForMember(dest => dest.Role, src => src.MapFrom(src=>src.Role.Name));
@@ -62,12 +66,11 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.StatusId, src => src.MapFrom(src => src.StatusId));
 
 			CreateMap<StudentRequest, Student>()
-				.ForMember(dest=>dest.Code, src => src.MapFrom(src => src.Code))
 				.ForMember(dest=>dest.SemesterId, src => src.MapFrom(src => src.SemesterId));
 
 			CreateMap<UpdateStudentRequest, User>();
 
-			CreateMap<User, StudentUpdateResponseDTO>()
+			CreateMap<User, StudentUpdateResponse>()
 				.ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
 				.ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Season));
 

@@ -9,6 +9,8 @@ using System.Linq;
 using Models.Request;
 using System.Net.Mail;
 using Models.Response;
+using Microsoft.AspNetCore.Http;
+using System.Text.RegularExpressions;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -96,7 +98,7 @@ namespace CapstoneOnGoing.Services.Implements
 			return users;
 		}
 
-        public void CreateUser(CreateNewUserDTO user)
+        public void CreateUser(CreateNewUserRequest user)
         {
             User userToCreate;
             if (user.RoleId == 0)
@@ -196,10 +198,10 @@ namespace CapstoneOnGoing.Services.Implements
 			return user.Id;
         }
 
-        public GenericResponse CreateNewLectuer(LecturerResquest user)
+        public bool CreateNewLectuer(LecturerResquest user)
         {
-            User userToCreate;
-            GenericResponse response;
+			bool isSuccess;
+			User userToCreate;
 
             if (GetUserByEmail(user.Email) == null)
             {
@@ -218,41 +220,31 @@ namespace CapstoneOnGoing.Services.Implements
                 _unitOfWork.User.Insert(userToCreate);
                 _unitOfWork.Save();
 
-				//Set GenericResponse: Created
-				response = new GenericResponse();
-                response.HttpStatus = 201;
-                response.Message = "Student Created";
-                response.TimeStamp = DateTime.Now;
+				isSuccess = true;
             }
             else
             {
-                //Set GenericResponse: Bad request
-                response = new GenericResponse();
-                response.HttpStatus = 400;
-                response.Message = "Lecturer (user) is existed !";
-                response.TimeStamp = DateTime.Now;
+                //throw: Bad request exception
+				throw new BadHttpRequestException("Lecturer (user) is existed !");
             }
-            return response;
+            return isSuccess;
         }
 
-        public GenericResponse CreateNewStudent(StudentRequest user)
+        public bool CreateNewStudent(StudentRequest user)
         {
             User userToCreate;
-            GenericResponse response;
+			bool isSuccess;
 
             MailAddress email = new MailAddress(user.Email);
-            string username = email.User;
+            string userName = email.User;
             string domain = email.Host;
 
-            if (domain != "@fpt.edu.vn")
-            {
-                //Set GenericResponse: Bad request
-                response = new GenericResponse();
-                response.HttpStatus = 400;
-                response.Message = "Wrong email domain format";
-                response.TimeStamp = DateTime.Now;
+			Regex regex = new Regex("(se|ss|sa|ca){1}[0-9]{6}");
+			Match studentCode = regex.Match(userName);
 
-                return response;
+			if (domain != "@fpt.edu.vn")
+            {
+				throw new BadHttpRequestException("Wrong email format");
             }
             else
             {
@@ -268,29 +260,23 @@ namespace CapstoneOnGoing.Services.Implements
 
                     //Set entity Student in User
                     Student studentDTO = _mapper.Map<Student>(user);
-                    studentDTO.Code = user.Code;
+					studentDTO.Code = studentCode.ToString() ;
                     studentDTO.SemesterId = user.SemesterId;
                     userToCreate.Student = studentDTO;
 
                     _unitOfWork.User.Insert(userToCreate);
                     _unitOfWork.Save();
 
-                    //Set GenericResponse: Created
-                    response = new GenericResponse();
-                    response.HttpStatus = 201;
-                    response.Message = "Student Created";
-                    response.TimeStamp = DateTime.Now;
+					isSuccess = true;
+					return isSuccess;
+
                 }
                 else
                 {
-                    //Set GenericResponse: Bad request
-                    response = new GenericResponse();
-                    response.HttpStatus = 400;
-                    response.Message = "Student (user) is existed !";
-                    response.TimeStamp = DateTime.Now;
+					//Set GenericResponse: Bad request
+					throw new BadHttpRequestException("Student (user) is existed !");
                 }
             }
-            return response;
         }
 
         public bool DeleteUserById(Guid userId)

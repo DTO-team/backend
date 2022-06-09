@@ -30,9 +30,9 @@ namespace CapstoneOnGoing.Services.Implements
 			{
 				return null;
 			}
-			else
+			user = _unitOfWork.User.Get(x => x.Email == email, null, "Role").First();
+			if (user != null)
 			{
-				user = _unitOfWork.User.Get(x => x.Email == email, null, "Role").First();
 				switch (user.RoleId)
 				{
 					case 2:

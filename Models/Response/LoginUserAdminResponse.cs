@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Response
 {
-	public class LoginUserStudentResponse
+	public class LoginUserAdminResponse
 	{
 		public Guid Id { get; set; }
 
@@ -21,10 +21,5 @@ namespace Models.Response
 		public int StatusId { get; set; }
 
 		public string AvatarUrl { get; set; }
-
-		public string StudentCode { get; set; }
-
-		public string Semester  { get; set; }
-
 	}
 }

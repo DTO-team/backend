@@ -86,7 +86,7 @@ namespace CapstoneOnGoing.Services.Implements
 
 			if (!string.IsNullOrEmpty(name))
 			{
-				users = _unitOfWork.User.Get(x => x.UserName.Contains(name), null, "Role", page, limit);
+				users = _unitOfWork.User.Get((x => (x.UserName.Contains(name) && x.StatusId != 2 )), null, "Role", page, limit);
 			}
 			else
 			{
@@ -291,6 +291,24 @@ namespace CapstoneOnGoing.Services.Implements
                 }
             }
             return response;
+        }
+
+        public bool DeleteUserById(Guid userId)
+        {
+			bool isDeleted = false;
+			User user = _unitOfWork.User.Get(x => x.Id == userId, null).FirstOrDefault();
+
+			if(user != null)
+            {
+				user.StatusId = 2;
+				_unitOfWork.User.Update(user);
+				_unitOfWork.Save();
+				isDeleted = true;
+            } else
+            {
+				return isDeleted;
+            }
+			return isDeleted;
         }
     }
 }

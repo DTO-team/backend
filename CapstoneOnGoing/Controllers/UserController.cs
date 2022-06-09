@@ -8,6 +8,7 @@ using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Models.Dtos;
 using Models.Models;
+using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -108,5 +109,22 @@ namespace CapstoneOnGoing.Controllers
 				return BadRequest($"User is not existed");
 			}
 		}
+
+		[HttpDelete]
+		public IActionResult DeleteUserById(Guid userId)
+        {
+			bool isDeleted = _userService.DeleteUserById(userId);
+			if(isDeleted)
+            {
+				return NoContent();
+            } else
+            {
+				GenericResponse response = new GenericResponse();
+				response.HttpStatus = 409;
+				response.Message = "Delete Failed";
+				response.TimeStamp = DateTime.Now;
+				return Conflict(response);
+            }
+        }
 	}
 }

@@ -47,7 +47,7 @@ namespace CapstoneOnGoing.Services.Implements
             IEnumerable<User> lecturers;
             if (page == 0 || limit == 0 || page < 0 || limit < 0)
             {
-                lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER"), null, page: 1, limit: 10);
+                lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER" && x.StatusId == 1), null, page: 1, limit: 10);
                 foreach (User lecturer in lecturers)
                 {
                     lecturer.Lecturer = _unitOfWork.Lecturer.GetById(lecturer.Id);
@@ -60,7 +60,7 @@ namespace CapstoneOnGoing.Services.Implements
             }
             else
             {
-                lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER"), page: page, limit: limit);
+                lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER" && x.StatusId == 1), page: page, limit: limit);
                 foreach (User lecturer in lecturers)
                 {
                     lecturer.Lecturer = _unitOfWork.Lecturer.GetById(lecturer.Id);

@@ -22,5 +22,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 		bool ImportInProgressStudents(IEnumerable<InProgressStudentsRequest> inProgressStudentsRequests);
 		GenericResponse CreateNewLectuer(LecturerResquest user);
 		GenericResponse CreateNewStudent(StudentRequest user);
+		bool DeleteUserById(Guid userId);
 	}
 }

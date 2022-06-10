@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using CapstoneOnGoing.Logger;
 using Microsoft.AspNetCore.Builder;
@@ -16,20 +17,31 @@ namespace CapstoneOnGoing.Middlewares
 			{
 				appError.Run(async context =>
 				{
-					context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
 					context.Response.ContentType = "application/json";
 
 					IExceptionHandlerFeature contextFeature = context.Features.Get<IExceptionHandlerFeature>();
 					if (contextFeature != null)
 					{
 						logger.LogError($"Error: {contextFeature.Error}");
-						await context.Response.WriteAsync(new ErrorDetails()
+						var exception = contextFeature.Error as BadHttpRequestException;
+						if (exception != null)
 						{
-							StatusCode = context.Response.StatusCode,
-							Details = contextFeature.Error,
-							Message = contextFeature.Error.Message,
-							TimeStamp = DateTime.Now
-						}.ToString());
+							await context.Response.WriteAsync(new ErrorDetails()
+							{
+								StatusCode = exception.StatusCode,
+								Message = exception.Message,
+								TimeStamp = DateTime.Now
+							}.ToString());
+						}
+						else
+						{
+							await context.Response.WriteAsync(new ErrorDetails()
+							{
+								StatusCode = context.Response.StatusCode,
+								Message = contextFeature.Error.Message,
+								TimeStamp = DateTime.Now
+							}.ToString());
+						}
 					}
 				});
 			});

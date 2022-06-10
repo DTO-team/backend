@@ -29,42 +29,53 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[HttpPost("login")]
-		public IActionResult Login([FromBody]CognitoIdToken cognitoIdToken){
-
-			JwtSecurityToken validatedJwtToken = JwtUtil.ValidateToken(cognitoIdToken.IdToken);
-			(string email,string name) result = JwtUtil.GetEmailFromJwtToken(validatedJwtToken);
-			User user = _userService.GetUserWithRoleByEmail(result.email);
-			if (user == null)
+		public IActionResult Login([FromBody] CognitoIdToken cognitoIdToken)
+		{
+			try
 			{
-				user = _userService.CreateUserByEmailAndName(result.email, result.name);
+				JwtSecurityToken validatedJwtToken = JwtUtil.ValidateToken(cognitoIdToken.IdToken);
+				(string email, string name) result = JwtUtil.GetEmailFromJwtToken(validatedJwtToken);
+				User user = _userService.GetUserWithRoleByEmail(result.email);
+				//if user does not exist, create a new account for user
 				if (user == null)
 				{
-					return BadRequest(new GenericResponse {HttpStatus = (int)HttpStatusCode.BadRequest,Message = "Login Failed", TimeStamp = DateTime.Now});
+					user = _userService.CreateUserByEmailAndName(result.email, result.name);
+					//Create User Failed
+					if (user == null)
+					{
+						return BadRequest(new GenericResponse { HttpStatus = (int)HttpStatusCode.BadRequest, Message = "Login Failed", TimeStamp = DateTime.Now });
+					}
 				}
-			}
-			string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
-			switch (user.RoleId)
-			{
-				case 1:
-					LoginUserAdminResponse loginUserAdminResponse = _mapper.Map<LoginUserAdminResponse>(user);
-					loginUserAdminResponse.AccessToken = accessToken;
-					return Ok(loginUserAdminResponse);
-				case 2:
-					LoginUserLecturerResponse loginUserLecturerResponseResponse =
-						_mapper.Map<LoginUserLecturerResponse>(user);
-					loginUserLecturerResponseResponse.AccessToken = accessToken;
-					return Ok(loginUserLecturerResponseResponse);
-				case 3:
-					LoginUserStudentResponse loginUserStudentResponse = _mapper.Map<LoginUserStudentResponse>(user);
-					loginUserStudentResponse.AccessToken = accessToken;
-					return Ok(loginUserStudentResponse);
-				case 4:
-					LoginUserCompanyResponse loginUserCompanyResponse = _mapper.Map<LoginUserCompanyResponse>(user);
-					loginUserCompanyResponse.AccessToken = accessToken;
-					return Ok(loginUserCompanyResponse);
-			}
+				string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name); ;
+				LoginUserResponse loginUserResponse = null;
+				switch (user.RoleId)
+				{
+					case 1:
+						loginUserResponse = _mapper.Map<LoginUserAdminResponse>(user);
+						loginUserResponse.AccessToken = accessToken;
+						break;
+					case 2:
+						loginUserResponse =
+							_mapper.Map<LoginUserLecturerResponse>(user);
+						loginUserResponse.AccessToken = accessToken;
+						break;
+					case 3:
+						loginUserResponse = _mapper.Map<LoginUserStudentResponse>(user);
+						loginUserResponse.AccessToken = accessToken;
+						break;
+					case 4:
+						loginUserResponse = _mapper.Map<LoginUserCompanyResponse>(user);
+						loginUserResponse.AccessToken = accessToken;
+						break;
+				}
 
-			return BadRequest(new GenericResponse { HttpStatus = (int)HttpStatusCode.BadRequest, Message = "Login Failed", TimeStamp = DateTime.Now });
+				return Ok(loginUserResponse);
+			}
+			catch (Exception e)
+			{
+				_logger.LogWarn($"Controller: {nameof(AuthController)}, Method: {nameof(Login)}: {e.Message}");
+				return BadRequest(new GenericResponse { HttpStatus = (int)HttpStatusCode.BadRequest, Message = "Login Failed", TimeStamp = DateTime.Now });
+			}
 		}
 	}
 }

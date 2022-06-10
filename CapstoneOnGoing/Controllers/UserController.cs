@@ -27,7 +27,7 @@ namespace CapstoneOnGoing.Controllers
 			_logger = logger;
 		}
 
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpGet]
 		public IActionResult GetAllUser([FromQuery] string username, [FromQuery] int page, [FromQuery] int limit)
 		{
@@ -42,7 +42,7 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(new List<UserInAdminDTO>());
 		}
 
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("{id}")]
 		public IActionResult GetUserById(Guid id)
 		{
@@ -58,7 +58,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
 		public IActionResult CreateNewUser([FromBody] CreateNewUserRequest newUserData)
 		{
@@ -80,7 +80,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpPut("{id}")]
 		public IActionResult UpdateUser([FromBody] UpdateUserInAdminRequest userInAdminUpdateData)
 		{
@@ -110,7 +110,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpDelete]
 		public IActionResult DeleteUserById(Guid userId)
         {

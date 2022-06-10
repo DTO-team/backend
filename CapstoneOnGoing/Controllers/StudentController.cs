@@ -31,7 +31,7 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
-        //[Authorize(Roles = "ADMIN,LECTURER")]
+        [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpGet]
         public IActionResult GetAllStudents([FromQuery] int page, [FromQuery] int limit)
         {
@@ -39,7 +39,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(students);
         }
         
-        //[Authorize(Roles = "ADMIN,LECTURER")]
+        [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpGet("{id}")]
         public IActionResult GetStudentById(Guid id)
         {
@@ -55,7 +55,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        //[Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         public IActionResult CreateStudent([FromBody] StudentRequest student)
         {
@@ -84,7 +84,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        //[Authorize(Roles = "ADMIN,LECTURER")]
+        [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpPut]
         public IActionResult UpdateStudent(UpdateStudentRequest student)
         {

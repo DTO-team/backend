@@ -12,7 +12,8 @@ namespace Models.Request
 
 		[Required]
 		public string LecturerEmail { get; set; }
-
-		public string CompanyName { get; set; }
+		
+		[EmailAddress]
+		public string CompanyEmail { get; set; }
 	}
 }

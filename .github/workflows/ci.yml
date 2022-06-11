@@ -9,13 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Check merged main
-      uses: SonicGarden/check-merged-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        originBranch: main
-
+   
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:

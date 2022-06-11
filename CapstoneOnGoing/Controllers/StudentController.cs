@@ -2,7 +2,6 @@
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
 using Models.Models;
@@ -10,7 +9,7 @@ using Models.Request;
 using Models.Response;
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Net.Mail;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -35,10 +34,18 @@ namespace CapstoneOnGoing.Controllers
         [HttpGet]
         public IActionResult GetAllStudents([FromQuery] int page, [FromQuery] int limit)
         {
-            IEnumerable<StudentResponse> students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(page,limit));
+            IEnumerable<StudentResponse> students;
+            if (page == 0 || limit == 0 || page < 0 || limit < 0)
+            {
+                students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(1, 10));
+            }
+            else
+            {
+                students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(page, limit));
+            }
             return Ok(students);
         }
-        
+
         [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpGet("{id}")]
         public IActionResult GetStudentById(Guid id)
@@ -59,28 +66,30 @@ namespace CapstoneOnGoing.Controllers
         [HttpPost]
         public IActionResult CreateStudent([FromBody] StudentRequest student)
         {
-            if (!student.RoleId.Equals(3))
+            MailAddress email = new MailAddress(student.Email);
+            string domain = email.Host;
+
+            if (domain != "@fpt.edu.vn")
             {
-                student.RoleId = 3;
-            }
-            if (!student.StatusId.Equals(1))
-            {
-                student.StatusId = 1;
-            }
-            bool isSuccessful = _userService.CreateNewStudent(student);
-            GenericResponse response;
-            //Set GenericResponse: Created
-            if (isSuccessful)
-            {
-                response = new GenericResponse();
-                response.HttpStatus = 201;
-                response.Message = "Student Created";
-                response.TimeStamp = DateTime.Now;
-                return CreatedAtAction(nameof(CreateStudent), response);
+                return BadRequest("Wrong email format");
             }
             else
             {
-                return BadRequest();
+                bool isSuccessful = _userService.CreateNewStudent(student);
+                GenericResponse response;
+                //Set GenericResponse: Created
+                if (isSuccessful)
+                {
+                    response = new GenericResponse();
+                    response.HttpStatus = 201;
+                    response.Message = "Student Created";
+                    response.TimeStamp = DateTime.Now;
+                    return CreatedAtAction(nameof(CreateStudent), response);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
         }
 
@@ -89,10 +98,10 @@ namespace CapstoneOnGoing.Controllers
         public IActionResult UpdateStudent(UpdateStudentRequest student)
         {
             //if student is exist, Update student, if not return error
-            User userUpdate = _studentService.UpdateStudent(student);
-            if (userUpdate != null)
+            User updatedUser = _studentService.UpdateStudent(student);
+            if (updatedUser != null)
             {
-                return Ok(_mapper.Map<StudentUpdateResponse>(userUpdate));
+                return Ok(_mapper.Map<StudentUpdateResponse>(updatedUser));
 
             } else
             {

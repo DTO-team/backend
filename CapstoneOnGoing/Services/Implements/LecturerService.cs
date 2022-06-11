@@ -1,7 +1,6 @@
 ﻿using CapstoneOnGoing.Services.Interfaces;
-using Models.Dtos;
+using Microsoft.AspNetCore.Http;
 using Models.Models;
-using Models.Response;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -45,30 +44,14 @@ namespace CapstoneOnGoing.Services.Implements
         public IEnumerable<User> GetAllLecturers(int page, int limit)
         {
             IEnumerable<User> lecturers;
-            if (page == 0 || limit == 0 || page < 0 || limit < 0)
+            lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER" && x.StatusId == 1), page: page, limit: limit);
+            foreach (User lecturer in lecturers)
             {
-                lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER" && x.StatusId == 1), null, page: 1, limit: 10);
-                foreach (User lecturer in lecturers)
+                lecturer.Lecturer = _unitOfWork.Lecturer.GetById(lecturer.Id);
+                if (lecturer.Lecturer != null)
                 {
-                    lecturer.Lecturer = _unitOfWork.Lecturer.GetById(lecturer.Id);
-                    if (lecturer.Lecturer != null)
-                    {
-                        lecturer.Lecturer.Department = _unitOfWork.Department.GetById(lecturer.Lecturer.DepartmentId);
-                        lecturer.Role = _unitOfWork.Role.GetRoleById(2);
-                    }
-                }
-            }
-            else
-            {
-                lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER" && x.StatusId == 1), page: page, limit: limit);
-                foreach (User lecturer in lecturers)
-                {
-                    lecturer.Lecturer = _unitOfWork.Lecturer.GetById(lecturer.Id);
-                    if (lecturer.Lecturer != null)
-                    {
-                        lecturer.Lecturer.Department = _unitOfWork.Department.GetById(lecturer.Lecturer.DepartmentId);
-                        lecturer.Role = _unitOfWork.Role.GetRoleById(2);
-                    }
+                    lecturer.Lecturer.Department = _unitOfWork.Department.GetById(lecturer.Lecturer.DepartmentId);
+                    lecturer.Role = _unitOfWork.Role.GetRoleById(2);
                 }
             }
             return lecturers;
@@ -80,7 +63,7 @@ namespace CapstoneOnGoing.Services.Implements
             //Lecturer lecturer = _unitOfWork.Lecturer.GetById(lecturerId);
             User lecturerToReturn = _unitOfWork.User.GetById(lecturerId);
             Lecturer lecturer = _unitOfWork.Lecturer.GetById(lecturerId);
-            if(lecturer != null)
+            if (lecturer != null)
             {
                 lecturerToReturn.Lecturer = lecturer;
                 Department department = _unitOfWork.Department.GetById(lecturer.DepartmentId);
@@ -95,7 +78,7 @@ namespace CapstoneOnGoing.Services.Implements
         {
 
             User lecturer = _unitOfWork.User.GetById(lecturerToUpdate.Id);
-            if(lecturer != null)
+            if (lecturer != null)
             {
                 if (string.IsNullOrEmpty(lecturerToUpdate.Email))
                 {
@@ -117,9 +100,10 @@ namespace CapstoneOnGoing.Services.Implements
                 _unitOfWork.User.Update(lecturerToUpdate);
                 _unitOfWork.Save();
                 return lecturer;
-            } else
+            }
+            else
             {
-                return null;
+                throw new BadHttpRequestException("Lecturer is not exist");
             }
         }
     }

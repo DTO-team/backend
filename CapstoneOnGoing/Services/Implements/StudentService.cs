@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneOnGoing.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Models.Models;
 using Models.Request;
 using Repository.Interfaces;
@@ -19,8 +20,6 @@ namespace CapstoneOnGoing.Services.Implements
             _mapper = mapper;
         }
 
-
-
         //Create student
         public void CreateStudent(Student newStudent)
         {
@@ -32,40 +31,20 @@ namespace CapstoneOnGoing.Services.Implements
         public IEnumerable<User> GetAllStudents(int page, int limit)
         {
             IEnumerable<User> students;
-            if (page == 0 || limit == 0 || page < 0 || limit < 0)
-            { 
-                 students = _unitOfWork.User.Get(x=> (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1),null, page:1, limit:10);
-                 foreach(User student in students)
-                {
-                    student.Student = _unitOfWork.Student.GetById(student.Id);
-                    if (student.Student != null)
-                    {
-                        if(student.Student.SemesterId != null)
-                        {
-                            student.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
-                        }
-                        if(student.RoleId != 0)
-                        { 
-                            student.Role = _unitOfWork.Role.GetRoleById(student.RoleId);
-                        }
-                    }
-                }
-            } else
+
+            students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null, page: page, limit: limit);
+            foreach (User student in students)
             {
-                students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null, page: page, limit: limit);
-                foreach (User student in students)
+                student.Student = _unitOfWork.Student.GetById(student.Id);
+                if (student.Student != null)
                 {
-                    student.Student = _unitOfWork.Student.GetById(student.Id);
-                    if (student.Student != null)
+                    if (student.Student.SemesterId != null)
                     {
-                        if (student.Student.SemesterId != null)
-                        {
-                            student.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
-                        }
-                        if (student.RoleId != 0)
-                        {
-                            student.Role = _unitOfWork.Role.GetRoleById(student.RoleId);
-                        }
+                        student.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
+                    }
+                    if (student.RoleId != 0)
+                    {
+                        student.Role = _unitOfWork.Role.GetRoleById(student.RoleId);
                     }
                 }
             }
@@ -75,19 +54,19 @@ namespace CapstoneOnGoing.Services.Implements
         //Get student by student ID
         public User GetStudentById(Guid studentId)
         {
-            User studentToReturn = _unitOfWork.User.GetById(studentId);
+            User returnStudent = _unitOfWork.User.GetById(studentId);
             Student student = _unitOfWork.Student.GetById(studentId);
             if (student != null)
             {
-                studentToReturn.Student = student;
-                studentToReturn.Student.Code = student.Code;
-                studentToReturn.Role = _unitOfWork.Role.GetRoleById(3);
+                returnStudent.Student = student;
+                returnStudent.Student.Code = student.Code;
+                returnStudent.Role = _unitOfWork.Role.GetRoleById(3);
                 if (student.SemesterId != null)
                 {
-                    studentToReturn.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.SemesterId);
+                    returnStudent.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.SemesterId);
                 }
             }
-            return studentToReturn;
+            return returnStudent;
         }
 
         //Update student
@@ -102,13 +81,16 @@ namespace CapstoneOnGoing.Services.Implements
                 if (!string.IsNullOrEmpty(updateStudentRequest.Email))
                 {
                     studentToUpdate.Email = updateStudentRequest.Email;
-                } if (!string.IsNullOrEmpty(updateStudentRequest.UserName))
+                }
+                if (!string.IsNullOrEmpty(updateStudentRequest.UserName))
                 {
                     studentToUpdate.UserName = updateStudentRequest.UserName;
-                } if (!string.IsNullOrEmpty(updateStudentRequest.FullName))
+                }
+                if (!string.IsNullOrEmpty(updateStudentRequest.FullName))
                 {
                     studentToUpdate.FullName = updateStudentRequest.FullName;
-                } if (!string.IsNullOrEmpty(updateStudentRequest.Code))
+                }
+                if (!string.IsNullOrEmpty(updateStudentRequest.Code))
                 {
                     student.Code = updateStudentRequest.Code;
                     studentToUpdate.Student = student;
@@ -121,12 +103,13 @@ namespace CapstoneOnGoing.Services.Implements
 
                 User userUpdated = _unitOfWork.User.GetById(updateStudentRequest.Id);
                 return userUpdated;
-            } else
+            }
+            else
             {
-                return null;
+                throw new BadHttpRequestException("Student is not existed");
             }
         }
-        
+
         //Delete student
         public void DeleteStudent(Student studentToDelete)
         {

@@ -2,15 +2,12 @@
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
 using Models.Models;
 using Models.Response;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -35,7 +32,15 @@ namespace CapstoneOnGoing.Controllers
         [HttpGet]
         public IActionResult GetAllLecturers([FromQuery] int page, [FromQuery] int limit)
         {
-            IEnumerable<LecturerResponse> lecturers = _mapper.Map<IEnumerable<LecturerResponse>>(_lecturerService.GetAllLecturers(page, limit));
+            IEnumerable<LecturerResponse> lecturers;
+            if (page == 0 || limit == 0 || page < 0 || limit < 0)
+            {
+                lecturers = _mapper.Map<IEnumerable<LecturerResponse>>(_lecturerService.GetAllLecturers(1, 10));
+            }
+            else
+            {
+                lecturers = _mapper.Map<IEnumerable<LecturerResponse>>(_lecturerService.GetAllLecturers(page, limit));
+            }
             return Ok(lecturers);
         }
 
@@ -46,8 +51,8 @@ namespace CapstoneOnGoing.Controllers
             User lecturer = _lecturerService.GetLecturerById(id);
             if (lecturer.Lecturer != null)
             {
-                LecturerResponse lecturerDTO = _mapper.Map<LecturerResponse>(lecturer);
-                return Ok(lecturerDTO);
+                LecturerResponse lecturerResponse = _mapper.Map<LecturerResponse>(lecturer);
+                return Ok(lecturerResponse);
             } else
             {
                 return NotFound($"Cannot found lecturer with {id}");
@@ -58,14 +63,6 @@ namespace CapstoneOnGoing.Controllers
         [HttpPost]
         public IActionResult CreateLecturer([FromBody] LecturerResquest lecturer)
         {
-            if (!lecturer.RoleId.Equals(2))
-            {
-                lecturer.RoleId = 2;
-            }
-            if (!lecturer.StatusId.Equals(1))
-            {
-                lecturer.StatusId = 1;
-            }
             bool isSuccessful = _userService.CreateNewLectuer(lecturer);
             GenericResponse response;
             if (isSuccessful)
@@ -87,10 +84,10 @@ namespace CapstoneOnGoing.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequest lecturerUpdateRequest)
         {
-            User userUpdated = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
-            if (userUpdated != null)
+            User updateUser = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
+            if (updateUser != null)
             {
-                User lecturer = _lecturerService.GetLecturerById(userUpdated.Id);
+                User lecturer = _lecturerService.GetLecturerById(updateUser.Id);
                 return Ok(_mapper.Map<LecturerResponse>(lecturer));
             }
             else

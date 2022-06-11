@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using AutoMapper;
@@ -60,72 +59,43 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
-		public IActionResult CreateNewUser([FromBody] CreateNewUserRequest newUserData)
-		{
-			User user = _userService.GetUserByEmail(newUserData.Email);
-			if (user != null)
-			{
-				_logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(CreateNewUser)}, The user {newUserData.Email} is already exist");
-				return Conflict($"The user {newUserData.Email} is already existed");
-			}
-			else
-			{
-				//User activated immediately at the time user is created
-				if (newUserData.StatusId != 1)
-				{
-					newUserData.StatusId = 1;
-				}
-				_userService.CreateUser(newUserData);
-				return CreatedAtAction(nameof(CreateNewUser), newUserData.Email);
-			}
-		}
-
-		[Authorize(Roles = "ADMIN")]
-		[HttpPut("{id}")]
-		public IActionResult UpdateUser([FromBody] UpdateUserInAdminRequest userInAdminUpdateData)
-		{
-			//Get user from database base on userInAdminToUpdate id
-			User user = _userService.GetUserById(userInAdminUpdateData.Id);
-
-			if (user != null)
-			{
-				//Cannot update user when user is inactivated
-				if (user.StatusId != 1)
-				{
-					return BadRequest("User is not activated to update");
-				}
-
-				//Auto change status id to 1 if user is activated and you want to update user 
-				if (!string.IsNullOrEmpty(userInAdminUpdateData.Role) && userInAdminUpdateData.StatusId == 0)
-				{
-					userInAdminUpdateData.StatusId = 1;
-				}
-				_userService.UpdateUser(user, userInAdminUpdateData.Role, userInAdminUpdateData.StatusId);
-				return Ok(userInAdminUpdateData);
-			}
-			else
-			{
-				_logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateUser)}, The user {userInAdminUpdateData.Id} do not exist");
-				return BadRequest($"User is not existed");
-			}
-		}
-
-		[Authorize(Roles = "ADMIN")]
-		[HttpDelete]
-		public IActionResult DeleteUserById(Guid userId)
+        public IActionResult CreateNewUser([FromBody] CreateNewUserRequest newUserData)
         {
-			bool isDeleted = _userService.DeleteUserById(userId);
-			if(isDeleted)
+            User user = _userService.GetUserWithRoleByEmail(newUserData.Email);
+            //User activated immediately at the time user is created
+            if (newUserData.StatusId != 1)
             {
-				return NoContent();
-            } else
+                newUserData.StatusId = 1;
+            }
+            _userService.CreateUser(newUserData);
+			return CreatedAtAction(nameof(CreateNewUser), newUserData.Email);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("{id}")]
+        public IActionResult UpdateUser([FromBody] UpdateUserInAdminRequest userInAdminUpdateData)
+        {
+            User user = _userService.GetUserById(userInAdminUpdateData.Id);
+            return Ok(user);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpDelete]
+        public IActionResult DeleteUserById(Guid userId)
+        {
+            bool isDeleted = _userService.DeleteUserById(userId);
+            if (isDeleted)
             {
-				GenericResponse response = new GenericResponse();
-				response.HttpStatus = 409;
-				response.Message = "Delete Failed";
-				response.TimeStamp = DateTime.Now;
-				return Conflict(response);
+                return NoContent();
+            }
+            else
+            {
+                GenericResponse response = new GenericResponse();
+                response.HttpStatus = 409;
+                response.Message = "Delete Failed";
+                response.TimeStamp = DateTime.Now;
+                return Conflict(response);
             }
         }
-	}
+    }
 }

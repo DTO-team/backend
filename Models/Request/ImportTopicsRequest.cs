@@ -11,6 +11,7 @@ namespace Models.Request
 		public string Description { get; set; }
 
 		[Required]
+		[EmailAddress]
 		public string LecturerEmail { get; set; }
 		
 		[EmailAddress]

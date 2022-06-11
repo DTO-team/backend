@@ -44,7 +44,12 @@ namespace CapstoneOnGoing.Services.Implements
 					{
 						Topic importedTopic = _mapper.Map<Topic>(importTopic);
 						importedTopic.CompanyId = company?.Id;
-						importedTopic.Semester = currentSemester;
+						importedTopic.SemesterId = currentSemester.Id;
+						importedTopic.TopicLecturers.Add(new TopicLecturer()
+						{
+							LecturerId = lecturer.Id,
+							TopicId = importedTopic.Id
+						});
 						_unitOfWork.Topic.Insert(importedTopic);
 					}
 					else
@@ -56,6 +61,11 @@ namespace CapstoneOnGoing.Services.Implements
 			else
 			{
 				isSuccessful = false;
+			}
+
+			if (isSuccessful)
+			{
+				_unitOfWork.Save();
 			}
 			return isSuccessful;
 		}

@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Request;
+using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -20,11 +24,26 @@ namespace CapstoneOnGoing.Controllers
 			_topicService = topicService;
 		}
 
+		[Authorize(Roles = "ADMIN")]
 		[HttpPost]
 		public IActionResult ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
 		{
-			_topicService.ImportTopics(importTopicsRequest);
-			return Ok();
+			bool isSuccessful =  _topicService.ImportTopics(importTopicsRequest);
+			if (isSuccessful)
+			{
+				return Ok(new GenericResponse {HttpStatus = (int)HttpStatusCode.OK,Message = "Import topics successfully", TimeStamp = DateTime.Now});
+			}
+			else
+			{
+				_logger.LogWarn($"Controller: {nameof(ImportTopicsController)}, Method: {nameof(ImportTopics)}: Import topics failed");
+				return BadRequest(new GenericResponse
+				{
+					HttpStatus = (int) HttpStatusCode.BadRequest,
+					Message = "Import topics failed",
+					TimeStamp = DateTime.Now
+				});
+			}
+			
 		}
 	}
 }

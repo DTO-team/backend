@@ -45,5 +45,6 @@ namespace CapstoneOnGoing.Controllers
 					TimeStamp = DateTime.Now
 				});
 			}
+		}
 	}
 }

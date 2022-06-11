@@ -1,3 +1,4 @@
+
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
@@ -24,6 +25,7 @@ namespace CapstoneOnGoing.Controllers
 			_topicService = topicService;
 		}
 
+
 		[Authorize(Roles = "ADMIN")]
 		[HttpPost]
 		public IActionResult ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
@@ -43,7 +45,5 @@ namespace CapstoneOnGoing.Controllers
 					TimeStamp = DateTime.Now
 				});
 			}
-			
-		}
 	}
 }

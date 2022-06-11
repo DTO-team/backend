@@ -80,6 +80,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
 			CreateMap<User, LoginUserAdminResponse>()
 				.ForMember(dest => dest.AccessToken, src => src.Ignore())
 				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
+			CreateMap<ImportTopicsRequest, Topic>();
 		}
 	}
 }

@@ -35,7 +35,7 @@ namespace CapstoneOnGoing.Utils
 				ValidateIssuerSigningKey = true,
 				ValidateIssuer = true,
 				ValidateLifetime = true,
-				ValidAudience = Startup.Configuration.GetValue<string>("COGNITO_APPCLIENTID"),
+				ValidAudiences = Startup.Configuration.GetValue<string>("COGNITO_APPCLIENTID").Split(';'),
 				ValidateAudience = true,
 			}, out SecurityToken validatedToken);
 			var jwtToken = (JwtSecurityToken)validatedToken;

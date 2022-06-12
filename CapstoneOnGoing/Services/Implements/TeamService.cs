@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AutoMapper;
+using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Services.Interfaces;
 using CapstoneOnGoing.Utils;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,7 @@ namespace CapstoneOnGoing.Services.Implements
 		public bool CreateTeam(CreateTeamRequest createTeamRequest, out CreatedTeamResponse createdTeamResponse)
 		{
 			//get Current Semester
-			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == 1).FirstOrDefault();
+			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)TeamStatus.Active).FirstOrDefault();
 			//get User with role student
 			User user = _unitOfWork.User.Get(x => (x.Id == createTeamRequest.StudentId && x.RoleId == 3), null, "Student").FirstOrDefault();
 			if (user != null)

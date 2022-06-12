@@ -46,7 +46,7 @@ namespace CapstoneOnGoing.Services.Implements
 						{
 							Name = createTeamRequest.TeamName,
 							SemesterId = currentSemester.Id,
-							Status = 1,
+							Status = (int)TeamStatus.Active,
 							TeamLeaderId = user.Id,
 							JoinCode = GenerateUtil.GenerateJoinString(),
 						};
@@ -58,14 +58,20 @@ namespace CapstoneOnGoing.Services.Implements
 						});
 						_unitOfWork.Team.Insert(newTeam);
 						bool isSuccessful = _unitOfWork.Save() > 0;
-						createdTeamResponse = _mapper.Map<CreatedTeamResponse>(newTeam);
-						_mapper.Map<User, CreatedTeamResponse>(user, createdTeamResponse);
+						if (isSuccessful)
+						{
+							createdTeamResponse = _mapper.Map<CreatedTeamResponse>(newTeam);
+							createdTeamResponse.StudentCode = student.Code;
+							_mapper.Map<User, CreatedTeamResponse>(user, createdTeamResponse);
+						}
+						//assign to null if create team failed
+						createdTeamResponse = null;
 						return isSuccessful;
 					}
 				}
 				else
 				{
-					throw new BadHttpRequestException("Student is not in current semester");
+					throw new BadHttpRequestException($"Student {user.Email} is not in-progress in current semester");
 				}
 			}
 			else
@@ -74,9 +80,17 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 		}
 
-		public bool DeleteTeam()
+		public bool DeleteTeam(DeleteTeamRequest deleteTeamRequest)
 		{
-
+			Team deletedTeam = _unitOfWork.Team.Get(x => x.Id == deleteTeamRequest.TeamId,null,"Semester").FirstOrDefault();
+			//check if deleted team is existed in database
+			if(deletedTeam != null){
+				//check if team is in current semester
+			}
+			else
+			{
+				throw new BadHttpRequestException("Team is not existed");
+			}
 		}
 	}
 }

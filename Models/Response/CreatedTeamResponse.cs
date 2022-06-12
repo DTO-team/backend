@@ -8,6 +8,8 @@ namespace Models.Response
 		public Guid TeamId { get; set; }
 		public string Name { get; set; }
 		public string TeamLeaderName { get; set; }
+		public string StudentCode { get; set; }
 		public string TeamLeaderEmail { get; set; }
+		public string JoinCode { get; set; }
 	}
 }

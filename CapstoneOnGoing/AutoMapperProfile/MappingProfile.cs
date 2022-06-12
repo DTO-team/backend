@@ -86,7 +86,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.TeamLeaderName, src => src.MapFrom(src => src.FullName));
 			CreateMap<Team, CreatedTeamResponse>()
 				.ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.Id))
-				.ForMember(dest => dest.Name, src => src.MapFrom(src => src.Name));
+				.ForMember(dest => dest.Name, src => src.MapFrom(src => src.Name))
+				.ForMember(dest => dest.JoinCode, src => src.MapFrom(src => src.JoinCode));
 		}
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Models.Dtos
 {
-    public class CreateNewUserDTO
+    public class CreateNewUserRequest
     {
         [Required]
         public string Email { get; set; }

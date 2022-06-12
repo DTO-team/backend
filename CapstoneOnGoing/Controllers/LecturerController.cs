@@ -1,12 +1,13 @@
-﻿using CapstoneOnGoing.Logger;
+﻿using AutoMapper;
+using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models.Dtos;
 using Models.Models;
+using Models.Response;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -15,49 +16,84 @@ namespace CapstoneOnGoing.Controllers
     public class LecturerController : ControllerBase
     {
         private readonly ILecturerService _lecturerService;
+        private readonly IUserService _userService;
         private readonly ILoggerManager _logger;
+        private readonly IMapper _mapper;
 
-        public LecturerController(ILecturerService lecturerService, ILoggerManager logger)
+        public LecturerController(ILecturerService lecturerService, IUserService userService, ILoggerManager logger, IMapper mapper)
         {
             _lecturerService = lecturerService;
+            _userService = userService;
             _logger = logger;
+            _mapper = mapper;
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet]
-        public IActionResult GetAllLecturers()
+        public IActionResult GetAllLecturers([FromQuery] int page, [FromQuery] int limit)
         {
-            IEnumerable<Lecturer> lecturers = _lecturerService.GetAllLecturers();
-            return Ok(lecturers);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetLecturerById(Guid id)
-        {
-            Lecturer lecturer = _lecturerService.GetLecturerById(id);
-            return Ok(lecturer);
-        }
-
-        [HttpPost]
-        public IActionResult CreateLecturer(Lecturer lecturer)
-        {
-            _lecturerService.CreateLecturer(lecturer);
-            return CreatedAtAction(nameof(CreateLecturer), new { lecturer.Id });
-        }
-
-        [HttpPut]
-        public IActionResult UpdateLecturer(Lecturer lecturer)
-        {
-            //if student is exist, Update student, if not return error
-            bool isExist = _lecturerService.GetLecturerById(lecturer.Id) != null;
-            if (isExist)
+            IEnumerable<LecturerResponse> lecturers;
+            if (page == 0 || limit == 0 || page < 0 || limit < 0)
             {
-                _lecturerService.UpdateLecturer(lecturer);
-                return Ok(lecturer.Id);
+                lecturers = _mapper.Map<IEnumerable<LecturerResponse>>(_lecturerService.GetAllLecturers(1, 10));
             }
             else
             {
-                _logger.LogError($"{nameof(UpdateLecturer)} in {nameof(LecturerController)}: Lecturer with {lecturer.Id} is not existed in database");
-                return BadRequest("Student is not existed to update");
+                lecturers = _mapper.Map<IEnumerable<LecturerResponse>>(_lecturerService.GetAllLecturers(page, limit));
+            }
+            return Ok(lecturers);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet("{id}")]
+        public IActionResult GetLecturerById(Guid id)
+        {
+            User lecturer = _lecturerService.GetLecturerById(id);
+            if (lecturer.Lecturer != null)
+            {
+                LecturerResponse lecturerResponse = _mapper.Map<LecturerResponse>(lecturer);
+                return Ok(lecturerResponse);
+            } else
+            {
+                return NotFound($"Cannot found lecturer with {id}");
+            }
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost]
+        public IActionResult CreateLecturer([FromBody] LecturerResquest lecturer)
+        {
+            bool isSuccessful = _userService.CreateNewLectuer(lecturer);
+            GenericResponse response;
+            if (isSuccessful)
+            {
+                response = new GenericResponse();
+                response.HttpStatus = 201;
+                response.Message = "Lecturer Created";
+                response.TimeStamp = DateTime.Now;
+                return CreatedAtAction(nameof(CreateLecturer), new { response });
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(CreateLecturer)}, The user is exist");
+                return BadRequest();
+            }
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("{id}")]
+        public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequest lecturerUpdateRequest)
+        {
+            User updateUser = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
+            if (updateUser != null)
+            {
+                User lecturer = _lecturerService.GetLecturerById(updateUser.Id);
+                return Ok(_mapper.Map<LecturerResponse>(lecturer));
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerUpdateRequest.Id} do not exist");
+                return BadRequest($"User is not existed");
             }
         }
     }

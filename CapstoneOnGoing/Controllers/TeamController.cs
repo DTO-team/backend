@@ -23,7 +23,7 @@ namespace CapstoneOnGoing.Controllers
 			_teamService = teamService;
 		}
 
-		//[Authorize(Roles = "STUDENT")]
+		[Authorize(Roles = "STUDENT")]
 		[HttpPost]
 		public IActionResult CreateTeam(CreateTeamRequest createTeamRequest)
 		{
@@ -44,7 +44,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize(Roles = "STUDENT")]
+		[Authorize(Roles = "STUDENT")]
 		[HttpDelete]
 		public IActionResult DeleteTeam(DeleteTeamRequest deleteTeamRequest)
 		{

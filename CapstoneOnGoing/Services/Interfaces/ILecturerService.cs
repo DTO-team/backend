@@ -1,4 +1,6 @@
-﻿using Models.Models;
+﻿using Models.Dtos;
+using Models.Models;
+using Models.Response;
 using System;
 using System.Collections.Generic;
 
@@ -6,10 +8,10 @@ namespace CapstoneOnGoing.Services.Interfaces
 {
     public interface ILecturerService
     {
-        void CreateLecturer(Lecturer lecturer);
-        IEnumerable<Lecturer> GetAllLecturers();
-        Lecturer GetLecturerById(Guid lecturerId);
-        void UpdateLecturer(Lecturer lecturerToUpdate);
+        void CreateLecturer(Lecturer lecturer, Guid userId, Guid departmentId);
+        IEnumerable<User> GetAllLecturers(int page, int limit);
+        User GetLecturerById(Guid lecturerId);
+        User UpdateLecturer(User lecturerToUpdate);
         void DeleteLecturer(Lecturer lecturerToDelete);
         void DeleteLecturerById(Guid lecturerId);
     }

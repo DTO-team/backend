@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Models.Dtos
 {
-    public class UpdateUserInAdminDTO
+    public class UpdateLecturerRequest
     {
         [Required]
         public Guid Id { get; set; }
-        [Required]
-        public string Role { get; set; }
-        public int StatusId { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
+        public string FullName { get; set; }
     }
 }

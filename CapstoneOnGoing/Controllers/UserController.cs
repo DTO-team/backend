@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using AutoMapper;
@@ -8,6 +7,7 @@ using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Models.Dtos;
 using Models.Models;
+using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -26,8 +26,8 @@ namespace CapstoneOnGoing.Controllers
 			_logger = logger;
 		}
 
-		//[Authorize(Roles = "ADMIN")]
-		[HttpGet]
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet]
 		public IActionResult GetAllUser([FromQuery] string username, [FromQuery] int page, [FromQuery] int limit)
 		{
 
@@ -41,8 +41,8 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(new List<UserInAdminDTO>());
 		}
 
-		[Authorize(Roles = "ADMIN,STUDENT")]
-		[HttpGet("{id}")]
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet("{id}")]
 		public IActionResult GetUserById(Guid id)
 		{
 			User user = _userService.GetUserById(id);
@@ -57,56 +57,45 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize(Roles = "ADMIN")]
-		[HttpPost]
-		public IActionResult CreateNewUser([FromBody] CreateNewUserDTO createNewUserDTO)
-		{
-			User user = _userService.GetUserByEmail(createNewUserDTO.Email);
-			if (user != null)
-			{
-				_logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(CreateNewUser)}, The user {createNewUserDTO.Email} is already exist");
-				return Conflict($"The user {createNewUserDTO.Email} is already existed");
-			}
-			else
-			{
-				//User activated immediately at the time user is created
-				if (createNewUserDTO.StatusId != 1)
-				{
-					createNewUserDTO.StatusId = 1;
-				}
-				_userService.CreateUser(createNewUserDTO);
-				return CreatedAtAction(nameof(CreateNewUser), createNewUserDTO.Email);
-			}
-		}
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost]
+        public IActionResult CreateNewUser([FromBody] CreateNewUserRequest newUserData)
+        {
+            User user = _userService.GetUserWithRoleByEmail(newUserData.Email);
+            //User activated immediately at the time user is created
+            if (newUserData.StatusId != 1)
+            {
+                newUserData.StatusId = 1;
+            }
+            _userService.CreateUser(newUserData);
+			return CreatedAtAction(nameof(CreateNewUser), newUserData.Email);
+        }
 
-		[Authorize(Roles = "ADMIN,STUDENT")]
-		[HttpPut("{id}")]
-		public IActionResult UpdateUser([FromBody] UpdateUserInAdminDTO userInAdminToUpdate)
-		{
-			//Get user from database base on userInAdminToUpdate id
-			User user = _userService.GetUserById(userInAdminToUpdate.Id);
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("{id}")]
+        public IActionResult UpdateUser([FromBody] UpdateUserInAdminRequest userInAdminUpdateData)
+        {
+            User user = _userService.GetUserById(userInAdminUpdateData.Id);
+            return Ok(user);
+        }
 
-			if (user != null)
-			{
-				//Cannot update user when user is inactivated
-				if (user.StatusId != 1)
-				{
-					return BadRequest("User is not activated to update");
-				}
-
-				//Auto change status id to 1 if user is activated and you want to update user 
-				if (!string.IsNullOrEmpty(userInAdminToUpdate.Role) && userInAdminToUpdate.StatusId == 0)
-				{
-					userInAdminToUpdate.StatusId = 1;
-				}
-				_userService.UpdateUser(user, userInAdminToUpdate.Role, userInAdminToUpdate.StatusId);
-				return Ok(userInAdminToUpdate);
-			}
-			else
-			{
-				_logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateUser)}, The user {userInAdminToUpdate.Id} do not exist");
-				return BadRequest($"User is not existed");
-			}
-		}
-	}
+        [Authorize(Roles = "ADMIN")]
+        [HttpDelete]
+        public IActionResult DeleteUserById(Guid userId)
+        {
+            bool isDeleted = _userService.DeleteUserById(userId);
+            if (isDeleted)
+            {
+                return NoContent();
+            }
+            else
+            {
+                GenericResponse response = new GenericResponse();
+                response.HttpStatus = 409;
+                response.Message = "Delete Failed";
+                response.TimeStamp = DateTime.Now;
+                return Conflict(response);
+            }
+        }
+    }
 }

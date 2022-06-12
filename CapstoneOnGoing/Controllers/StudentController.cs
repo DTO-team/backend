@@ -1,12 +1,15 @@
-﻿using CapstoneOnGoing.Logger;
+﻿using AutoMapper;
+using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Models.Dtos;
 using Models.Models;
+using Models.Request;
+using Models.Response;
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Net.Mail;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -16,47 +19,89 @@ namespace CapstoneOnGoing.Controllers
     {
         private readonly IStudentService _studentService;
         private readonly ILoggerManager _logger;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public StudentController(IStudentService studentService, ILoggerManager logger)
+        public StudentController(IStudentService studentService, ILoggerManager logger, IUserService userService, IMapper mapper)
         {
             _studentService = studentService;
             _logger = logger;
+            _userService = userService;
+            _mapper = mapper;
         }
 
-        [Authorize]
+        [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpGet]
-        public IActionResult GetAllStudents()
+        public IActionResult GetAllStudents([FromQuery] int page, [FromQuery] int limit)
         {
-            IEnumerable<Student> students = _studentService.GetAllStudents();
+            IEnumerable<StudentResponse> students;
+            if (page == 0 || limit == 0 || page < 0 || limit < 0)
+            {
+                students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(1, 10));
+            }
+            else
+            {
+                students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(page, limit));
+            }
             return Ok(students);
         }
-        
-        [Authorize(Roles = "STUDENT")]
+
+        [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpGet("{id}")]
         public IActionResult GetStudentById(Guid id)
         {
-            Student student = _studentService.GetStudentById(id);
-            return Ok(student);
+            User student = _studentService.GetStudentById(id);
+            if (student.Student != null)
+            {
+                StudentResponse studentDTO = _mapper.Map<StudentResponse>(student);
+                return Ok(studentDTO);
+            }
+            else
+            {
+                return NotFound($"Cannot found student with {id}");
+            }
         }
 
-        [Authorize]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        public IActionResult CreateStudent(Student student)
+        public IActionResult CreateStudent([FromBody] StudentRequest student)
         {
-            _studentService.CreateStudent(student);
-            return CreatedAtAction(nameof(CreateStudent), new { student.Id });
+            MailAddress email = new MailAddress(student.Email);
+            string domain = email.Host;
+
+            if (domain != "@fpt.edu.vn")
+            {
+                return BadRequest("Wrong email format");
+            }
+            else
+            {
+                bool isSuccessful = _userService.CreateNewStudent(student);
+                GenericResponse response;
+                //Set GenericResponse: Created
+                if (isSuccessful)
+                {
+                    response = new GenericResponse();
+                    response.HttpStatus = 201;
+                    response.Message = "Student Created";
+                    response.TimeStamp = DateTime.Now;
+                    return CreatedAtAction(nameof(CreateStudent), response);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
         }
 
-	    [Authorize]
+        [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpPut]
-        public IActionResult UpdateStudent(Student student)
+        public IActionResult UpdateStudent(UpdateStudentRequest student)
         {
             //if student is exist, Update student, if not return error
-            bool isExist = _studentService.GetStudentById(student.Id) != null;
-            if (isExist)
+            User updatedUser = _studentService.UpdateStudent(student);
+            if (updatedUser != null)
             {
-                _studentService.UpdateStudent(student);
-                return Ok(student.Id);
+                return Ok(_mapper.Map<StudentUpdateResponse>(updatedUser));
 
             } else
             {
@@ -65,10 +110,6 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        //[Authorize(Roles = "ADMIN")]
-        //public IActionResult ImportInprogressStudents()
-        //{
 
-        //}
     }
 }

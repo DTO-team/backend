@@ -14,5 +14,9 @@ namespace Repository.Implementations
         {
             return dbSet.FirstOrDefault(x => x.Name == name);
         }
+        public Role GetRoleById(int id)
+        {
+            return dbSet.FirstOrDefault(x => x.Id == id);
+        }
     }
 }

@@ -27,17 +27,39 @@ namespace CapstoneOnGoing.Controllers
 		[HttpPost]
 		public IActionResult CreateTeam(CreateTeamRequest createTeamRequest)
 		{
-			bool isSuccessful = _teamService.CreateTeam(createTeamRequest, out CreatedTeamResponse result);
+			bool isSuccessful = _teamService.CreateTeam(createTeamRequest, out CreatedTeamResponse createdTeamResponse);
 			if (isSuccessful)
 			{
-				return Ok(result);
+				return Ok(createdTeamResponse);
 			}
 			else
 			{
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(CreateTeam)}: Fail to create team");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = (int)HttpStatusCode.BadRequest,
 					Message = "Create team failed",
+					TimeStamp = DateTime.Now,
+				});
+			}
+		}
+
+		//[Authorize(Roles = "STUDENT")]
+		[HttpDelete]
+		public IActionResult DeleteTeam(DeleteTeamRequest deleteTeamRequest)
+		{
+			bool isSuccessful = _teamService.DeleteTeam(deleteTeamRequest);
+			if (isSuccessful)
+			{
+				return NoContent();
+			}
+			else
+			{
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(DeleteTeam)}: Fail to delete team");
+				return BadRequest(new GenericResponse()
+				{
+					HttpStatus = (int)HttpStatusCode.BadRequest,
+					Message = "Delete team failed",
 					TimeStamp = DateTime.Now,
 				});
 			}

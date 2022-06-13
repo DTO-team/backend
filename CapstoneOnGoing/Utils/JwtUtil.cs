@@ -64,6 +64,7 @@ namespace CapstoneOnGoing.Utils
 			var claims = new List<Claim>(){
 				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 				new Claim(JwtRegisteredClaimNames.Sub,email),
+				new Claim(ClaimTypes.Email,email),
 				new Claim(ClaimTypes.Role,role)
 			};
 			var expires = DateTime.Now.AddMinutes(Startup.Configuration.GetValue<long>("JWT_TOKEN_EXPIRE_TIME_IN_MINUTES"));

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Services.Interfaces;
@@ -22,12 +23,12 @@ namespace CapstoneOnGoing.Services.Implements
 			_unitOfWork = unitOfWork;
 		}
 
-		public bool CreateTeam(CreateTeamRequest createTeamRequest, out CreatedTeamResponse createdTeamResponse)
+		public bool CreateTeam(CreateTeamRequest createTeamRequest,string userEmail, out CreatedTeamResponse createdTeamResponse)
 		{
 			//get Current Semester
 			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)TeamStatus.Active).FirstOrDefault();
 			//get User with role student
-			User user = _unitOfWork.User.Get(x => (x.Id == createTeamRequest.StudentId && x.RoleId == 3), null, "Student").FirstOrDefault();
+			User user = _unitOfWork.User.Get(x => (x.Email.Equals(userEmail) && x.RoleId == 3), null, "Student").FirstOrDefault();
 			if (user != null)
 			{
 				// if student is in current Semester
@@ -35,7 +36,7 @@ namespace CapstoneOnGoing.Services.Implements
 				{
 					//check if student is in any team
 					Student student = _unitOfWork.Student
-						.Get(x => x.Id == createTeamRequest.StudentId, null, "TeamStudents").FirstOrDefault();
+						.Get(x => x.Id == user.Id, null, "TeamStudents").FirstOrDefault();
 					if (student.TeamStudents.Any())
 					{
 						throw new BadHttpRequestException("Student is in another team");
@@ -83,9 +84,9 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 		}
 
-		public bool DeleteTeam(DeleteTeamRequest deleteTeamRequest)
+		public bool DeleteTeam(Guid deleteTeamId,string userEmail)
 		{
-			Team deletedTeam = _unitOfWork.Team.Get(x => x.Id == deleteTeamRequest.TeamId, null, "Semester").FirstOrDefault();
+			Team deletedTeam = _unitOfWork.Team.Get(x => x.Id == deleteTeamId, null, "Semester").FirstOrDefault();
 			//check if deleted team is existed in database
 			if (deletedTeam != null)
 			{
@@ -95,7 +96,7 @@ namespace CapstoneOnGoing.Services.Implements
 					throw new BadHttpRequestException("Team can not delete");
 				}
 				//check if is the team leader delete the team
-				User teamLeader = _unitOfWork.User.GetById(deleteTeamRequest.TeamLeaderId);
+				User teamLeader = _unitOfWork.User.Get(x => (x.Email == userEmail && x.StatusId == (int)UserStatus.Activated)).FirstOrDefault();
 				if (teamLeader.Id == deletedTeam.TeamLeaderId)
 				{
 					deletedTeam.Status = (int)TeamStatus.Deleted;

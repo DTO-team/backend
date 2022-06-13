@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -23,11 +27,12 @@ namespace CapstoneOnGoing.Controllers
 			_teamService = teamService;
 		}
 
-		[Authorize(Roles = "STUDENT")]
+		//[Authorize(Roles = "STUDENT")]
 		[HttpPost]
 		public IActionResult CreateTeam(CreateTeamRequest createTeamRequest)
 		{
-			bool isSuccessful = _teamService.CreateTeam(createTeamRequest, out CreatedTeamResponse createdTeamResponse);
+			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+			bool isSuccessful = _teamService.CreateTeam(createTeamRequest,userEmail, out CreatedTeamResponse createdTeamResponse);
 			if (isSuccessful)
 			{
 				return Ok(createdTeamResponse);
@@ -45,10 +50,11 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "STUDENT")]
-		[HttpDelete]
-		public IActionResult DeleteTeam(DeleteTeamRequest deleteTeamRequest)
+		[HttpDelete("{id}")]
+		public IActionResult DeleteTeam(Guid id)
 		{
-			bool isSuccessful = _teamService.DeleteTeam(deleteTeamRequest);
+			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+			bool isSuccessful = _teamService.DeleteTeam(id, userEmail);
 			if (isSuccessful)
 			{
 				return NoContent();

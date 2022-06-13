@@ -1,8 +1,7 @@
-﻿using AutoMapper;
-using CapstoneOnGoing.Logger;
-using CapstoneOnGoing.Services.Interfaces;
+﻿using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -10,21 +9,25 @@ namespace CapstoneOnGoing.Controllers
     [ApiController]
     public class ApplicationController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly IApplicationService _applicationService;
-        private readonly ILoggerManager _logger;
 
-        public ApplicationController(IMapper mapper, IApplicationService applicationService, ILoggerManager logger)
+        public ApplicationController(IApplicationService applicationService)
         {
-            _mapper = mapper;
             _applicationService = applicationService;
-            _logger = logger;
         }
 
         [HttpGet("{id}")]
+        // [ProducesResponseType(typeof(GetApplicationDTO), StatusCodes.Status200OK)]
+        // [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public IActionResult GetApplicationById(Guid id)
         {
-            return Ok();
+            GetApplicationResponse result = _applicationService.GetApplicationById(id);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest("Application is not existed");
         }
     }
 }

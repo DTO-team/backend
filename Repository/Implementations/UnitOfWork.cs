@@ -181,9 +181,9 @@ namespace Repository.Implementations
             this._disposed = true;
         }
 
-        public void Save()
+        public int Save()
         {
-            _context.SaveChanges();
+           return _context.SaveChanges();
         }
     }
 }

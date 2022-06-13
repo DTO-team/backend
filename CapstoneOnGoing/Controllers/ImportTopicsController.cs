@@ -12,7 +12,7 @@ using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
-	[Route("api/import-topics")]
+	[Route("api/v1/import-topics")]
 	[ApiController]
 	public class ImportTopicsController : ControllerBase
 	{

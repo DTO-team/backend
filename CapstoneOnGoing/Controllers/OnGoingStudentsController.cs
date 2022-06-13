@@ -12,7 +12,7 @@ using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
-	[Route("api/ongoing-students")]
+	[Route("api/v1/ongoing-students")]
 	[ApiController]
 	public class OnGoingStudentsController : ControllerBase
 	{

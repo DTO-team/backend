@@ -80,7 +80,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [Authorize(Roles = "ADMIN")]
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public IActionResult DeleteUserById(Guid userId)
         {
             bool isDeleted = _userService.DeleteUserById(userId);

@@ -18,8 +18,10 @@ namespace Models.Models
         public int Status { get; set; }
         public Guid? SemesterId { get; set; }
         public string JoinCode { get; set; }
+        public Guid TeamLeaderId { get; set; }
 
         public virtual Semester Semester { get; set; }
+        public virtual Student TeamLeader { get; set; }
         public virtual Project Project { get; set; }
         public virtual ICollection<Application> Applications { get; set; }
         public virtual ICollection<TeamStudent> TeamStudents { get; set; }

@@ -27,7 +27,7 @@ namespace CapstoneOnGoing.Controllers
 			_teamService = teamService;
 		}
 
-		//[Authorize(Roles = "STUDENT")]
+		[Authorize(Roles = "STUDENT")]
 		[HttpPost]
 		public IActionResult CreateTeam(CreateTeamRequest createTeamRequest)
 		{

@@ -28,7 +28,7 @@ namespace CapstoneOnGoing.Services.Implements
 			//get Current Semester
 			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)TeamStatus.Active).FirstOrDefault();
 			//get User with role student
-			User user = _unitOfWork.User.Get(x => (x.Email.Equals(userEmail) && x.RoleId == 3), null, "Student").FirstOrDefault();
+			User user = _unitOfWork.User.Get(x => (x.Email.Equals(userEmail) && x.RoleId == (int)RoleEnum.Student), null, "Student").FirstOrDefault();
 			if (user != null)
 			{
 				// if student is in current Semester

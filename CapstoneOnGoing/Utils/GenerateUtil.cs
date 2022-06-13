@@ -14,7 +14,7 @@ namespace CapstoneOnGoing.Utils
 			{
 				byte[] uintBuffer = new byte[sizeof(uint)];
 				int stringLength = 6;
-				while (res.Length < stringLength)
+				while (res.Length <= stringLength)
 				{
 					rng.GetBytes(uintBuffer);
 					uint num = BitConverter.ToUInt32(uintBuffer, 0);

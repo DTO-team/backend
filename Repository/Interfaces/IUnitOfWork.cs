@@ -42,6 +42,6 @@ namespace Repository.Interfaces
 
         public IReportRepository Report { get; }
 
-        public void Save();
+        public int Save();
     }
 }

@@ -81,6 +81,13 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.AccessToken, src => src.Ignore())
 				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 			CreateMap<ImportTopicsRequest, Topic>();
+			CreateMap<User, CreatedTeamResponse>()
+				.ForMember(dest => dest.TeamLeaderEmail, src => src.MapFrom(src => src.Email))
+				.ForMember(dest => dest.TeamLeaderName, src => src.MapFrom(src => src.FullName));
+			CreateMap<Team, CreatedTeamResponse>()
+				.ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.Id))
+				.ForMember(dest => dest.Name, src => src.MapFrom(src => src.Name))
+				.ForMember(dest => dest.JoinCode, src => src.MapFrom(src => src.JoinCode));
 		}
 	}
 }

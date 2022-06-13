@@ -11,6 +11,7 @@ namespace Models.Models
         {
             Reports = new HashSet<Report>();
             TeamStudents = new HashSet<TeamStudent>();
+            Teams = new HashSet<Team>();
         }
 
         public Guid Id { get; set; }
@@ -21,5 +22,6 @@ namespace Models.Models
         public virtual Semester Semester { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
         public virtual ICollection<TeamStudent> TeamStudents { get; set; }
+        public virtual ICollection<Team> Teams { get; set; }
     }
 }

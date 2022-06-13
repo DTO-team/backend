@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Models.Models;
 
 #nullable disable
@@ -614,6 +616,12 @@ namespace Repository
                     .WithMany(p => p.Teams)
                     .HasForeignKey(d => d.SemesterId)
                     .HasConstraintName("FK_Team_SemesterID");
+
+                entity.HasOne(d => d.TeamLeader)
+                    .WithMany(p => p.Teams)
+                    .HasForeignKey(d => d.TeamLeaderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Team_StudentID");
             });
 
             modelBuilder.Entity<TeamStudent>(entity =>

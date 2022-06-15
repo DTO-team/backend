@@ -137,6 +137,7 @@ namespace CapstoneOnGoing.Services.Implements
 				foreach (Team team in teamsResult)
 				{
 					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
+					teamLeader.Student.Semester = _unitOfWork.Semester.GetById(teamLeader.Student.SemesterId.Value);
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
 					teamResponse.LeaderShip = new Leader();
 					_mapper.Map<User, Leader>(teamLeader, teamResponse.LeaderShip);

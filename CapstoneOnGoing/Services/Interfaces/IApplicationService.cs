@@ -10,6 +10,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 {
     public interface IApplicationService
     {
-        GetApplicationResponse GetApplicationById(Guid id);
+        GetApplicationDTO GetApplicationById(Guid id);
     }
 }

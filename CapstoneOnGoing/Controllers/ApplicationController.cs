@@ -1,6 +1,7 @@
 ﻿using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Logger;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -31,59 +32,56 @@ namespace CapstoneOnGoing.Controllers
         public IActionResult GetApplicationById(Guid id)
         {
             GetApplicationResponse response = new GetApplicationResponse();
-            try
+            GetApplicationDTO applicationDto = _applicationService.GetApplicationById(id);
+            if (applicationDto != null)
             {
-                GetApplicationDTO applicationDto = _applicationService.GetApplicationById(id);
-                if (applicationDto != null)
+                //Team's information
+                ResponseApplyTeamFields applicationFields = new ResponseApplyTeamFields();
+                applicationFields.LeaderName = _unitOfWork.User.GetById(applicationDto.TeamInformation.TeamLeaderId).FullName;
+                applicationFields.TeamName = applicationDto.TeamInformation.TeamName;
+                applicationFields.TeamSemesterSeason = _unitOfWork.Semester.GetById(applicationDto.TeamInformation.TeamSemesterId).Season;
+                response.ApplyTeam = applicationFields;
+
+                //Team's topic information
+                ResponseTopicFields topicFields = new ResponseTopicFields();
+                Topic teamTopic = _unitOfWork.Topic.GetById(applicationDto.Topic.TopicId);
+                topicFields.TopicName = teamTopic.Name;
+
+                string topicDescription = applicationDto.Topic.Description;
+                if (!string.IsNullOrEmpty(topicDescription))
                 {
-                    //Team's information
-                    ResponseApplyTeamFields applicationFields = new ResponseApplyTeamFields();
-                    applicationFields.LeaderName = _unitOfWork.User.GetById(applicationDto.TeamInformation.TeamLeaderId).FullName;
-                    applicationFields.TeamName = applicationDto.TeamInformation.TeamName;
-                    applicationFields.TeamSemesterSeason = _unitOfWork.Semester.GetById(applicationDto.TeamInformation.TeamSemesterId).Season;
-                    response.ApplyTeam = applicationFields;
-
-                    //Team's topic information
-                    ResponseTopicFields topicFields = new ResponseTopicFields();
-                    Topic teamTopic = _unitOfWork.Topic.GetById(applicationDto.Topic.TopicId);
-                    topicFields.TopicName = teamTopic.Name;
-
-                    string topicDescription = applicationDto.Topic.Description;
-                    if (!string.IsNullOrEmpty(topicDescription))
-                    {
-                        topicFields.Description = teamTopic.Description;
-                    }
-                    else
-                    {
-                        topicFields.Description = "";
-                    }
-                    response.Topic = topicFields;
-
-
-                    //Team's application status
-                    int teamStatus = applicationDto.Status;
-
-                    if (teamStatus.Equals(1))
-                    {
-                        response.Status = "PENDING";
-                    }
-                    else if (teamStatus.Equals(2))
-                    {
-                        response.Status = "APPROVED";
-                    }
-                    else
-                    {
-                        response.Status = "REJECTED";
-                    }
+                    topicFields.Description = teamTopic.Description;
                 }
+                else
+                {
+                    topicFields.Description = "";
+                }
+                response.Topic = topicFields;
+
+
+                //Team's application status
+                int teamStatus = applicationDto.Status;
+
+                if (teamStatus.Equals(1))
+                {
+                    response.Status = ApplicationStatus.Pending.ToString().ToUpper();
+                }
+                else if (teamStatus.Equals(2))
+                {
+                    response.Status = ApplicationStatus.Approved.ToString().ToUpper();
+                }
+                else
+                {
+                    response.Status = ApplicationStatus.Rejected.ToString().ToUpper(); ;
+                }
+                return Ok(response);
+
             }
-            catch ( Exception e)
+            else
             {
-                _logger.LogWarn($"Controller: {nameof(ApplicationController)},Method: {nameof(GetApplicationById)}, The application with {id} is not existed");
                 GenericResponse errorResponse = new GenericResponse() { HttpStatus = 400, Message = "Application is not existed", TimeStamp = DateTime.Now };
                 return BadRequest(errorResponse);
             }
-            return Ok(response);
         }
     }
 }

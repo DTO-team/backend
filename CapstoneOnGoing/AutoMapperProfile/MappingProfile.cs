@@ -88,6 +88,19 @@ namespace CapstoneOnGoing.AutoMapperProfile
 				.ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.Id))
 				.ForMember(dest => dest.Name, src => src.MapFrom(src => src.Name))
 				.ForMember(dest => dest.JoinCode, src => src.MapFrom(src => src.JoinCode));
+			CreateMap<Team, GetTeamResponse>()
+				.ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.Id))
+				.ForMember(dest => dest.TeamName, src => src.MapFrom(src => src.Name))
+				.ForMember(dest => dest.LeaderShip, src => src.Ignore());
+			CreateMap<User, Leader>()
+				.ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
+				.ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
+				.ForMember(dest => dest.Id, src => src.MapFrom(src => src.Id))
+				.ForMember(dest => dest.AvatarUrl, src => src.MapFrom(src => src.AvatarUrl))
+				.ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Year + "-" + src.Student.Semester.Season))
+				.ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId))
+				.ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
+				.ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 		}
 	}
 }

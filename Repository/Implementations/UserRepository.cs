@@ -1,4 +1,9 @@
-﻿using Models.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.EntityFrameworkCore;
+using Models.Models;
 using Repository.Interfaces;
 
 namespace Repository.Implementations
@@ -7,6 +12,16 @@ namespace Repository.Implementations
     {
         public UserRepository(CAPSTONEONGOINGContext context) : base(context)
         {
+        }
+
+        public IEnumerable<string> GetFullNameById(IEnumerable<Guid> ids)
+        {
+	        foreach (Guid id in ids)
+	        {
+		        User user =
+			        dbSet.AsQueryable().AsNoTracking().FirstOrDefault(x => x.Id == id);
+		        yield return user?.FullName;
+	        }
         }
     }
 }

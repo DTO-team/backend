@@ -19,6 +19,8 @@ namespace Models.Models
         public int Year { get; set; }
         public string Season { get; set; }
         public int Status { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         public virtual SemesterCriterion SemesterCriterion { get; set; }
         public virtual ICollection<EvaluationSession> EvaluationSessions { get; set; }

@@ -38,7 +38,6 @@ namespace Repository.Interfaces
 
         IDepartmentRepository Department { get; }
 
-        public IEvidenceRepository Evidence { get; }
 
         public IReportRepository Report { get; }
 

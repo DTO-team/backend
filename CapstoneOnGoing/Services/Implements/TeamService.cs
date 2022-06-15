@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Enums;
@@ -112,6 +113,36 @@ namespace CapstoneOnGoing.Services.Implements
 			else
 			{
 				throw new BadHttpRequestException("Team is not existed");
+			}
+		}
+
+		public IEnumerable<GetTeamResponse> GetAllTeams(string teamName = null, int page = 1, int limit = 10)
+		{
+			IEnumerable<Team> teamsResult = null;
+			if (!string.IsNullOrEmpty(teamName) || !string.IsNullOrWhiteSpace(teamName))
+			{
+				teamsResult = _unitOfWork.Team.Get(team => team.Name == teamName,null,"TeamStudents",page,limit);
+				foreach (Team team in teamsResult)
+				{
+					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId,null, "Student,Role").FirstOrDefault();
+					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
+					_mapper.Map<User, Leader>(teamLeader, teamResponse.LeaderShip);
+					teamResponse.Amount = team.TeamStudents.Count;
+					yield return teamResponse;
+				}
+			}
+			else
+			{
+				teamsResult = _unitOfWork.Team.Get(null, null, "TeamStudents", page, limit);
+				foreach (Team team in teamsResult)
+				{
+					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
+					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
+					teamResponse.LeaderShip = new Leader();
+					_mapper.Map<User, Leader>(teamLeader, teamResponse.LeaderShip);
+					teamResponse.Amount = team.TeamStudents.Count;
+					yield return teamResponse;
+				}
 			}
 		}
 	}

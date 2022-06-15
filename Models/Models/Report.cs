@@ -9,7 +9,7 @@ namespace Models.Models
     {
         public Report()
         {
-            Evidences = new HashSet<Evidence>();
+            ReportEvidences = new HashSet<ReportEvidence>();
         }
 
         public Guid Id { get; set; }
@@ -29,6 +29,6 @@ namespace Models.Models
 
         public virtual Project Project { get; set; }
         public virtual Student Reporter { get; set; }
-        public virtual ICollection<Evidence> Evidences { get; set; }
+        public virtual ICollection<ReportEvidence> ReportEvidences { get; set; }
     }
 }

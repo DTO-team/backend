@@ -9,5 +9,6 @@ namespace Repository.Interfaces
 {
     public interface IApplicationRepository : IGenericRepository<Application>
     {
+        Application GetApplicationWithTeamTopicProject(Guid Id);
     }
 }

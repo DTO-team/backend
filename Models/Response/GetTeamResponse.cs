@@ -7,7 +7,7 @@ namespace Models.Response
 	{
 		public Guid TeamId { get; set; }
 		public string TeamName { get; set; }
-		public Leader LeaderShip { get; set; }
+		public Member LeaderShip { get; set; }
 		public int Amount { get; set; }
 
 		public GetTeamResponse()
@@ -15,7 +15,7 @@ namespace Models.Response
 		}
 	}
 
-	public class Leader
+	public class Member
 	{
 		public Guid Id { get; set; }
 		public string Code { get; set; }

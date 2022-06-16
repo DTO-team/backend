@@ -29,13 +29,15 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "STUDENT")]
 		[HttpPost]
+		[ProducesResponseType(typeof(CreatedTeamResponse), StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult CreateTeam(CreateTeamRequest createTeamRequest)
 		{
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			bool isSuccessful = _teamService.CreateTeam(createTeamRequest,userEmail, out CreatedTeamResponse createdTeamResponse);
 			if (isSuccessful)
 			{
-				return Ok(createdTeamResponse);
+				return CreatedAtAction(nameof(CreateTeam),createdTeamResponse);
 			}
 			else
 			{
@@ -51,6 +53,7 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "STUDENT")]
 		[HttpDelete("{id}")]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult DeleteTeam(Guid id)
 		{
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
@@ -69,6 +72,14 @@ namespace CapstoneOnGoing.Controllers
 					TimeStamp = DateTime.Now,
 				});
 			}
+		}
+
+		[Authorize(Roles = "STUDENT")]
+		[HttpGet]
+		[ProducesResponseType(typeof(GetTeamResponse),StatusCodes.Status200OK)]
+		public IActionResult GetAllTeams([FromQuery] string teamName , [FromQuery] int page, [FromQuery] int limit){
+			IEnumerable<GetTeamResponse> teamsResponse = _teamService.GetAllTeams(teamName,page,limit);
+			return Ok(teamsResponse);
 		}
 	}
 }

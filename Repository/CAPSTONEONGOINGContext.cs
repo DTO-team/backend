@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 using Models.Models;
 
 #nullable disable
@@ -27,7 +25,6 @@ namespace Repository
         public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<EvaluationSession> EvaluationSessions { get; set; }
         public virtual DbSet<EvaluationSessionCriterion> EvaluationSessionCriteria { get; set; }
-        public virtual DbSet<Evidence> Evidences { get; set; }
         public virtual DbSet<Grade> Grades { get; set; }
         public virtual DbSet<GradeCopy> GradeCopies { get; set; }
         public virtual DbSet<Lecturer> Lecturers { get; set; }
@@ -36,6 +33,7 @@ namespace Repository
         public virtual DbSet<Question> Questions { get; set; }
         public virtual DbSet<QuestionCopy> QuestionCopies { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
+        public virtual DbSet<ReportEvidence> ReportEvidences { get; set; }
         public virtual DbSet<Review> Reviews { get; set; }
         public virtual DbSet<ReviewGrade> ReviewGrades { get; set; }
         public virtual DbSet<ReviewQuestion> ReviewQuestions { get; set; }
@@ -225,24 +223,6 @@ namespace Repository
                     .HasForeignKey(d => d.EvaluationSessionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_EvaluationSessionCriteria_EvaluationSessionID");
-            });
-
-            modelBuilder.Entity<Evidence>(entity =>
-            {
-                entity.ToTable("Evidence");
-
-                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.Url)
-                    .IsRequired()
-                    .HasMaxLength(2048)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.Report)
-                    .WithMany(p => p.Evidences)
-                    .HasForeignKey(d => d.ReportId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Evidence_ReportID");
             });
 
             modelBuilder.Entity<Grade>(entity =>
@@ -436,6 +416,28 @@ namespace Repository
                     .HasConstraintName("FK_Report_StudentID");
             });
 
+            modelBuilder.Entity<ReportEvidence>(entity =>
+            {
+                entity.ToTable("ReportEvidence");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Url)
+                    .IsRequired()
+                    .HasMaxLength(2048)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Report)
+                    .WithMany(p => p.ReportEvidences)
+                    .HasForeignKey(d => d.ReportId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Evidence_ReportID");
+            });
+
             modelBuilder.Entity<Review>(entity =>
             {
                 entity.ToTable("Review");
@@ -532,10 +534,14 @@ namespace Repository
 
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
+                entity.Property(e => e.EndDate).HasColumnType("date");
+
                 entity.Property(e => e.Season)
                     .IsRequired()
                     .HasMaxLength(6)
                     .IsUnicode(false);
+
+                entity.Property(e => e.StartDate).HasColumnType("date");
             });
 
             modelBuilder.Entity<SemesterCriterion>(entity =>

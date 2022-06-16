@@ -146,5 +146,10 @@ namespace CapstoneOnGoing.Services.Implements
 				}
 			}
 		}
+
+		public bool JoinTeam(Guid id, string studentEmail)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

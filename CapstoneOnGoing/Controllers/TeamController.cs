@@ -81,5 +81,21 @@ namespace CapstoneOnGoing.Controllers
 			IEnumerable<GetTeamResponse> teamsResponse = _teamService.GetAllTeams(teamName,page,limit);
 			return Ok(teamsResponse);
 		}
+
+		[Authorize(Roles = "STUDENT")]
+		[HttpPatch("{id}")]
+		public IActionResult JoinTeam(Guid id,JoinTeamRequest joinTeamRequest)
+		{
+			if (joinTeamRequest != null && "/add".Equals(joinTeamRequest.Op) && "/student".Equals(joinTeamRequest.Path))
+			{
+				string studentEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+				_teamService.JoinTeam(id, studentEmail);
+				return Ok();
+			}
+			else
+			{
+				return BadRequest();
+			}
+		}
 	}
 }

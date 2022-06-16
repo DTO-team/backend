@@ -12,7 +12,7 @@ using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
-	[Route("api/v1/import-topics")]
+	[Route("api/v1/topics")]
 	[ApiController]
 	public class ImportTopicsController : ControllerBase
 	{
@@ -27,7 +27,7 @@ namespace CapstoneOnGoing.Controllers
 
 
 		[Authorize(Roles = "ADMIN")]
-		[HttpPost]
+		[HttpPost("list")]
 		public IActionResult ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
 		{
 			bool isSuccessful =  _topicService.ImportTopics(importTopicsRequest);

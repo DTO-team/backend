@@ -6,6 +6,7 @@ using CapstoneOnGoing.Logger;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
+using Models.Request;
 using Models.Response;
 using Repository.Interfaces;
 
@@ -83,5 +84,21 @@ namespace CapstoneOnGoing.Controllers
                 return BadRequest(errorResponse);
             }
         }
+
+        [HttpPatch("status")]
+        public IActionResult UpdateApplicationStatus([FromQuery]Guid id, UpdateApplicationStatusRequest request)
+        {
+            bool isSuccess = _applicationService.UpdateApplicationStatusById(id, request);
+            if (isSuccess)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+
     }
 }

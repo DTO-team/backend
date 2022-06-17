@@ -1,6 +1,7 @@
 ﻿using Models.Models;
 using Repository.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,15 +13,25 @@ namespace Repository.Implementations
         {
         }
 
+        public IEnumerable<Application> GetAllApplicationsWithTeamTopicProject()
+        {
+            IEnumerable<Application> applications = dbSet.
+                Include(x => x.Team).
+                Include(x => x.Topic).
+                Include(x => x.Project).
+                AsNoTracking();
+            return applications;
+        }
+
         public Application GetApplicationWithTeamTopicProject(Guid Id)
         {
-           Application result = dbSet
-                .Include(x => x.Team)
-                .Include(x => x.Project)
-                .Include(x => x.Topic)
-                .AsNoTracking()
-                .FirstOrDefault(application => application.Id == Id);
-           return result;
+            Application result = dbSet
+                 .Include(x => x.Team)
+                 .Include(x => x.Project)
+                 .Include(x => x.Topic)
+                 .AsNoTracking()
+                 .FirstOrDefault(application => application.Id == Id);
+            return result;
         }
     }
 }

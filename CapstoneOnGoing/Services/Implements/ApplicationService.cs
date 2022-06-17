@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using CapstoneOnGoing.Enums;
 using Models.Request;
 
@@ -25,7 +26,16 @@ namespace CapstoneOnGoing.Services.Implements
 
         public IEnumerable<GetApplicationDTO> GetAllApplication()
         {
-            throw new NotImplementedException();
+            IEnumerable<Application> applications = _unitOfWork.Applications.GetAllApplicationsWithTeamTopicProject();
+
+            if (applications.Any())
+            {
+                IEnumerable<GetApplicationDTO> applicationDtos =
+                    _mapper.Map<IEnumerable<GetApplicationDTO>>(applications);
+                return applicationDtos;
+            }
+
+            return null;
         }
 
         public GetApplicationDTO GetApplicationById(Guid id)
@@ -75,22 +85,20 @@ namespace CapstoneOnGoing.Services.Implements
                         project.TeamId = application.TeamId;
 
                         Guid topicLecturerId =
-                            _unitOfWork.TopicLecturer.Get(lecturer => lecturer.Id == application.TopicId).Select(x => x.LecturerId).FirstOrDefault();
-                        Lecturer lecturer = _unitOfWork.Lecturer.Get(lecturer => lecturer.Id == topicLecturerId)
-                            .FirstOrDefault();
-
+                            _unitOfWork.TopicLecturer.Get(lecturer => lecturer.TopicId == application.TopicId).Select(x => x.LecturerId).FirstOrDefault();
+                        
                         project.Mentors = new List<Mentor>()
                         {
                             new Mentor()
                             {
                                 ProjectId = project.Id,
-                                Lecturer = lecturer,
                                 LecturerId = topicLecturerId,
                             }
                         };
 
                         _unitOfWork.Project.Insert(project);
                         _unitOfWork.Save();
+                        isSuccess = true;
                         break;
                 }
             }

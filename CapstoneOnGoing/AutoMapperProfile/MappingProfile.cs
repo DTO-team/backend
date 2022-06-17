@@ -92,7 +92,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.Id))
 	            .ForMember(dest => dest.TeamName, src => src.MapFrom(src => src.Name))
 	            .ForMember(dest => dest.LeaderShip, src => src.Ignore());
-            CreateMap<User, Leader>()
+            CreateMap<User, Member>()
 	            .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
 	            .ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
 	            .ForMember(dest => dest.Id, src => src.MapFrom(src => src.Id))
@@ -109,6 +109,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
                     src => src.MapFrom(src => new TopicFields() { TopicId = src.TopicId, Description = src.Topic.Description }))
                 .ForMember(dest => dest.Status,
                     src => src.MapFrom(src => src.StatusId));
+            CreateMap<Team, GetTeamDetailResponse>()
+	            .IncludeBase<Team,GetTeamResponse>();
         }
     }
 }

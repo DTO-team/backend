@@ -126,7 +126,7 @@ namespace CapstoneOnGoing.Services.Implements
 				{
 					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId,null, "Student,Role").FirstOrDefault();
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
-					_mapper.Map<User, Leader>(teamLeader, teamResponse.LeaderShip);
+					_mapper.Map<User, Member>(teamLeader, teamResponse.LeaderShip);
 					teamResponse.Amount = team.TeamStudents.Count;
 					yield return teamResponse;
 				}
@@ -139,12 +139,83 @@ namespace CapstoneOnGoing.Services.Implements
 					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
 					teamLeader.Student.Semester = _unitOfWork.Semester.GetById(teamLeader.Student.SemesterId.Value);
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
-					teamResponse.LeaderShip = new Leader();
-					_mapper.Map<User, Leader>(teamLeader, teamResponse.LeaderShip);
+					teamResponse.LeaderShip = new Member();
+					_mapper.Map<User, Member>(teamLeader, teamResponse.LeaderShip);
 					teamResponse.Amount = team.TeamStudents.Count;
 					yield return teamResponse;
 				}
 			}
+		}
+
+		public bool JoinTeam(Guid teamId, string studentEmail, out  GetTeamDetailResponse getTeamDetailResponse)
+		{
+			//check if team is existed
+			Team team = _unitOfWork.Team.Get(x => x.Id == teamId,null,"TeamStudents").FirstOrDefault();
+			if (team != null)
+			{
+				//check if student is in progress of current semester
+				Semester semester = _unitOfWork.Semester.Get(x => x.Status == (int) SemesterStatus.Preparing)
+					.FirstOrDefault();
+				User student = _unitOfWork.User.Get(x => x.Email == studentEmail, null, "Student").FirstOrDefault();
+				if (student != null && student.Student.SemesterId.Equals(semester?.Id))
+				{
+					//check if student is any others team
+					bool isExistedInOthersTeam = _unitOfWork.TeamStudent.Get(x => x.StudentId == student.Id).Any();
+					if (isExistedInOthersTeam)
+					{
+						throw new BadHttpRequestException("Student is in other team");
+					}
+					else
+					{
+						team.TeamStudents.Add(new TeamStudent()
+						{
+							TeamId = team.Id,
+							StudentId = student.Id,
+							Status = (int)TeamStudentStatus.Active
+						});
+						_unitOfWork.Team.Update(team);
+
+						bool isSuccessfully = _unitOfWork.Save() > 0;
+						if (isSuccessfully)
+						{
+							getTeamDetailResponse = GetTeamDetail(team);
+							return isSuccessfully;
+						}
+						else
+						{
+							getTeamDetailResponse = null;
+							return isSuccessfully;
+						}
+					}
+				}
+				else
+				{
+					throw new BadHttpRequestException("Student is not in-progress of current semseter");
+				}
+			}
+			else
+			{
+				throw new BadHttpRequestException("Team does not existed");
+			}	
+		}
+
+		private GetTeamDetailResponse GetTeamDetail(Team team)
+		{
+			User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
+			teamLeader.Student.Semester = _unitOfWork.Semester.GetById(teamLeader.Student.SemesterId.Value);
+			GetTeamDetailResponse teamResponse = _mapper.Map<GetTeamDetailResponse>(team);
+			teamResponse.LeaderShip = new Member();
+			IList<Member> members = new List<Member>();
+			_mapper.Map<User, Member>(teamLeader, teamResponse.LeaderShip);
+			Array.ForEach(team.TeamStudents.ToArray(), student =>
+			{
+				User studentInTeam = _unitOfWork.User.Get(x => x.Id == student.StudentId,null, "Student,Role").FirstOrDefault();
+				Member member = _mapper.Map<Member>(studentInTeam);
+				members.Add(member);
+			});
+			teamResponse.Members = members;
+			teamResponse.Amount = members.Count();
+			return teamResponse;
 		}
 	}
 }

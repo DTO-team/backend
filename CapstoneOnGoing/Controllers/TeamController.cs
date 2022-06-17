@@ -81,5 +81,37 @@ namespace CapstoneOnGoing.Controllers
 			IEnumerable<GetTeamResponse> teamsResponse = _teamService.GetAllTeams(teamName,page,limit);
 			return Ok(teamsResponse);
 		}
+
+		[Authorize(Roles = "STUDENT")]
+		[HttpPatch("{id}")]
+		[ProducesResponseType(typeof(GetTeamDetailResponse),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
+		public IActionResult JoinTeam(Guid id,JoinTeamRequest joinTeamRequest)
+		{
+			if (joinTeamRequest != null && "/add".Equals(joinTeamRequest.Op) && "/student".Equals(joinTeamRequest.Path))
+			{
+				string studentEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+				bool isSuccessful = _teamService.JoinTeam(id, studentEmail, out GetTeamDetailResponse getTeamDetailResponse);
+				if (isSuccessful)
+				{
+					
+					return Ok(getTeamDetailResponse);
+				}
+				else
+				{
+					_logger.LogWarn($"Controller {nameof(TeamController)}, Method {nameof(JoinTeam)} : {studentEmail} join team {id} failed");
+					return BadRequest(new GenericResponse()
+					{
+						HttpStatus = StatusCodes.Status400BadRequest,
+ 						Message = "Join team Failed",
+						TimeStamp = DateTime.Now
+					});
+				}
+			}
+			else
+			{
+				return BadRequest();
+			}
+		}
 	}
 }

@@ -34,7 +34,6 @@ namespace Repository.Implementations
         private readonly ITopicRepository _topicRepository;
         private readonly IUserRepository _userRepository;
         private readonly IDepartmentRepository _departmentRepository;
-        private readonly IEvidenceRepository _evidenceRepository;
         private readonly IReportRepository _reportRepository;
         private bool _disposed = false;
 
@@ -67,7 +66,6 @@ namespace Repository.Implementations
                           ITopicRepository topicRepository, 
                           IUserRepository userRepository, 
                           IDepartmentRepository departmentRepository,
-                          IEvidenceRepository evidenceRepository,
                           IReportRepository reportRepository)
         {
             _context = context;
@@ -99,7 +97,6 @@ namespace Repository.Implementations
             _topicRepository = topicRepository;
             _userRepository = userRepository;
             _departmentRepository = departmentRepository;
-            _evidenceRepository = evidenceRepository;
             _reportRepository = reportRepository;
         }
 
@@ -159,7 +156,6 @@ namespace Repository.Implementations
 
         public IDepartmentRepository Department => _departmentRepository;
 
-        public IEvidenceRepository Evidence => _evidenceRepository;
 
         public IReportRepository Report => _reportRepository;
 

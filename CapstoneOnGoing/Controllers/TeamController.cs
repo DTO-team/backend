@@ -29,13 +29,15 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "STUDENT")]
 		[HttpPost]
+		[ProducesResponseType(typeof(CreatedTeamResponse), StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult CreateTeam(CreateTeamRequest createTeamRequest)
 		{
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			bool isSuccessful = _teamService.CreateTeam(createTeamRequest,userEmail, out CreatedTeamResponse createdTeamResponse);
 			if (isSuccessful)
 			{
-				return Ok(createdTeamResponse);
+				return CreatedAtAction(nameof(CreateTeam),createdTeamResponse);
 			}
 			else
 			{
@@ -51,6 +53,7 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "STUDENT")]
 		[HttpDelete("{id}")]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult DeleteTeam(Guid id)
 		{
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
@@ -68,6 +71,46 @@ namespace CapstoneOnGoing.Controllers
 					Message = "Delete team failed",
 					TimeStamp = DateTime.Now,
 				});
+			}
+		}
+
+		[Authorize(Roles = "STUDENT")]
+		[HttpGet]
+		[ProducesResponseType(typeof(GetTeamResponse),StatusCodes.Status200OK)]
+		public IActionResult GetAllTeams([FromQuery] string teamName , [FromQuery] int page, [FromQuery] int limit){
+			IEnumerable<GetTeamResponse> teamsResponse = _teamService.GetAllTeams(teamName,page,limit);
+			return Ok(teamsResponse);
+		}
+
+		[Authorize(Roles = "STUDENT")]
+		[HttpPatch("{id}")]
+		[ProducesResponseType(typeof(GetTeamDetailResponse),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
+		public IActionResult JoinTeam(Guid id,JoinTeamRequest joinTeamRequest)
+		{
+			if (joinTeamRequest != null && "/add".Equals(joinTeamRequest.Op) && "/student".Equals(joinTeamRequest.Path))
+			{
+				string studentEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+				bool isSuccessful = _teamService.JoinTeam(id, studentEmail, out GetTeamDetailResponse getTeamDetailResponse);
+				if (isSuccessful)
+				{
+					
+					return Ok(getTeamDetailResponse);
+				}
+				else
+				{
+					_logger.LogWarn($"Controller {nameof(TeamController)}, Method {nameof(JoinTeam)} : {studentEmail} join team {id} failed");
+					return BadRequest(new GenericResponse()
+					{
+						HttpStatus = StatusCodes.Status400BadRequest,
+ 						Message = "Join team Failed",
+						TimeStamp = DateTime.Now
+					});
+				}
+			}
+			else
+			{
+				return BadRequest();
 			}
 		}
 	}

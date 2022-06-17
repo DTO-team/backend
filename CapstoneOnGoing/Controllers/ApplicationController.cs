@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Logger;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
@@ -30,6 +31,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ADMIN")]
         [ProducesResponseType(typeof(List<GetApplicationResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllApplications()
@@ -96,6 +98,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "ADMIN")]
         [ProducesResponseType(typeof(GetApplicationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetApplicationById(Guid id)
@@ -154,6 +157,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpPatch("status")]
+        [Authorize(Roles = "ADMIN")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult UpdateApplicationStatus([FromQuery] Guid id, UpdateApplicationStatusRequest request)

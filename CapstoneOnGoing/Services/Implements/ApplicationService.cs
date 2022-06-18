@@ -5,7 +5,10 @@ using System;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
-using Models.Response;
+using System.Collections.Generic;
+using System.Linq;
+using CapstoneOnGoing.Enums;
+using Models.Request;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -18,6 +21,20 @@ namespace CapstoneOnGoing.Services.Implements
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+        }
+
+        public IEnumerable<GetApplicationDTO> GetAllApplication()
+        {
+            IEnumerable<Application> applications = _unitOfWork.Applications.GetAllApplicationsWithTeamTopicProject();
+
+            if (applications.Any())
+            {
+                IEnumerable<GetApplicationDTO> applicationDtos =
+                    _mapper.Map<IEnumerable<GetApplicationDTO>>(applications);
+                return applicationDtos;
+            }
+
+            return null;
         }
 
         public GetApplicationDTO GetApplicationById(Guid id)
@@ -34,6 +51,73 @@ namespace CapstoneOnGoing.Services.Implements
             {
                 throw new BadHttpRequestException("Application not existed");
             }
+        }
+
+        public bool UpdateApplicationStatusById(Guid id, UpdateApplicationStatusRequest request)
+        {
+            bool isSuccess = false;
+            Application application = _unitOfWork.Applications.GetById(id);
+            string operation = request.Operation.ToLower();
+            if (application != null)
+            {
+                switch (operation)
+                {
+                    case "reject":
+                        application.StatusId = (int)ApplicationStatus.Rejected;
+                        isSuccess = true;
+                        _unitOfWork.Applications.Update(application);
+                        _unitOfWork.Save();
+                        break;
+
+                    case "approve":
+                        //Change status of application to approve
+                        application.StatusId = (int)ApplicationStatus.Approved;
+                        _unitOfWork.Applications.Update(application);
+
+                        //Get all ANOTHER application with the same topic to reject
+                        IEnumerable<Application> sameTopicApplications = _unitOfWork.Applications.Get(app =>
+                            (app.TopicId == application.TopicId && app.Id != application.Id));
+                        foreach (Application sameTopicApp in sameTopicApplications)
+                        {
+                            sameTopicApp.StatusId = (int)ApplicationStatus.Rejected;
+                            _unitOfWork.Applications.Update(sameTopicApp);
+                        }
+
+                        //Create new project with the application's topic after approve 1 application
+                        Project project = new Project();
+                        if (application.TeamId == Guid.Empty)
+                        {
+                            throw new BadHttpRequestException("Team Id is required to create new Project");
+                        }
+                        project.ApplicationId = application.Id;
+                        project.TeamId = application.TeamId;
+
+                        Guid topicLecturerId =
+                            _unitOfWork.TopicLecturer.Get(lecturer => lecturer.TopicId == application.TopicId).Select(x => x.LecturerId).FirstOrDefault();
+                        
+                        project.Mentors = new List<Mentor>()
+                        {
+                            new Mentor()
+                            {
+                                ProjectId = project.Id,
+                                LecturerId = topicLecturerId,
+                            }
+                        };
+
+                        _unitOfWork.Project.Insert(project);
+                        _unitOfWork.Save();
+                        isSuccess = true;
+                        break;
+
+                    default:
+                        throw new BadHttpRequestException("Wrong operation request!");
+                }
+            }
+            else
+            {
+                throw new BadHttpRequestException("Application not existed");
+            }
+            return isSuccess;
         }
     }
 }

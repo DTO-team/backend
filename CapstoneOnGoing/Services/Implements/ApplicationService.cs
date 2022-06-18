@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using CapstoneOnGoing.Enums;
 using Models.Request;
 
@@ -64,18 +63,27 @@ namespace CapstoneOnGoing.Services.Implements
                 switch (operation)
                 {
                     case "reject":
-
                         application.StatusId = (int)ApplicationStatus.Rejected;
                         isSuccess = true;
                         _unitOfWork.Applications.Update(application);
                         _unitOfWork.Save();
                         break;
+
                     case "approve":
                         //Change status of application to approve
                         application.StatusId = (int)ApplicationStatus.Approved;
                         _unitOfWork.Applications.Update(application);
 
-                        //Create new project
+                        //Get all ANOTHER application with the same topic to reject
+                        IEnumerable<Application> sameTopicApplications = _unitOfWork.Applications.Get(app =>
+                            (app.TopicId == application.TopicId && app.Id != application.Id));
+                        foreach (Application sameTopicApp in sameTopicApplications)
+                        {
+                            sameTopicApp.StatusId = (int)ApplicationStatus.Rejected;
+                            _unitOfWork.Applications.Update(sameTopicApp);
+                        }
+
+                        //Create new project with the application's topic after approve 1 application
                         Project project = new Project();
                         if (application.TeamId == Guid.Empty)
                         {
@@ -100,6 +108,9 @@ namespace CapstoneOnGoing.Services.Implements
                         _unitOfWork.Save();
                         isSuccess = true;
                         break;
+
+                    default:
+                        throw new BadHttpRequestException("Wrong operation request!");
                 }
             }
             else

@@ -7,5 +7,6 @@ namespace Repository.Interfaces
     public interface IUserRepository : IGenericRepository<User>
     {
 	    IEnumerable<string> GetFullNameById(IEnumerable<Guid> ids);
+	    IEnumerable<User> GetLecturersByIds(params Guid[] ids);
     }
 }

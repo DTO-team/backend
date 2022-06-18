@@ -126,7 +126,7 @@ namespace CapstoneOnGoing.Services.Implements
 				{
 					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId,null, "Student,Role").FirstOrDefault();
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
-					_mapper.Map<User, Member>(teamLeader, teamResponse.LeaderShip);
+					_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
 					teamResponse.Amount = team.TeamStudents.Count;
 					yield return teamResponse;
 				}
@@ -139,15 +139,15 @@ namespace CapstoneOnGoing.Services.Implements
 					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
 					teamLeader.Student.Semester = _unitOfWork.Semester.GetById(teamLeader.Student.SemesterId.Value);
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
-					teamResponse.LeaderShip = new Member();
-					_mapper.Map<User, Member>(teamLeader, teamResponse.LeaderShip);
+					teamResponse.Leader = new Member();
+					_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
 					teamResponse.Amount = team.TeamStudents.Count;
 					yield return teamResponse;
 				}
 			}
 		}
 
-		public bool JoinTeam(Guid teamId, string studentEmail, out  GetTeamDetailResponse getTeamDetailResponse)
+		public bool JoinTeam(Guid teamId, string studentEmail,string joinCode, out  GetTeamDetailResponse getTeamDetailResponse)
 		{
 			//check if team is existed
 			Team team = _unitOfWork.Team.Get(x => x.Id == teamId,null,"TeamStudents").FirstOrDefault();
@@ -167,24 +167,32 @@ namespace CapstoneOnGoing.Services.Implements
 					}
 					else
 					{
-						team.TeamStudents.Add(new TeamStudent()
+						//Check join code
+						if (joinCode.Equals(team.JoinCode))
 						{
-							TeamId = team.Id,
-							StudentId = student.Id,
-							Status = (int)TeamStudentStatus.Active
-						});
-						_unitOfWork.Team.Update(team);
+							team.TeamStudents.Add(new TeamStudent()
+							{
+								TeamId = team.Id,
+								StudentId = student.Id,
+								Status = (int)TeamStudentStatus.Active
+							});
+							_unitOfWork.Team.Update(team);
 
-						bool isSuccessfully = _unitOfWork.Save() > 0;
-						if (isSuccessfully)
-						{
-							getTeamDetailResponse = GetTeamDetail(team);
-							return isSuccessfully;
+							bool isSuccessfully = _unitOfWork.Save() > 0;
+							if (isSuccessfully)
+							{
+								getTeamDetailResponse = GetTeamDetail(team);
+								return isSuccessfully;
+							}
+							else
+							{
+								getTeamDetailResponse = null;
+								return isSuccessfully;
+							}
 						}
 						else
 						{
-							getTeamDetailResponse = null;
-							return isSuccessfully;
+							throw new BadHttpRequestException("Join code is wrong");
 						}
 					}
 				}
@@ -204,9 +212,9 @@ namespace CapstoneOnGoing.Services.Implements
 			User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
 			teamLeader.Student.Semester = _unitOfWork.Semester.GetById(teamLeader.Student.SemesterId.Value);
 			GetTeamDetailResponse teamResponse = _mapper.Map<GetTeamDetailResponse>(team);
-			teamResponse.LeaderShip = new Member();
+			teamResponse.Leader = new Member();
 			IList<Member> members = new List<Member>();
-			_mapper.Map<User, Member>(teamLeader, teamResponse.LeaderShip);
+			_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
 			Array.ForEach(team.TeamStudents.ToArray(), student =>
 			{
 				User studentInTeam = _unitOfWork.User.Get(x => x.Id == student.StudentId,null, "Student,Role").FirstOrDefault();

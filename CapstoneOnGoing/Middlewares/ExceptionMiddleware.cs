@@ -22,10 +22,11 @@ namespace CapstoneOnGoing.Middlewares
 					IExceptionHandlerFeature contextFeature = context.Features.Get<IExceptionHandlerFeature>();
 					if (contextFeature != null)
 					{
-						logger.LogError($"Error: {contextFeature.Error}");
 						var exception = contextFeature.Error as BadHttpRequestException;
 						if (exception != null)
 						{
+							logger.LogWarn($"Error: {contextFeature.Error}");
+							context.Response.StatusCode = exception.StatusCode;
 							await context.Response.WriteAsync(new ErrorDetails()
 							{
 								StatusCode = exception.StatusCode,
@@ -35,6 +36,7 @@ namespace CapstoneOnGoing.Middlewares
 						}
 						else
 						{
+							logger.LogError($"Error: {contextFeature.Error}");
 							await context.Response.WriteAsync(new ErrorDetails()
 							{
 								StatusCode = context.Response.StatusCode,

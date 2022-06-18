@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.Response
 {
-    public class LecturerResponse
+    public class GetLecturerResponse
     {
         public Guid Id { get; set; }
         public string Email { get; set; }

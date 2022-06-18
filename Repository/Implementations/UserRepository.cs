@@ -23,5 +23,10 @@ namespace Repository.Implementations
 		        yield return user?.FullName;
 	        }
         }
+
+        public IEnumerable<User> GetLecturersByIds(params Guid[] ids)
+        {
+	        return dbSet.Include(x => x.Lecturer).ThenInclude(x => x.Department).Where(r => ids.Contains(r.Id));
+        }
     }
 }

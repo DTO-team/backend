@@ -9,6 +9,7 @@ using Models.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
@@ -43,10 +44,16 @@ namespace CapstoneOnGoing.Controllers
 					//Create User Failed
 					if (user == null)
 					{
-						return BadRequest(new GenericResponse { HttpStatus = (int)HttpStatusCode.BadRequest, Message = "Login Failed", TimeStamp = DateTime.Now });
+						return BadRequest(new GenericResponse
+						{
+							HttpStatus = (int) HttpStatusCode.BadRequest, Message = "Login Failed",
+							TimeStamp = DateTime.Now
+						});
 					}
 				}
-				string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name); ;
+
+				string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
+				;
 				LoginUserResponse loginUserResponse = null;
 				switch (user.RoleId)
 				{
@@ -71,10 +78,44 @@ namespace CapstoneOnGoing.Controllers
 
 				return Ok(loginUserResponse);
 			}
+			catch (ArgumentException e)
+			{
+				_logger.LogWarn($"Controller: {nameof(AuthController)}, Method: {nameof(Login)}: {e.Message}");
+				return BadRequest(new GenericResponse
+				{
+					HttpStatus = (int) HttpStatusCode.BadRequest, Message = "Login Failed: Jwt have wrong format",
+					TimeStamp = DateTime.Now
+				});
+			}
+			catch (SecurityTokenExpiredException e)
+			{
+				_logger.LogWarn($"Controller: {nameof(AuthController)}, Method: {nameof(Login)}: {e.Message}");
+				return BadRequest(new GenericResponse
+				{
+					HttpStatus = (int)HttpStatusCode.BadRequest,
+					Message = "Login Failed: jwt token expired",
+					TimeStamp = DateTime.Now
+				});
+			}
+			catch (SecurityTokenValidationException e)
+			{
+				_logger.LogWarn($"Controller: {nameof(AuthController)}, Method: {nameof(Login)}: {e.Message}");
+				return BadRequest(new GenericResponse
+				{
+					HttpStatus = (int)HttpStatusCode.BadRequest,
+					Message = $"Login Failed: {e.Message}",
+					TimeStamp = DateTime.Now
+				});
+			}
 			catch (Exception e)
 			{
 				_logger.LogWarn($"Controller: {nameof(AuthController)}, Method: {nameof(Login)}: {e.Message}");
-				return BadRequest(new GenericResponse { HttpStatus = (int)HttpStatusCode.BadRequest, Message = "Login Failed", TimeStamp = DateTime.Now });
+				return BadRequest(new GenericResponse
+				{
+					HttpStatus = (int)HttpStatusCode.BadRequest,
+					Message = $"Login Failed",
+					TimeStamp = DateTime.Now
+				});
 			}
 		}
 	}

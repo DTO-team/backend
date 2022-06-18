@@ -74,7 +74,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize(Roles = "STUDENT")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet]
 		[ProducesResponseType(typeof(GetTeamResponse),StatusCodes.Status200OK)]
 		public IActionResult GetAllTeams([FromQuery] string teamName , [FromQuery] int page, [FromQuery] int limit){

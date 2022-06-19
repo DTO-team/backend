@@ -32,19 +32,19 @@ namespace CapstoneOnGoing.Services.Implements
             {
                 return null;
             }
-            user = _unitOfWork.User.Get(x => x.Email == email, null, "Role").First();
+            user = _unitOfWork.User.Get(x => x.Email == email, null, "Role").FirstOrDefault();
             if (user != null)
             {
                 switch (user.RoleId)
                 {
                     case 2:
-                        user.Lecturer = _unitOfWork.Lecturer.Get(x => x.Id == user.Id, null, "Department", 0, 0).FirstOrDefault();
+                        user.Lecturer = _unitOfWork.Lecturer.Get(x => x.Id == user.Id, null, "Department").FirstOrDefault();
                         break;
                     case 3:
-                        user.Student = _unitOfWork.Student.Get(x => x.Id == user.Id, null, "Semester", 0, 0).FirstOrDefault();
+                        user.Student = _unitOfWork.Student.Get(x => x.Id == user.Id, null, "Semester").FirstOrDefault();
                         break;
                     case 4:
-                        user.Company = _unitOfWork.Companies.Get(x => x.Id == user.Id, null, null, 0, 0).FirstOrDefault();
+                        user.Company = _unitOfWork.Companies.Get(x => x.Id == user.Id, null, null).FirstOrDefault();
                         break;
                     default:
                         break;

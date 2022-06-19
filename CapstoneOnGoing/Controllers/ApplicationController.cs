@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CapstoneOnGoing.Enums;
-using CapstoneOnGoing.Logger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -21,13 +20,70 @@ namespace CapstoneOnGoing.Controllers
     {
         private readonly IApplicationService _applicationService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILoggerManager _logger;
 
-        public ApplicationController(IApplicationService applicationService, IUnitOfWork unitOfWork, ILoggerManager logger)
+        public ApplicationController(IApplicationService applicationService, IUnitOfWork unitOfWork)
         {
             _applicationService = applicationService;
             _unitOfWork = unitOfWork;
-            _logger = logger;
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN,STUDENT")]
+        [ProducesResponseType(typeof(GetApplicationResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult CreateNewApplication(CreateNewApplicationRequest newApplicationRequest)
+        {
+            GetApplicationResponse response = new GetApplicationResponse();
+            GetApplicationDTO applicationDto = _applicationService.CreateNewApplication(newApplicationRequest);
+            if (applicationDto is not null)
+            {
+                //Team's information
+                ResponseApplyTeamFields applicationFields = new ResponseApplyTeamFields();
+                applicationFields.LeaderName = _unitOfWork.User.GetById(applicationDto.TeamInformation.TeamLeaderId).FullName;
+                applicationFields.TeamName = applicationDto.TeamInformation.TeamName;
+                applicationFields.TeamSemesterSeason = _unitOfWork.Semester.GetById(applicationDto.TeamInformation.TeamSemesterId).Season;
+                response.ApplyTeam = applicationFields;
+
+                //Team's topic information
+                ResponseTopicFields topicFields = new ResponseTopicFields();
+                Topic teamTopic = _unitOfWork.Topic.GetById(applicationDto.Topic.TopicId);
+                topicFields.TopicName = teamTopic.Name;
+
+                string topicDescription = applicationDto.Topic.Description;
+                if (!string.IsNullOrEmpty(topicDescription))
+                {
+                    topicFields.Description = teamTopic.Description;
+                }
+                else
+                {
+                    topicFields.Description = "";
+                }
+                response.Topic = topicFields;
+
+
+                //Team's application status
+                int teamStatus = applicationDto.Status;
+
+                if (teamStatus.Equals(1))
+                {
+                    response.Status = ApplicationStatus.Pending.ToString().ToUpper();
+                }
+                else if (teamStatus.Equals(2))
+                {
+                    response.Status = ApplicationStatus.Approved.ToString().ToUpper();
+                }
+                else
+                {
+                    response.Status = ApplicationStatus.Rejected.ToString().ToUpper(); ;
+                }
+
+                return CreatedAtAction("CreateNewApplication", response);
+            }
+            else
+            {
+                return BadRequest(new GenericResponse()
+                { HttpStatus = 400, Message = "Create New Application failed", TimeStamp = DateTime.Now });
+            }
         }
 
         [HttpGet]
@@ -93,7 +149,7 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
-               return Ok(applicationResponses);
+                return Ok(applicationResponses);
             }
         }
 
@@ -174,6 +230,5 @@ namespace CapstoneOnGoing.Controllers
                 return BadRequest(errorResponse);
             }
         }
-
     }
 }

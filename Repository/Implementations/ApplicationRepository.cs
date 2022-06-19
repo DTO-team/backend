@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Models.Request;
 
 namespace Repository.Implementations
 {
@@ -31,6 +32,19 @@ namespace Repository.Implementations
                  .Include(x => x.Topic)
                  .AsNoTracking()
                  .FirstOrDefault(application => application.Id == Id);
+            return result;
+        }
+
+        public Application GetApplicationWithTeamTopicProjectByTeamIdAndTopicId(CreateNewApplicationRequest newApplicationRequest)
+        {
+            Guid requestTeamId = newApplicationRequest.TeamId;
+            Guid requestTopicId = newApplicationRequest.TopicId;
+            Application result = dbSet
+                 .Include(x => x.Team)
+                 .Include(x => x.Project)
+                 .Include(x => x.Topic)
+                 .AsNoTracking()
+                 .FirstOrDefault(application => (application.TeamId == requestTeamId && application.TopicId == requestTopicId));
             return result;
         }
     }

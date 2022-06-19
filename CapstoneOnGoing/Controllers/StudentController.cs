@@ -46,7 +46,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(students);
         }
 
-        [Authorize(Roles = "ADMIN,LECTURER")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet("{id}")]
         public IActionResult GetStudentById(Guid id)
         {
@@ -109,7 +109,5 @@ namespace CapstoneOnGoing.Controllers
                 return BadRequest("Student is not existed to update");
             }
         }
-
-
     }
 }

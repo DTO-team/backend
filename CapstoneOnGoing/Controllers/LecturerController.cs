@@ -32,14 +32,14 @@ namespace CapstoneOnGoing.Controllers
         [HttpGet]
         public IActionResult GetAllLecturers([FromQuery] int page, [FromQuery] int limit)
         {
-            IEnumerable<LecturerResponse> lecturers;
+            IEnumerable<GetLecturerResponse> lecturers;
             if (page == 0 || limit == 0 || page < 0 || limit < 0)
             {
-                lecturers = _mapper.Map<IEnumerable<LecturerResponse>>(_lecturerService.GetAllLecturers(1, 10));
+                lecturers = _mapper.Map<IEnumerable<GetLecturerResponse>>(_lecturerService.GetAllLecturers(1, 10));
             }
             else
             {
-                lecturers = _mapper.Map<IEnumerable<LecturerResponse>>(_lecturerService.GetAllLecturers(page, limit));
+                lecturers = _mapper.Map<IEnumerable<GetLecturerResponse>>(_lecturerService.GetAllLecturers(page, limit));
             }
             return Ok(lecturers);
         }
@@ -51,7 +51,7 @@ namespace CapstoneOnGoing.Controllers
             User lecturer = _lecturerService.GetLecturerById(id);
             if (lecturer.Lecturer != null)
             {
-                LecturerResponse lecturerResponse = _mapper.Map<LecturerResponse>(lecturer);
+                GetLecturerResponse lecturerResponse = _mapper.Map<GetLecturerResponse>(lecturer);
                 return Ok(lecturerResponse);
             } else
             {
@@ -88,7 +88,7 @@ namespace CapstoneOnGoing.Controllers
             if (updateUser != null)
             {
                 User lecturer = _lecturerService.GetLecturerById(updateUser.Id);
-                return Ok(_mapper.Map<LecturerResponse>(lecturer));
+                return Ok(_mapper.Map<GetLecturerResponse>(lecturer));
             }
             else
             {

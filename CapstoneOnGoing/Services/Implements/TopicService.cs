@@ -32,40 +32,43 @@ namespace CapstoneOnGoing.Services.Implements
         public bool ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
 		{
 			bool isSuccessful = true;
-			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == 1).FirstOrDefault();
+			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
 			if (currentSemester != null)
 			{
 				foreach (ImportTopicsRequest importTopic in importTopicsRequest)
 				{
-					//Get lecture
-					User lecturer = _unitOfWork.User.Get(x => (importTopic.LecturerEmail.Equals(x.Email) && x.RoleId == 2)).FirstOrDefault();
 					User company = null;
 					if (!string.IsNullOrEmpty(importTopic.CompanyEmail) &&
 						!string.IsNullOrWhiteSpace(importTopic.CompanyEmail))
 					{
-						company = _unitOfWork.User.Get(x => (x.RoleId == 4 && importTopic.CompanyEmail.Equals(x.Email)), null, "Company").FirstOrDefault();
+						company = _unitOfWork.User.Get(x => (x.RoleId == (int)RoleEnum.Company && importTopic.CompanyEmail.Equals(x.Email)), null, "Company").FirstOrDefault();
 						if (company == null)
 						{
 							throw new BadHttpRequestException(
 								$"Company with email: {importTopic.CompanyEmail} does not exist");
 						}
 					}//end If the topic related to company
-					if (lecturer != null)
+					 //Get lectures
+					 Topic importedTopic = _mapper.Map<Topic>(importTopic);
+					 importedTopic.CompanyId = company?.Id;
+					 importedTopic.SemesterId = currentSemester.Id;
+					Array.ForEach(importTopic.LecturerEmail.ToArray(), lecturerEmail =>
 					{
-						Topic importedTopic = _mapper.Map<Topic>(importTopic);
-						importedTopic.CompanyId = company?.Id;
-						importedTopic.SemesterId = currentSemester.Id;
-						importedTopic.TopicLecturers.Add(new TopicLecturer()
+						User lecturer = _unitOfWork.User.Get(x => (lecturerEmail.Equals(x.Email) && x.RoleId == (int)RoleEnum.Lecturer)).FirstOrDefault();
+						if (lecturer != null)
 						{
-							LecturerId = lecturer.Id,
-							TopicId = importedTopic.Id
-						});
-						_unitOfWork.Topic.Insert(importedTopic);
-					}
-					else
-					{
-						throw new BadHttpRequestException($"Lecturer with {importTopic.LecturerEmail} does not exist");
-					}
+							importedTopic.TopicLecturers.Add(new TopicLecturer()
+							{
+								LecturerId = lecturer.Id,
+								TopicId = importedTopic.Id
+							});
+							_unitOfWork.Topic.Insert(importedTopic);
+						}
+						else
+						{
+							throw new BadHttpRequestException($"Lecturer with {importTopic.LecturerEmail} does not exist");
+						}
+					});
 				}
 			}
 			else

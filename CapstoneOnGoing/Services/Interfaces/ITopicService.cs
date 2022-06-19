@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CapstoneOnGoing.Filter;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
@@ -11,6 +12,6 @@ namespace CapstoneOnGoing.Services.Interfaces
     {
         Topic GetTopicById(Guid id);
 		bool ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest);
-		IEnumerable<GetTopicsDTO> GetAllTopics();
+		IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter,out int totalRecords);
 	}
 }

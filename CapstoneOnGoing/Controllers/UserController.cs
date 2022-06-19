@@ -31,7 +31,7 @@ namespace CapstoneOnGoing.Controllers
 			_uriService = uriService;
 		}
 
-		[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet]
 		public IActionResult GetAllUser([FromQuery] PaginationFilter paginationFilter)
 		{
@@ -59,7 +59,7 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(new List<UserInAdminDTO>());
 		}
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
 		public IActionResult GetUserById(Guid id)
 		{

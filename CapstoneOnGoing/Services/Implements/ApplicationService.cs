@@ -8,6 +8,7 @@ using Models.Dtos;
 using System.Collections.Generic;
 using System.Linq;
 using CapstoneOnGoing.Enums;
+using CapstoneOnGoing.Filter;
 using Models.Request;
 
 namespace CapstoneOnGoing.Services.Implements
@@ -72,9 +73,9 @@ namespace CapstoneOnGoing.Services.Implements
             return applicationDto;
         }
 
-        public IEnumerable<GetApplicationDTO> GetAllApplication()
+        public IEnumerable<GetApplicationDTO> GetAllApplications(PaginationFilter validFilter, out int totalRecords)
         {
-            IEnumerable<Application> applications = _unitOfWork.Applications.GetAllApplicationsWithTeamTopicProject();
+            IEnumerable<Application> applications = _unitOfWork.Applications.GetAllApplicationsWithTeamTopicProject(validFilter.SearchString,validFilter.PageNumber,validFilter.PageSize,out totalRecords);
 
             if (applications.Any())
             {

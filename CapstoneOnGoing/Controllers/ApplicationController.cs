@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using AutoMapper;
 using CapstoneOnGoing.Enums;
+using CapstoneOnGoing.Filter;
+using CapstoneOnGoing.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -18,7 +21,8 @@ namespace CapstoneOnGoing.Controllers
     [ApiController]
     public class ApplicationController : ControllerBase
     {
-
+        private readonly IUserService _userService;
+        private readonly ITeamService _teamService;
         private readonly IApplicationService _applicationService;
         private readonly IStudentService _studentService;
         private readonly ISemesterService _semesterService;
@@ -26,8 +30,13 @@ namespace CapstoneOnGoing.Controllers
         private readonly IUriService _uriService;
         private readonly IMapper _mapper;
 
-        public ApplicationController(IApplicationService applicationService, IStudentService studentService, ISemesterService semesterService, ITopicService topicService, IUriService uriService, IMapper mapper)
+        public ApplicationController(IUserService userService, ITeamService teamService, 
+            IApplicationService applicationService, IStudentService studentService, 
+            ISemesterService semesterService, ITopicService topicService, 
+            IUriService uriService, IMapper mapper)
         {
+            _userService = userService;
+            _teamService = teamService;
             _applicationService = applicationService;
             _studentService = studentService;
             _semesterService = semesterService;
@@ -96,29 +105,59 @@ namespace CapstoneOnGoing.Controllers
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult CreateNewApplication(CreateNewApplicationRequest newApplicationRequest)
         {
-            GetApplicationResponse response;
-            GetApplicationDTO applicationDto = _applicationService.CreateNewApplication(newApplicationRequest);
-            if (applicationDto is not null)
-            {
-                response = MappingToApplicationResponseFromDto(applicationDto);
+            string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+            User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
+            bool isTeamLeader = _teamService.IsTeamLeader(userByEmail.Id);
 
-                return CreatedAtAction("CreateNewApplication", response);
+            if (isTeamLeader)
+            {
+                GetApplicationResponse response;
+                GetApplicationDTO applicationDto = _applicationService.CreateNewApplication(newApplicationRequest);
+                if (applicationDto is not null)
+                {
+                    response = MappingToApplicationResponseFromDto(applicationDto);
+
+                    return CreatedAtAction("CreateNewApplication", response);
+                }
+                else
+                {
+                    return BadRequest(new GenericResponse()
+                    { HttpStatus = 400, Message = "Create New Application failed", TimeStamp = DateTime.Now });
+                }
             }
             else
             {
                 return BadRequest(new GenericResponse()
-                { HttpStatus = 400, Message = "Create New Application failed", TimeStamp = DateTime.Now });
+                {
+                    HttpStatus = 400,
+                    Message = "Create new application only for team leader!",
+                    TimeStamp = DateTime.Now
+                });
             }
+
         }
 
         [HttpGet]
-        // [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
-        [ProducesResponseType(typeof(List<GetApplicationResponse>), StatusCodes.Status200OK)]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        [ProducesResponseType(typeof(PagedResponse<IEnumerable<GetApplicationResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetAllApplications()
+        public IActionResult GetAllApplications([FromQuery] PaginationFilter paginationFilter)
         {
+	        string route = Request.Path.Value;
+	        PaginationFilter validFilter;
+	        if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
+	            string.IsNullOrWhiteSpace(paginationFilter.SearchString))
+	        {
+		        validFilter =
+			        new PaginationFilter(String.Empty, paginationFilter.PageNumber, paginationFilter.PageSize);
+	        }
+	        else
+	        {
+		        validFilter =
+			        new PaginationFilter(paginationFilter.SearchString, paginationFilter.PageNumber, paginationFilter.PageSize);
+            }
             List<GetApplicationResponse> applicationResponses = new List<GetApplicationResponse>();
-            IEnumerable<GetApplicationDTO> applicationDtos = _applicationService.GetAllApplication();
+            IEnumerable<GetApplicationDTO> applicationDtos = _applicationService.GetAllApplications(validFilter,out int totalRecords);
 
             if (applicationDtos != null)
             {
@@ -131,7 +170,10 @@ namespace CapstoneOnGoing.Controllers
 
             if (applicationResponses.Any())
             {
-                return Ok(applicationResponses);
+	            PagedResponse<IEnumerable<GetApplicationResponse>> pagedResponse =
+		            PaginationHelper<GetApplicationResponse>.CreatePagedResponse(applicationResponses, validFilter,
+			            totalRecords, _uriService, route);
+                return Ok(pagedResponse);
             }
             else
             {
@@ -140,7 +182,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet("{id}")]
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [ProducesResponseType(typeof(GetApplicationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetApplicationById(Guid id)
@@ -180,7 +222,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpDelete("status")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,STUDENT")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult DeleteApplication([FromQuery] Guid id)

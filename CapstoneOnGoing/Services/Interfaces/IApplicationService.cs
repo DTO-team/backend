@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CapstoneOnGoing.Filter;
 using Models.Dtos;
 using Models.Request;
 
@@ -9,7 +10,7 @@ namespace CapstoneOnGoing.Services.Interfaces
     {
         GetApplicationDTO CreateNewApplication(CreateNewApplicationRequest newApplicationRequest);
         GetApplicationDTO GetApplicationById(Guid id);
-        IEnumerable<GetApplicationDTO> GetAllApplication();
+        IEnumerable<GetApplicationDTO> GetAllApplications(PaginationFilter validFilter,out int totalRecords);
         bool UpdateApplicationStatusById(Guid id, UpdateApplicationStatusRequest request);
 
     }

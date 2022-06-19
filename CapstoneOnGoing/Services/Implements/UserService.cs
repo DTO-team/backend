@@ -150,10 +150,12 @@ namespace CapstoneOnGoing.Services.Implements
 
             if (email.Contains("@fpt.edu.vn"))
             {
-                newUser = new User { Email = email, FullName = name, RoleId = 3, StatusId = 1, UserName = email.Substring(0, email.IndexOf('@')) };
+                newUser = new User { Email = email, FullName = name, RoleId = (int)RoleEnum.Student, StatusId = (int)UserStatus.Activated, UserName = email.Substring(0, email.IndexOf('@')) };
                 _unitOfWork.User.Insert(newUser);
                 _unitOfWork.Save();
             }
+
+            newUser = _unitOfWork.User.Get(x => x.Email.Equals(email), null, "Role").FirstOrDefault();
             return newUser;
         }
 

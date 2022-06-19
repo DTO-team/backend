@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models.Request
 {
@@ -11,8 +12,7 @@ namespace Models.Request
 		public string Description { get; set; }
 
 		[Required]
-		[EmailAddress]
-		public string LecturerEmail { get; set; }
+		public IEnumerable<string> LecturerEmail { get; set; }
 		
 		[EmailAddress]
 		public string CompanyEmail { get; set; }

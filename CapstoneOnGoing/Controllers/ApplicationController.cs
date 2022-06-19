@@ -91,8 +91,8 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = "ADMIN")]
-        [ProducesResponseType(typeof(PagedResponse<IEnumerable<GetApplicationResponse>>), StatusCodes.Status200OK)]
+		[Authorize(Roles = "ADMIN")]
+		[ProducesResponseType(typeof(PagedResponse<IEnumerable<GetApplicationResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllApplications([FromQuery] PaginationFilter paginationFilter)
         {

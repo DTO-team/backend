@@ -3,6 +3,8 @@
 using System.Collections.Generic;
 using System.Net;
  using AutoMapper;
+ using CapstoneOnGoing.Filter;
+ using CapstoneOnGoing.Helper;
  using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -21,23 +23,41 @@ namespace CapstoneOnGoing.Controllers
 		private readonly ILoggerManager _logger;
 		private readonly ITopicService _topicService;
 		private readonly IMapper _mapper;
+		private readonly IUriService _uriService;
 
-		public TopicController(ILoggerManager logger, ITopicService topicService, IMapper mapper)
+		public TopicController(ILoggerManager logger, ITopicService topicService, IMapper mapper, IUriService uriService)
 		{
 			_logger = logger;
 			_topicService = topicService;
 			_mapper = mapper;
+			_uriService = uriService;
 		}
 
 		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet]
-		public IActionResult GetAllTopics()
+		[ProducesResponseType(typeof(PagedResponse<IEnumerable<GetTopicsResponse>>),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]
+		public IActionResult GetAllTopics([FromQuery] PaginationFilter paginationFilter)
 		{
-			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics();
+			string route = Request.Path.Value;
+			PaginationFilter validFilter;
+			if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
+			    string.IsNullOrWhiteSpace(paginationFilter.SearchString))
+			{
+				validFilter = new PaginationFilter(String.Empty,paginationFilter.PageNumber,paginationFilter.PageSize);
+			}
+			else
+			{
+				validFilter = new PaginationFilter(paginationFilter.SearchString,paginationFilter.PageNumber,paginationFilter.PageSize);
+			}
+			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(validFilter,out int totalRecords);
 			if (topicsDtos != null)
 			{
 				IEnumerable<GetTopicsResponse> getTopicsResponses = _mapper.Map<IEnumerable<GetTopicsResponse>>(topicsDtos);
-				return Ok(getTopicsResponses);
+				PagedResponse<IEnumerable<GetTopicsResponse>> pagedResponse =
+					PaginationHelper<GetTopicsResponse>.CreatePagedResponse(getTopicsResponses, validFilter,
+						totalRecords, _uriService, route);
+				return Ok(pagedResponse);
 			}
 			else
 			{
@@ -53,6 +73,8 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpPost("list")]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
 		{
 			bool isSuccessful =  _topicService.ImportTopics(importTopicsRequest);

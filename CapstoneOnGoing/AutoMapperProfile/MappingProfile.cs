@@ -116,8 +116,10 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.LecturerIds, src => src.MapFrom(src => src.TopicLecturers.Select(src => src.LecturerId)))
 	            .ForMember(dest => dest.CompanyId, src => src.MapFrom(src => src.CompanyId));
             CreateMap<User, GetLecturerDTO>()
-	            .ForMember(dest => dest.Department,src => src.MapFrom(src => src.Lecturer.Department.Name));
-            CreateMap<User, GetCompanyDTO>();
+	            .ForMember(dest => dest.Department,src => src.MapFrom(src => src.Lecturer.Department.Name))
+	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
+            CreateMap<User, GetCompanyDTO>()
+	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<GetLecturerDTO, GetLecturerResponse>();
             CreateMap<GetCompanyDTO, GetCompanyResponse>();
             CreateMap<GetTopicsDTO, GetTopicsResponse>()

@@ -8,7 +8,7 @@ namespace Models.Response
 		public Guid TeamId { get; set; }
 		public string TeamName { get; set; }
 		public Member LeaderShip { get; set; }
-		public int Amount { get; set; }
+		public int TotalMember { get; set; }
 
 		public GetTeamResponse()
 		{

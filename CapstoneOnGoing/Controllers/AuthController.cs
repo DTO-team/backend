@@ -53,7 +53,6 @@ namespace CapstoneOnGoing.Controllers
 				}
 
 				string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
-				;
 				LoginUserResponse loginUserResponse = null;
 				switch (user.RoleId)
 				{

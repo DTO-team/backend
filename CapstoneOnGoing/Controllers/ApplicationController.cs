@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CapstoneOnGoing.Enums;
+using CapstoneOnGoing.Filter;
+using CapstoneOnGoing.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -20,11 +22,13 @@ namespace CapstoneOnGoing.Controllers
     {
         private readonly IApplicationService _applicationService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUriService _uriService;
 
-        public ApplicationController(IApplicationService applicationService, IUnitOfWork unitOfWork)
+        public ApplicationController(IApplicationService applicationService, IUnitOfWork unitOfWork, IUriService uriService)
         {
             _applicationService = applicationService;
             _unitOfWork = unitOfWork;
+			_uriService = uriService;
         }
 
         [HttpPost]
@@ -87,13 +91,26 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "ADMIN")]
-        [ProducesResponseType(typeof(List<GetApplicationResponse>), StatusCodes.Status200OK)]
+        //[Authorize(Roles = "ADMIN")]
+        [ProducesResponseType(typeof(PagedResponse<IEnumerable<GetApplicationResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetAllApplications()
+        public IActionResult GetAllApplications([FromQuery] PaginationFilter paginationFilter)
         {
+	        string route = Request.Path.Value;
+	        PaginationFilter validFilter;
+	        if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
+	            string.IsNullOrWhiteSpace(paginationFilter.SearchString))
+	        {
+		        validFilter =
+			        new PaginationFilter(String.Empty, paginationFilter.PageNumber, paginationFilter.PageSize);
+	        }
+	        else
+	        {
+		        validFilter =
+			        new PaginationFilter(paginationFilter.SearchString, paginationFilter.PageNumber, paginationFilter.PageSize);
+            }
             List<GetApplicationResponse> applicationResponses = new List<GetApplicationResponse>();
-            IEnumerable<GetApplicationDTO> applicationDtos = _applicationService.GetAllApplication();
+            IEnumerable<GetApplicationDTO> applicationDtos = _applicationService.GetAllApplications(validFilter,out int totalRecords);
 
             if (applicationDtos != null)
             {
@@ -145,7 +162,10 @@ namespace CapstoneOnGoing.Controllers
 
             if (applicationResponses.Any())
             {
-                return Ok(applicationResponses);
+	            PagedResponse<IEnumerable<GetApplicationResponse>> pagedResponse =
+		            PaginationHelper<GetApplicationResponse>.CreatePagedResponse(applicationResponses, validFilter,
+			            totalRecords, _uriService, route);
+                return Ok(pagedResponse);
             }
             else
             {

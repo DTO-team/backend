@@ -240,5 +240,18 @@ namespace CapstoneOnGoing.Services.Implements
 			teamResponse.TotalMember = members.Count();
 			return teamResponse;
 		}
-	}
+
+        public bool IsTeamLeader(Guid userId)
+        {
+            Team team = _unitOfWork.Team.Get(x => x.TeamLeaderId == userId).FirstOrDefault();
+            if (team is not null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
 }

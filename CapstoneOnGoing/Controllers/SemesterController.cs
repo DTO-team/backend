@@ -3,7 +3,6 @@ using AutoMapper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
 using Models.Models;
@@ -25,7 +24,7 @@ namespace CapstoneOnGoing.Controllers
 			_semesterService = semesterService;
 		}
 
-		[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet]
 		public IActionResult GetAllSemester([FromQuery] int page, [FromQuery] int limit)
 		{

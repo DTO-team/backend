@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using AutoMapper;
 using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Helper;
@@ -12,7 +14,6 @@ using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
-using Repository.Interfaces;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -20,15 +21,82 @@ namespace CapstoneOnGoing.Controllers
     [ApiController]
     public class ApplicationController : ControllerBase
     {
+        private readonly IUserService _userService;
+        private readonly ITeamService _teamService;
         private readonly IApplicationService _applicationService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IStudentService _studentService;
+        private readonly ISemesterService _semesterService;
+        private readonly ITopicService _topicService;
         private readonly IUriService _uriService;
+        private readonly IMapper _mapper;
 
-        public ApplicationController(IApplicationService applicationService, IUnitOfWork unitOfWork, IUriService uriService)
+        public ApplicationController(IUserService userService, ITeamService teamService, 
+            IApplicationService applicationService, IStudentService studentService, 
+            ISemesterService semesterService, ITopicService topicService, 
+            IUriService uriService, IMapper mapper)
         {
+            _userService = userService;
+            _teamService = teamService;
             _applicationService = applicationService;
-            _unitOfWork = unitOfWork;
-			_uriService = uriService;
+            _studentService = studentService;
+            _semesterService = semesterService;
+            _topicService = topicService;
+            _uriService = uriService;
+            _mapper = mapper;
+        }
+
+        private GetApplicationResponse MappingToApplicationResponseFromDto(GetApplicationDTO applicationDto)
+        {
+            GetApplicationResponse response = new GetApplicationResponse();
+
+            response.ApplicationId = applicationDto.ApplicationId;
+
+            //Team's information
+            ResponseApplyTeamFields applicationFields = new ResponseApplyTeamFields();
+            applicationFields.TeamId = applicationDto.TeamInformation.TeamId;
+
+            //Get leader student information
+            User leaderStudent = _studentService.GetStudentById(applicationDto.TeamInformation.TeamLeaderId);
+            applicationFields.LeaderStudent = _mapper.Map<StudentResponse>(leaderStudent);
+            applicationFields.TeamName = applicationDto.TeamInformation.TeamName;
+            applicationFields.TeamSemesterSeason = _semesterService.GetSemesterById(applicationDto.TeamInformation.TeamSemesterId).Season;
+            response.ApplyTeam = applicationFields;
+
+            //Team's topic information
+            ResponseTopicFields topicFields = new ResponseTopicFields();
+            Topic teamTopic = _topicService.GetTopicById(applicationDto.Topic.TopicId);
+            topicFields.TopicId = teamTopic.Id;
+            topicFields.TopicName = teamTopic.Name;
+
+            string topicDescription = applicationDto.Topic.Description;
+            if (!string.IsNullOrEmpty(topicDescription))
+            {
+                topicFields.Description = teamTopic.Description;
+            }
+            else
+            {
+                topicFields.Description = "";
+            }
+            response.Topic = topicFields;
+
+
+            //Team's application status
+            int teamStatus = applicationDto.Status;
+
+            if (teamStatus.Equals(1))
+            {
+                response.Status = ApplicationStatus.Pending.ToString().ToUpper();
+            }
+            else if (teamStatus.Equals(2))
+            {
+                response.Status = ApplicationStatus.Approved.ToString().ToUpper();
+            }
+            else
+            {
+                response.Status = ApplicationStatus.Rejected.ToString().ToUpper(); ;
+            }
+
+            return response;
         }
 
         [HttpPost]
@@ -37,62 +105,41 @@ namespace CapstoneOnGoing.Controllers
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult CreateNewApplication(CreateNewApplicationRequest newApplicationRequest)
         {
-            GetApplicationResponse response = new GetApplicationResponse();
-            GetApplicationDTO applicationDto = _applicationService.CreateNewApplication(newApplicationRequest);
-            if (applicationDto is not null)
+            string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+            User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
+            bool isTeamLeader = _teamService.IsTeamLeader(userByEmail.Id);
+
+            if (isTeamLeader)
             {
-                //Team's information
-                ResponseApplyTeamFields applicationFields = new ResponseApplyTeamFields();
-                applicationFields.LeaderName = _unitOfWork.User.GetById(applicationDto.TeamInformation.TeamLeaderId).FullName;
-                applicationFields.TeamName = applicationDto.TeamInformation.TeamName;
-                applicationFields.TeamSemesterSeason = _unitOfWork.Semester.GetById(applicationDto.TeamInformation.TeamSemesterId).Season;
-                response.ApplyTeam = applicationFields;
-
-                //Team's topic information
-                ResponseTopicFields topicFields = new ResponseTopicFields();
-                Topic teamTopic = _unitOfWork.Topic.GetById(applicationDto.Topic.TopicId);
-                topicFields.TopicName = teamTopic.Name;
-
-                string topicDescription = applicationDto.Topic.Description;
-                if (!string.IsNullOrEmpty(topicDescription))
+                GetApplicationResponse response;
+                GetApplicationDTO applicationDto = _applicationService.CreateNewApplication(newApplicationRequest);
+                if (applicationDto is not null)
                 {
-                    topicFields.Description = teamTopic.Description;
+                    response = MappingToApplicationResponseFromDto(applicationDto);
+
+                    return CreatedAtAction("CreateNewApplication", response);
                 }
                 else
                 {
-                    topicFields.Description = "";
+                    return BadRequest(new GenericResponse()
+                    { HttpStatus = 400, Message = "Create New Application failed", TimeStamp = DateTime.Now });
                 }
-                response.Topic = topicFields;
-
-
-                //Team's application status
-                int teamStatus = applicationDto.Status;
-
-                if (teamStatus.Equals(1))
-                {
-                    response.Status = ApplicationStatus.Pending.ToString().ToUpper();
-                }
-                else if (teamStatus.Equals(2))
-                {
-                    response.Status = ApplicationStatus.Approved.ToString().ToUpper();
-                }
-                else
-                {
-                    response.Status = ApplicationStatus.Rejected.ToString().ToUpper(); ;
-                }
-
-                return CreatedAtAction("CreateNewApplication", response);
             }
             else
             {
                 return BadRequest(new GenericResponse()
-                { HttpStatus = 400, Message = "Create New Application failed", TimeStamp = DateTime.Now });
+                {
+                    HttpStatus = 400,
+                    Message = "Create new application only for team leader!",
+                    TimeStamp = DateTime.Now
+                });
             }
+
         }
 
         [HttpGet]
-		[Authorize(Roles = "ADMIN")]
-		[ProducesResponseType(typeof(PagedResponse<IEnumerable<GetApplicationResponse>>), StatusCodes.Status200OK)]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        [ProducesResponseType(typeof(PagedResponse<IEnumerable<GetApplicationResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllApplications([FromQuery] PaginationFilter paginationFilter)
         {
@@ -116,46 +163,7 @@ namespace CapstoneOnGoing.Controllers
             {
                 Array.ForEach(applicationDtos.ToArray(), applicationDto =>
                 {
-                    GetApplicationResponse response = new GetApplicationResponse();
-                    //Team's information
-                    ResponseApplyTeamFields applicationFields = new ResponseApplyTeamFields();
-                    applicationFields.LeaderName = _unitOfWork.User.GetById(applicationDto.TeamInformation.TeamLeaderId).FullName;
-                    applicationFields.TeamName = applicationDto.TeamInformation.TeamName;
-                    applicationFields.TeamSemesterSeason = _unitOfWork.Semester.GetById(applicationDto.TeamInformation.TeamSemesterId).Season;
-                    response.ApplyTeam = applicationFields;
-
-                    //Team's topic information
-                    ResponseTopicFields topicFields = new ResponseTopicFields();
-                    Topic teamTopic = _unitOfWork.Topic.GetById(applicationDto.Topic.TopicId);
-                    topicFields.TopicName = teamTopic.Name;
-
-                    string topicDescription = applicationDto.Topic.Description;
-                    if (!string.IsNullOrEmpty(topicDescription))
-                    {
-                        topicFields.Description = teamTopic.Description;
-                    }
-                    else
-                    {
-                        topicFields.Description = "";
-                    }
-                    response.Topic = topicFields;
-
-
-                    //Team's application status
-                    int teamStatus = applicationDto.Status;
-
-                    if (teamStatus.Equals(1))
-                    {
-                        response.Status = ApplicationStatus.Pending.ToString().ToUpper();
-                    }
-                    else if (teamStatus.Equals(2))
-                    {
-                        response.Status = ApplicationStatus.Approved.ToString().ToUpper();
-                    }
-                    else
-                    {
-                        response.Status = ApplicationStatus.Rejected.ToString().ToUpper(); ;
-                    }
+                    GetApplicationResponse response = MappingToApplicationResponseFromDto(applicationDto);
                     applicationResponses.Add(response);
                 });
             }
@@ -174,54 +182,16 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [ProducesResponseType(typeof(GetApplicationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetApplicationById(Guid id)
         {
-            GetApplicationResponse response = new GetApplicationResponse();
+            GetApplicationResponse response;
             GetApplicationDTO applicationDto = _applicationService.GetApplicationById(id);
             if (applicationDto != null)
             {
-                //Team's information
-                ResponseApplyTeamFields applicationFields = new ResponseApplyTeamFields();
-                applicationFields.LeaderName = _unitOfWork.User.GetById(applicationDto.TeamInformation.TeamLeaderId).FullName;
-                applicationFields.TeamName = applicationDto.TeamInformation.TeamName;
-                applicationFields.TeamSemesterSeason = _unitOfWork.Semester.GetById(applicationDto.TeamInformation.TeamSemesterId).Season;
-                response.ApplyTeam = applicationFields;
-
-                //Team's topic information
-                ResponseTopicFields topicFields = new ResponseTopicFields();
-                Topic teamTopic = _unitOfWork.Topic.GetById(applicationDto.Topic.TopicId);
-                topicFields.TopicName = teamTopic.Name;
-
-                string topicDescription = applicationDto.Topic.Description;
-                if (!string.IsNullOrEmpty(topicDescription))
-                {
-                    topicFields.Description = teamTopic.Description;
-                }
-                else
-                {
-                    topicFields.Description = "";
-                }
-                response.Topic = topicFields;
-
-
-                //Team's application status
-                int teamStatus = applicationDto.Status;
-
-                if (teamStatus.Equals(1))
-                {
-                    response.Status = ApplicationStatus.Pending.ToString().ToUpper();
-                }
-                else if (teamStatus.Equals(2))
-                {
-                    response.Status = ApplicationStatus.Approved.ToString().ToUpper();
-                }
-                else
-                {
-                    response.Status = ApplicationStatus.Rejected.ToString().ToUpper(); ;
-                }
+                response = MappingToApplicationResponseFromDto(applicationDto);
                 return Ok(response);
 
             }
@@ -250,5 +220,25 @@ namespace CapstoneOnGoing.Controllers
                 return BadRequest(errorResponse);
             }
         }
+
+        [HttpDelete("status")]
+        [Authorize(Roles = "ADMIN,STUDENT")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult DeleteApplication([FromQuery] Guid id)
+        {
+            bool isSuccess = _applicationService.UpdateApplicationStatusById(id, new UpdateApplicationStatusRequest() {Op = "delete"});
+            if (isSuccess)
+            {
+                return Ok();
+            }
+            else
+            {
+                GenericResponse errorResponse = new GenericResponse()
+                    { HttpStatus = 400, Message = "Delete application failed!", TimeStamp = DateTime.Now };
+                return BadRequest(errorResponse);
+            }
+        }
+
     }
 }

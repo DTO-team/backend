@@ -4,6 +4,7 @@ namespace Models.Dtos
 {
     public class ApplicationFields
     {
+        public Guid TeamId { get; set; }
         public string TeamName { get; set; }
         public Guid TeamLeaderId { get; set; }
         public Guid TeamSemesterId { get; set; }
@@ -18,6 +19,7 @@ namespace Models.Dtos
 
     public class GetApplicationDTO
     {
+        public Guid ApplicationId { get; set; }
         public ApplicationFields TeamInformation { get; set; }
 
         public TopicFields Topic { get; set; }

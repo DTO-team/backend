@@ -127,7 +127,7 @@ namespace CapstoneOnGoing.Services.Implements
 					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId,null, "Student,Role").FirstOrDefault();
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
 					_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
-					teamResponse.Amount = team.TeamStudents.Count;
+					teamResponse.TotalMember = team.TeamStudents.Count;
 					yield return teamResponse;
 				}
 			}
@@ -141,7 +141,7 @@ namespace CapstoneOnGoing.Services.Implements
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
 					teamResponse.Leader = new Member();
 					_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
-					teamResponse.Amount = team.TeamStudents.Count;
+					teamResponse.TotalMember = team.TeamStudents.Count;
 					yield return teamResponse;
 				}
 			}
@@ -207,6 +207,20 @@ namespace CapstoneOnGoing.Services.Implements
 			}	
 		}
 
+		public GetTeamDetailResponse GetTeamDetail(Guid teamId)
+		{
+			Team team = _unitOfWork.Team.Get(x => x.Id == teamId, null, "TeamStudents").FirstOrDefault();
+			if (team != null)
+			{
+				GetTeamDetailResponse teamDetailResponse = GetTeamDetail(team);
+				return teamDetailResponse;
+			}
+			else
+			{
+				return null;
+			}
+		}
+
 		private GetTeamDetailResponse GetTeamDetail(Team team)
 		{
 			User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
@@ -218,11 +232,12 @@ namespace CapstoneOnGoing.Services.Implements
 			Array.ForEach(team.TeamStudents.ToArray(), student =>
 			{
 				User studentInTeam = _unitOfWork.User.Get(x => x.Id == student.StudentId,null, "Student,Role").FirstOrDefault();
+				studentInTeam.Student.Semester = _unitOfWork.Semester.GetById(studentInTeam.Student.SemesterId.Value);
 				Member member = _mapper.Map<Member>(studentInTeam);
 				members.Add(member);
 			});
 			teamResponse.Members = members;
-			teamResponse.Amount = members.Count();
+			teamResponse.TotalMember = members.Count();
 			return teamResponse;
 		}
 	}

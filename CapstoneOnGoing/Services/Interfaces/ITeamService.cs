@@ -10,5 +10,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 		bool DeleteTeam(Guid deletedTeamId, string userEmail);
 		IEnumerable<GetTeamResponse> GetAllTeams(string teamName = null, int page = 1, int limit = 10);
 		bool JoinTeam(Guid teamId, string studentEmail,string joinCode, out GetTeamDetailResponse getTeamDetailResponse);
+		GetTeamDetailResponse GetTeamDetail(Guid teamId);
 	}
 }

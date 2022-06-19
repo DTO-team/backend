@@ -74,7 +74,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize(Roles = "STUDENT")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet]
 		[ProducesResponseType(typeof(GetTeamResponse),StatusCodes.Status200OK)]
 		public IActionResult GetAllTeams([FromQuery] string teamName , [FromQuery] int page, [FromQuery] int limit){
@@ -111,6 +111,29 @@ namespace CapstoneOnGoing.Controllers
 			else
 			{
 				return BadRequest();
+			}
+		}
+
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		[HttpGet("{id}")]
+		[ProducesResponseType(typeof(GetTeamDetailResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+		public IActionResult GetTeamDetail(Guid id)
+		{
+			GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(id);
+			if (teamDetailResponse != null)
+			{
+				return Ok(teamDetailResponse);
+			}
+			else
+			{
+				_logger.LogWarn($"Controller: {nameof(TeamController)}, Method: {nameof(GetTeamDetail)}: Team with {id} is not existed");
+				return NotFound(new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status404NotFound,
+					Message = "Team is not exist",
+					TimeStamp = DateTime.Now
+				});
 			}
 		}
 	}

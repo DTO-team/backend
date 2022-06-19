@@ -10,7 +10,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 	{
 		User GetUserWithRoleByEmail(string email);
 		User GetUserById(Guid id);
-		IEnumerable<User> GetAllUsers(string name,int page, int limit);
+		IEnumerable<User> GetAllUsers(string name,int page, int limit, out int totalRecords);
 		void CreateUser(CreateNewUserRequest user);
 		void UpdateUser(UpdateUserInAdminRequest user);
 		Guid GetUserIdByUserName(string userName);

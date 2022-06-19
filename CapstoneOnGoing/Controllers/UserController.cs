@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
+using CapstoneOnGoing.Filter;
+using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,25 +21,40 @@ namespace CapstoneOnGoing.Controllers
 		private readonly IMapper _mapper;
 		private readonly IUserService _userService;
 		private readonly ILoggerManager _logger;
+        private readonly IUriService _uriService;
 
-		public UserController(IMapper mapper, ILoggerManager logger, IUserService userService)
+		public UserController(IMapper mapper, ILoggerManager logger, IUserService userService, IUriService uriService)
 		{
 			_mapper = mapper;
 			_userService = userService;
 			_logger = logger;
+			_uriService = uriService;
 		}
 
-        [Authorize(Roles = "ADMIN")]
-        [HttpGet]
-		public IActionResult GetAllUser([FromQuery] string username, [FromQuery] int page, [FromQuery] int limit)
+		[Authorize(Roles = "ADMIN")]
+		[HttpGet]
+		public IActionResult GetAllUser([FromQuery] PaginationFilter paginationFilter)
 		{
-
-			IEnumerable<User> users = _userService.GetAllUsers(username, page, limit);
-
+			string route = Request.Path.Value;
+			PaginationFilter validFilter;
+			if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
+			    string.IsNullOrWhiteSpace(paginationFilter.SearchString))
+			{
+				validFilter =
+					new PaginationFilter(String.Empty, paginationFilter.PageNumber, paginationFilter.PageSize);
+			}
+			else
+			{
+				validFilter =
+					new PaginationFilter(paginationFilter.SearchString.Trim(), paginationFilter.PageNumber, paginationFilter.PageSize);
+			}
+			IEnumerable<User> users = _userService.GetAllUsers(paginationFilter.SearchString, paginationFilter.PageNumber, paginationFilter.PageSize, out int totalRecords);
 			if (users != null)
 			{
 				IEnumerable<UserInAdminDTO> usersInAdminDTO = _mapper.Map<IEnumerable<UserInAdminDTO>>(users);
-				return Ok(usersInAdminDTO);
+				var pagedResponse =
+					PaginationHelper<UserInAdminDTO>.CreatePagedResponse(usersInAdminDTO,validFilter,totalRecords,_uriService,route);
+				return Ok(pagedResponse);
 			}
 			return Ok(new List<UserInAdminDTO>());
 		}

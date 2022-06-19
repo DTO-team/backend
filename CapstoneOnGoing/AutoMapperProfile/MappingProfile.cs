@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AutoMapper;
 using Models.Dtos;
 using Models.Models;
@@ -50,10 +51,10 @@ namespace CapstoneOnGoing.AutoMapperProfile
 
             CreateMap<UpdateLecturerRequest, User>();
 
-            CreateMap<Lecturer, LecturerResponse>()
+            CreateMap<Lecturer, GetLecturerResponse>()
                 .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department.Name));
 
-            CreateMap<User, LecturerResponse>()
+            CreateMap<User, GetLecturerResponse>()
                 .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department.Name))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
@@ -91,7 +92,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<Team, GetTeamResponse>()
 	            .ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.Id))
 	            .ForMember(dest => dest.TeamName, src => src.MapFrom(src => src.Name))
-	            .ForMember(dest => dest.LeaderShip, src => src.Ignore());
+	            .ForMember(dest => dest.Leader, src => src.Ignore());
             CreateMap<User, Member>()
 	            .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
 	            .ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
@@ -111,6 +112,17 @@ namespace CapstoneOnGoing.AutoMapperProfile
                     src => src.MapFrom(src => src.StatusId));
             CreateMap<Team, GetTeamDetailResponse>()
 	            .IncludeBase<Team,GetTeamResponse>();
+            CreateMap<Topic, GetTopicsDTO>()
+	            .ForMember(dest => dest.LecturerIds, src => src.MapFrom(src => src.TopicLecturers.Select(src => src.LecturerId)))
+	            .ForMember(dest => dest.CompanyId, src => src.MapFrom(src => src.CompanyId));
+            CreateMap<User, GetLecturerDTO>()
+	            .ForMember(dest => dest.Department,src => src.MapFrom(src => src.Lecturer.Department.Name));
+            CreateMap<User, GetCompanyDTO>();
+            CreateMap<GetLecturerDTO, GetLecturerResponse>();
+            CreateMap<GetCompanyDTO, GetCompanyResponse>();
+            CreateMap<GetTopicsDTO, GetTopicsResponse>()
+	            .ForMember(dest => dest.LecturersDetails, src => src.MapFrom(src => src.LecturerDtos))
+	            .ForMember(dest => dest.CompanyDetail, src => src.MapFrom(src => src.CompanyDto));
         }
     }
 }

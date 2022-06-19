@@ -1,4 +1,4 @@
-﻿using System;
+﻿	using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -74,7 +74,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize(Roles = "STUDENT")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet]
 		[ProducesResponseType(typeof(GetTeamResponse),StatusCodes.Status200OK)]
 		public IActionResult GetAllTeams([FromQuery] string teamName , [FromQuery] int page, [FromQuery] int limit){
@@ -88,10 +88,10 @@ namespace CapstoneOnGoing.Controllers
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
 		public IActionResult JoinTeam(Guid id,JoinTeamRequest joinTeamRequest)
 		{
-			if (joinTeamRequest != null && "/add".Equals(joinTeamRequest.Op) && "/student".Equals(joinTeamRequest.Path))
+			if (joinTeamRequest != null && "add".Equals(joinTeamRequest.Op) && "student".Equals(joinTeamRequest.Path.Replace("/",string.Empty)))
 			{
 				string studentEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
-				bool isSuccessful = _teamService.JoinTeam(id, studentEmail, out GetTeamDetailResponse getTeamDetailResponse);
+				bool isSuccessful = _teamService.JoinTeam(id, studentEmail,joinTeamRequest.JoinCode, out GetTeamDetailResponse getTeamDetailResponse);
 				if (isSuccessful)
 				{
 					

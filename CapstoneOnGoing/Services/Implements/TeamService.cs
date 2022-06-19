@@ -126,7 +126,7 @@ namespace CapstoneOnGoing.Services.Implements
 				{
 					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId,null, "Student,Role").FirstOrDefault();
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
-					_mapper.Map<User, Member>(teamLeader, teamResponse.LeaderShip);
+					_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
 					teamResponse.TotalMember = team.TeamStudents.Count;
 					yield return teamResponse;
 				}
@@ -232,6 +232,7 @@ namespace CapstoneOnGoing.Services.Implements
 			Array.ForEach(team.TeamStudents.ToArray(), student =>
 			{
 				User studentInTeam = _unitOfWork.User.Get(x => x.Id == student.StudentId,null, "Student,Role").FirstOrDefault();
+				studentInTeam.Student.Semester = _unitOfWork.Semester.GetById(studentInTeam.Student.SemesterId.Value);
 				Member member = _mapper.Map<Member>(studentInTeam);
 				members.Add(member);
 			});

@@ -116,6 +116,8 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet("{id}")]
+		[ProducesResponseType(typeof(GetTeamDetailResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult GetTeamDetail(Guid id)
 		{
 			GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(id);

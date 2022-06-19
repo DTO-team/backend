@@ -7,7 +7,7 @@ namespace Repository.Interfaces
 {
     public interface IApplicationRepository : IGenericRepository<Application>
     {
-        IEnumerable<Application> GetAllApplicationsWithTeamTopicProject();
+        IEnumerable<Application> GetAllApplicationsWithTeamTopicProject(string searchString, int page, int limit, out int totalRecords);
         Application GetApplicationWithTeamTopicProject(Guid id);
 
         Application GetApplicationWithTeamTopicProjectByTeamIdAndTopicId(

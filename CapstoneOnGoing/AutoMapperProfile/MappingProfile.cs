@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoMapper;
+using CapstoneOnGoing.Enums;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
@@ -15,6 +16,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
             //Config Mapping in here
             CreateMap<CreateNewUserRequest, User>();
             CreateMap<User, UserInAdminDTO>()
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
+                .ForMember(dest => dest.AvatarUrl, src => src.MapFrom(src => src.AvatarUrl))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<UpdateUserInAdminRequest, User>()
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role));
@@ -58,9 +61,12 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department.Name))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
-            CreateMap<Student, StudentResponse>();
+            CreateMap<Student, StudentResponse>()
+                .ForMember(dest => dest.Semester,
+                    src => src.MapFrom(src => $"{src.Semester.Year.ToString()} - {src.Semester.Season.ToString()}"));
 
             CreateMap<User, StudentResponse>()
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
                 .ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Season))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name))
                 .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code));
@@ -104,8 +110,9 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
             CreateMap<Application, GetApplicationDTO>()
+                .ForMember(dest => dest.ApplicationId, src => src.MapFrom(src => src.Id))
                 .ForMember(dest => dest.TeamInformation,
-                    src => src.MapFrom(src => new ApplicationFields() { TeamName = src.Team.Name, TeamLeaderId = src.Team.TeamLeaderId, TeamSemesterId = (Guid)src.Team.SemesterId }))
+                    src => src.MapFrom(src => new ApplicationFields() {TeamId = src.TeamId ,TeamName = src.Team.Name, TeamLeaderId = src.Team.TeamLeaderId, TeamSemesterId = (Guid)src.Team.SemesterId }))
                 .ForMember(dest => dest.Topic,
                     src => src.MapFrom(src => new TopicFields() { TopicId = src.TopicId, Description = src.Topic.Description }))
                 .ForMember(dest => dest.Status,

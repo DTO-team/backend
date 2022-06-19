@@ -106,7 +106,7 @@ namespace CapstoneOnGoing.Services.Implements
         {
             bool isSuccess = false;
             Application application = _unitOfWork.Applications.GetById(id);
-            string operation = request.Operation.ToLower();
+            string operation = request.Op.ToLower();
             if (application != null)
             {
                 switch (operation)
@@ -125,7 +125,7 @@ namespace CapstoneOnGoing.Services.Implements
 
                         //Get all ANOTHER application with the same topic to reject
                         IEnumerable<Application> sameTopicApplications = _unitOfWork.Applications.Get(app =>
-                            (app.TopicId == application.TopicId && app.Id != application.Id));
+                            (app.TopicId == application.TopicId && app.Id != application.Id && app.StatusId != (int)ApplicationStatus.Deleted));
                         foreach (Application sameTopicApp in sameTopicApplications)
                         {
                             sameTopicApp.StatusId = (int)ApplicationStatus.Rejected;
@@ -156,6 +156,13 @@ namespace CapstoneOnGoing.Services.Implements
                         _unitOfWork.Project.Insert(project);
                         _unitOfWork.Save();
                         isSuccess = true;
+                        break;
+
+                    case "delete":
+                        application.StatusId = (int)ApplicationStatus.Deleted;
+                        isSuccess = true;
+                        _unitOfWork.Applications.Update(application);
+                        _unitOfWork.Save();
                         break;
 
                     default:

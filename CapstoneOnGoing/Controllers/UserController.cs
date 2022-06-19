@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
 using Models.Response;
@@ -77,16 +77,29 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        public IActionResult CreateNewUser([FromBody] CreateNewUserRequest newUserData)
+        [ProducesResponseType(typeof(StudentResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+		public IActionResult CreateNewUser([FromBody] CreateNewUserRequest newUserData)
         {
             User user = _userService.GetUserWithRoleByEmail(newUserData.Email);
-            //User activated immediately at the time user is created
-            if (newUserData.StatusId != 1)
+            User createdUser;
+
+			if (user is null)
             {
-                newUserData.StatusId = 1;
+                //User activated immediately at the time user is created
+                if (newUserData.StatusId != 1)
+                {
+                    newUserData.StatusId = 1;
+                }
+                _userService.CreateUser(newUserData);
+			}
+            else
+            {
+                throw new BadHttpRequestException($"User with {newUserData.Email} is existed");
             }
-            _userService.CreateUser(newUserData);
-			return CreatedAtAction(nameof(CreateNewUser), newUserData.Email);
+            createdUser = _userService.GetUserWithRoleByEmail(newUserData.Email);
+            StudentResponse createdUserResponse = _mapper.Map<StudentResponse>(createdUser);
+            return CreatedAtAction("createNewUser", createdUserResponse);
         }
 
         [Authorize(Roles = "ADMIN")]

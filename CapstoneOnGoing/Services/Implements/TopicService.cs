@@ -23,7 +23,13 @@ namespace CapstoneOnGoing.Services.Implements
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 		}
-		public bool ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
+
+        public Topic GetTopicById(Guid id)
+        {
+            return _unitOfWork.Topic.GetById(id);
+        }
+
+        public bool ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
 		{
 			bool isSuccessful = true;
 			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == 1).FirstOrDefault();

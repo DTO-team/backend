@@ -15,6 +15,6 @@ namespace Models.Response
         public string Code { get; set; }
         public string Semester { get; set; }
         public string Role { get; set; }
-        public int StatusId { get; set; }
+        public string Status { get; set; }
     }
 }

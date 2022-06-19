@@ -10,6 +10,7 @@ using Models.Request;
 using System.Net.Mail;
 using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
+using CapstoneOnGoing.Enums;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -62,23 +63,18 @@ namespace CapstoneOnGoing.Services.Implements
             return null;
         }
 
-        public IEnumerable<User> GetAllUsers(string name, int page, int limit)
+        public IEnumerable<User> GetAllUsers(string name, int page, int limit, out int totalRecords)
         {
             IEnumerable<User> users;
-            //default is page 1 and limit is 10 if not have value of page and limit parameter
-            if (page == 0 || limit == 0 || page < 0 || limit < 0)
-            {
-                page = 1;
-                limit = 10;
-            }
-
             if (!string.IsNullOrEmpty(name))
             {
-                users = _unitOfWork.User.Get((x => (x.UserName.Contains(name) && x.StatusId != 2)), null, "Role", page, limit);
+                users = _unitOfWork.User.Get((x => (x.UserName.Contains(name) && x.StatusId != (int)UserStatus.Inactivated)), null, "Role", page, limit);
+                totalRecords = _unitOfWork.User.Get((x => (x.UserName.Contains(name) && x.StatusId != (int)UserStatus.Inactivated))).Count();
             }
             else
             {
                 users = _unitOfWork.User.Get(null, null, "Role", page, limit);
+                totalRecords = _unitOfWork.User.Get().Count();
             }
 
             return users;

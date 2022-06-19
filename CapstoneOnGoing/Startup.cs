@@ -37,6 +37,8 @@ namespace CapstoneOnGoing
 		{
 			services.AddHealthChecks();
 			services.AddCors();
+			//config uri for pagination
+			services.AddConfigUriForPagination();
 			services.AddAutoMapper(typeof(Startup));
 			var connectionString = $"Server={Configuration.GetValue<string>("DATABASE_HOST")},{Configuration.GetValue<string>("DATABASE_PORT")};User Id={Configuration.GetValue<string>("DATABASE_USERNAME")};" +
 				$"Password={Configuration.GetValue<string>("DATABASE_PASSWORD")};Database={Configuration.GetValue<string>("DATABASE_NAME")};";

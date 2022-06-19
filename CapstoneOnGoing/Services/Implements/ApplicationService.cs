@@ -23,6 +23,55 @@ namespace CapstoneOnGoing.Services.Implements
             _mapper = mapper;
         }
 
+        public GetApplicationDTO CreateNewApplication(CreateNewApplicationRequest newApplicationRequest)
+        {
+            GetApplicationDTO applicationDto;
+            Guid requestTeamId = newApplicationRequest.TeamId;
+            Guid requestTopicId = newApplicationRequest.TopicId;
+            Application existApplication =
+                _unitOfWork.Applications.Get(app => (app.TeamId == requestTeamId && app.TopicId == requestTopicId)).FirstOrDefault();
+
+            //Check topic and team is existed
+            Topic existTopic = _unitOfWork.Topic.GetById(requestTopicId);
+            Team existTeam = _unitOfWork.Team.GetById(requestTeamId);
+            if (existTeam is null)
+            {
+                throw new BadHttpRequestException(
+                    $"Team with {requestTeamId} teamId is not existed");
+            }
+            if (existTopic is null)
+            {
+                throw new BadHttpRequestException(
+                    $"Topic with {requestTopicId} topicId is not existed");
+            }
+
+            //Create new application
+            if (existApplication is null)
+            {
+                //Create application
+                Application application = new Application();
+                application.TeamId = requestTeamId;
+                application.TopicId = requestTopicId;
+                application.StatusId = (int)ApplicationStatus.Pending;
+
+                _unitOfWork.Applications.Insert(application);
+                _unitOfWork.Save();
+            }
+            else
+            {
+                throw new BadHttpRequestException(
+                    $"Application with teamId: {requestTeamId} and topicId: {requestTopicId} is existed");
+            }
+
+            //Get created application
+            Application newCreatedApplication =
+                _unitOfWork.Applications.GetApplicationWithTeamTopicProjectByTeamIdAndTopicId(newApplicationRequest);
+
+            applicationDto = _mapper.Map<GetApplicationDTO>(newCreatedApplication);
+
+            return applicationDto;
+        }
+
         public IEnumerable<GetApplicationDTO> GetAllApplication()
         {
             IEnumerable<Application> applications = _unitOfWork.Applications.GetAllApplicationsWithTeamTopicProject();
@@ -94,7 +143,7 @@ namespace CapstoneOnGoing.Services.Implements
 
                         Guid topicLecturerId =
                             _unitOfWork.TopicLecturer.Get(lecturer => lecturer.TopicId == application.TopicId).Select(x => x.LecturerId).FirstOrDefault();
-                        
+
                         project.Mentors = new List<Mentor>()
                         {
                             new Mentor()

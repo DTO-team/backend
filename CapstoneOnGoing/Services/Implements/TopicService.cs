@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Enums;
+using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -17,7 +18,7 @@ namespace CapstoneOnGoing.Services.Implements
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
-    
+
 		public TopicService(IUnitOfWork unitOfWork, IMapper mapper)
 		{
 			_unitOfWork = unitOfWork;
@@ -35,7 +36,7 @@ namespace CapstoneOnGoing.Services.Implements
 					User lecturer = _unitOfWork.User.Get(x => (importTopic.LecturerEmail.Equals(x.Email) && x.RoleId == 2)).FirstOrDefault();
 					User company = null;
 					if (!string.IsNullOrEmpty(importTopic.CompanyEmail) &&
-					    !string.IsNullOrWhiteSpace(importTopic.CompanyEmail))
+						!string.IsNullOrWhiteSpace(importTopic.CompanyEmail))
 					{
 						company = _unitOfWork.User.Get(x => (x.RoleId == 4 && importTopic.CompanyEmail.Equals(x.Email)), null, "Company").FirstOrDefault();
 						if (company == null)
@@ -74,36 +75,69 @@ namespace CapstoneOnGoing.Services.Implements
 			return isSuccessful;
 		}
 
-		public IEnumerable<GetTopicsDTO> GetAllTopics()
+		public IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter, out int totalRecords)
 		{
 			//get current semester 
-			Semester currentSemester = _unitOfWork.Semester.Get(x=> x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
+			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
 			if (currentSemester is not null)
 			{
-				IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => x.SemesterId == currentSemester.Id,null, "TopicLecturers");
-				IEnumerable<GetTopicsDTO> getTopicsDtos = null;
-				if (topics.Any())
+				if (string.IsNullOrEmpty(validFilter.SearchString) ||
+					string.IsNullOrWhiteSpace(validFilter.SearchString))
 				{
-					getTopicsDtos = _mapper.Map<IEnumerable<GetTopicsDTO>>(topics);
+					totalRecords = _unitOfWork.Topic.Get(x => (x.SemesterId == currentSemester.Id && x.Name.Contains(validFilter.SearchString))).Count();
+					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => (x.SemesterId == currentSemester.Id && x.Name.Contains(validFilter.SearchString)), null, "TopicLecturers", validFilter.PageNumber, validFilter.PageSize);
+					IEnumerable<GetTopicsDTO> getTopicsDtos = null;
+					if (topics.Any())
+					{
+						getTopicsDtos = _mapper.Map<IEnumerable<GetTopicsDTO>>(topics);
+					}
+					else
+					{
+						totalRecords = 0;
+						return null;
+					}
+					Array.ForEach(getTopicsDtos.ToArray(), getTopicsDto =>
+					{
+						IEnumerable<User> lecturers = _unitOfWork.User.GetLecturersByIds(getTopicsDto.LecturerIds.ToArray());
+						getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
+						if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
+						{
+							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId,null,"Role").FirstOrDefault();
+							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
+						}
+					});
+					return getTopicsDtos;
 				}
 				else
 				{
-					return null;
-				}
-				Array.ForEach(getTopicsDtos.ToArray(), getTopicsDto =>
-				{
-					IEnumerable<User> lecturers = _unitOfWork.User.GetLecturersByIds(getTopicsDto.LecturerIds.ToArray());
-					getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
-					if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
+					totalRecords = _unitOfWork.Topic.Get(x => x.SemesterId == currentSemester.Id).Count();
+					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => x.SemesterId == currentSemester.Id, null, "TopicLecturers", validFilter.PageNumber, validFilter.PageSize);
+					IEnumerable<GetTopicsDTO> getTopicsDtos = null;
+					if (topics.Any())
 					{
-						User companyUser = _unitOfWork.User.GetById(getTopicsDto.CompanyId);
-						getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
+						getTopicsDtos = _mapper.Map<IEnumerable<GetTopicsDTO>>(topics);
 					}
-				});
-				return getTopicsDtos;
+					else
+					{
+						totalRecords = 0;
+						return null;
+					}
+					Array.ForEach(getTopicsDtos.ToArray(), getTopicsDto =>
+					{
+						IEnumerable<User> lecturers = _unitOfWork.User.GetLecturersByIds(getTopicsDto.LecturerIds.ToArray());
+						getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
+						if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
+						{
+							User companyUser = _unitOfWork.User.GetById(getTopicsDto.CompanyId);
+							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
+						}
+					});
+					return getTopicsDtos;
+				}
 			}
 			else
 			{
+				totalRecords = 0;
 				return null;
 			}
 		}

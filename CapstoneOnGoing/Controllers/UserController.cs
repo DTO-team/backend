@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
+using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
 using Models.Response;
+using Models.Response.GetAllUserResponse;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -20,18 +23,22 @@ namespace CapstoneOnGoing.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly IUserService _userService;
+        private readonly ILecturerService _lecturerService;
+        private readonly IStudentService _studentService;
 		private readonly ILoggerManager _logger;
         private readonly IUriService _uriService;
 
-		public UserController(IMapper mapper, ILoggerManager logger, IUserService userService, IUriService uriService)
+		public UserController(IMapper mapper, ILoggerManager logger, IUserService userService, IUriService uriService, ILecturerService lecturerService, IStudentService studentService)
 		{
 			_mapper = mapper;
 			_userService = userService;
 			_logger = logger;
 			_uriService = uriService;
-		}
+            _studentService = studentService;
+            _lecturerService = lecturerService;
+        }
 
-		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet]
 		public IActionResult GetAllUser([FromQuery] PaginationFilter paginationFilter)
 		{
@@ -52,9 +59,32 @@ namespace CapstoneOnGoing.Controllers
 			if (users != null)
 			{
 				IEnumerable<UserInAdminDTO> usersInAdminDTO = _mapper.Map<IEnumerable<UserInAdminDTO>>(users);
-				var pagedResponse =
-					PaginationHelper<UserInAdminDTO>.CreatePagedResponse(usersInAdminDTO,validFilter,totalRecords,_uriService,route);
-				return Ok(pagedResponse);
+                List<UserResponse> userResponses = new List<UserResponse>();
+
+				Array.ForEach(usersInAdminDTO.ToArray(), user =>
+                {
+                    string userRole = user.Role;
+                    if (userRole.Equals(RoleEnum.Lecturer.ToString().ToUpper()))
+                    {
+                        User lecturer = _lecturerService.GetLecturerById(user.Id);
+                        LecturerUserResponse lecturerUser = _mapper.Map<LecturerUserResponse>(lecturer);
+                        
+                        userResponses.Add(lecturerUser);
+                    }
+
+                    if (userRole.Equals(RoleEnum.Student.ToString().ToUpper()))
+                    {
+                        User student = _studentService.GetStudentById(user.Id);
+                        StudentUserResponse studentUser = _mapper.Map<StudentUserResponse>(student);
+                        userResponses.Add(studentUser);
+                    }
+                });
+
+				// var pagedResponse =
+				// 	PaginationHelper<UserInAdminDTO>.CreatePagedResponse(usersInAdminDTO,validFilter,totalRecords,_uriService,route);
+                 var pagedResponse =
+                PaginationHelper<UserResponse>.CreatePagedResponse(userResponses, validFilter, totalRecords, _uriService, route);
+                return Ok(pagedResponse);
 			}
 			return Ok(new List<UserInAdminDTO>());
 		}

@@ -6,6 +6,7 @@ using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
+using Models.Response.GetAllUserResponse;
 
 namespace CapstoneOnGoing.AutoMapperProfile
 {
@@ -47,7 +48,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.AccessToken, src => src.Ignore())
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
-            //===============================================================================
+            //================================================================================================================================================
             CreateMap<LecturerResquest, CreateNewUserRequest>();
 
             CreateMap<LecturerResquest, Lecturer>();
@@ -119,19 +120,47 @@ namespace CapstoneOnGoing.AutoMapperProfile
                     src => src.MapFrom(src => src.StatusId));
             CreateMap<Team, GetTeamDetailResponse>()
 	            .IncludeBase<Team,GetTeamResponse>();
+
             CreateMap<Topic, GetTopicsDTO>()
 	            .ForMember(dest => dest.LecturerIds, src => src.MapFrom(src => src.TopicLecturers.Select(src => src.LecturerId)))
 	            .ForMember(dest => dest.CompanyId, src => src.MapFrom(src => src.CompanyId));
+
             CreateMap<User, GetLecturerDTO>()
 	            .ForMember(dest => dest.Department,src => src.MapFrom(src => src.Lecturer.Department.Name))
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
+
             CreateMap<User, GetCompanyDTO>()
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
+
             CreateMap<GetLecturerDTO, GetLecturerResponse>();
+
             CreateMap<GetCompanyDTO, GetCompanyResponse>();
+
             CreateMap<GetTopicsDTO, GetTopicsResponse>()
 	            .ForMember(dest => dest.LecturersDetails, src => src.MapFrom(src => src.LecturerDtos))
 	            .ForMember(dest => dest.CompanyDetail, src => src.MapFrom(src => src.CompanyDto));
+
+            CreateMap<User, LecturerUserResponse>()
+                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department.Name))
+                .ForMember(dest => dest.Id, src => src.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AvatarUrl, src => src.MapFrom(src => src.AvatarUrl))
+                .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
+                .ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.UserName, src => src.MapFrom(src => src.UserName))
+                .ForMember(dest => dest.Role,
+                    src => src.MapFrom(src => src.RoleId.Equals((int)RoleEnum.Lecturer) ? RoleEnum.Lecturer.ToString().ToUpper() : ""))
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals((int)UserStatus.Activated) ? UserStatus.Activated.ToString() : UserStatus.Inactivated.ToString()));
+
+            CreateMap<User, StudentUserResponse>()
+                .ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester != null ?  src.Student.Semester.Season : ""))
+                .ForMember(dest => dest.Id, src => src.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AvatarUrl, src => src.MapFrom(src => src.AvatarUrl))
+                .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
+                .ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.UserName, src => src.MapFrom(src => src.UserName))
+                .ForMember(dest => dest.Role,
+                    src => src.MapFrom(src => src.RoleId.Equals((int)RoleEnum.Student) ? RoleEnum.Student.ToString().ToUpper() : ""))
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals((int)UserStatus.Activated) ? UserStatus.Activated.ToString() : UserStatus.Inactivated.ToString()));
         }
     }
 }

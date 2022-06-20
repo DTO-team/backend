@@ -11,6 +11,7 @@ namespace CapstoneOnGoing.Services.Interfaces
         void CreateStudent(Student newStudent);
         User GetStudentById(Guid studentId);
         User UpdateStudent(UpdateStudentRequest studentDataToUpate);
+        User GetStudentByEmail(string userEmail);
         void DeleteStudent(Student studentToDelete);
         void DeleteStudentById(Guid studentId);
     }

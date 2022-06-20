@@ -67,6 +67,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
 
             CreateMap<User, StudentResponse>()
                 .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
+                .ForMember(dest => dest.TeamId, src=> src.MapFrom(src => (src.Student.TeamStudents != null) ? src.Student.TeamStudents.FirstOrDefault().TeamId.ToString() : ""))
                 .ForMember(dest => dest.Semester, src => src.MapFrom(src => $"{src.Student.Semester.Year.ToString()} - {src.Student.Semester.Season.ToString()}"))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name))
                 .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code));
@@ -132,6 +133,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<GetTopicsDTO, GetTopicsResponse>()
 	            .ForMember(dest => dest.LecturersDetails, src => src.MapFrom(src => src.LecturerDtos))
 	            .ForMember(dest => dest.CompanyDetail, src => src.MapFrom(src => src.CompanyDto));
+
+            CreateMap<StudentRequest, User>();
         }
     }
 }

@@ -10,6 +10,7 @@ using Models.Response;
 using System;
 using System.Collections.Generic;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Http;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -30,8 +31,9 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Roles = "ADMIN,LECTURER")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<StudentResponse>), StatusCodes.Status200OK)]
         public IActionResult GetAllStudents([FromQuery] int page, [FromQuery] int limit)
         {
             IEnumerable<StudentResponse> students;
@@ -48,6 +50,8 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(StudentResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status404NotFound)]
         public IActionResult GetStudentById(Guid id)
         {
             User student = _studentService.GetStudentById(id);
@@ -58,43 +62,50 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
-                return NotFound($"Cannot found student with {id}");
+                return NotFound(new GenericResponse(){HttpStatus = 404, Message = $"Cannot found student with {id}" , TimeStamp = DateTime.Now});
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        // [Authorize(Roles = "ADMIN")]
         [HttpPost]
+        [ProducesResponseType(typeof(StudentResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult CreateStudent([FromBody] StudentRequest student)
         {
             MailAddress email = new MailAddress(student.Email);
             string domain = email.Host;
 
-            if (domain != "@fpt.edu.vn")
+            if (domain != "fpt.edu.vn")
             {
                 return BadRequest("Wrong email format");
             }
             else
             {
                 bool isSuccessful = _userService.CreateNewStudent(student);
-                GenericResponse response;
-                //Set GenericResponse: Created
                 if (isSuccessful)
                 {
-                    response = new GenericResponse();
-                    response.HttpStatus = 201;
-                    response.Message = "Student Created";
-                    response.TimeStamp = DateTime.Now;
-                    return CreatedAtAction(nameof(CreateStudent), response);
+                    User createdStudent = _studentService.GetStudentByEmail(student.Email);
+                    StudentResponse createdStudentResponse = _mapper.Map<StudentResponse>(createdStudent);
+                    return CreatedAtAction(nameof(CreateStudent), createdStudentResponse);
                 }
                 else
                 {
-                    return BadRequest();
+                    return BadRequest(
+                        new GenericResponse()
+                        {
+                            HttpStatus = 400,
+                            Message = "Create Student failed",
+                            TimeStamp = DateTime.Now
+                        }
+                        );
                 }
             }
         }
 
         [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpPut]
+        [ProducesResponseType(typeof(StudentUpdateResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult UpdateStudent(UpdateStudentRequest student)
         {
             //if student is exist, Update student, if not return error
@@ -106,7 +117,7 @@ namespace CapstoneOnGoing.Controllers
             } else
             {
                 _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
-                return BadRequest("Student is not existed to update");
+                return BadRequest(new GenericResponse(){HttpStatus = 400, Message = "Student is not existed to update", TimeStamp = DateTime.Now});
             }
         }
     }

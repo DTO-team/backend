@@ -120,6 +120,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<Team, GetTeamDetailResponse>()
 	            .IncludeBase<Team,GetTeamResponse>();
             CreateMap<Topic, GetTopicsDTO>()
+                .ForMember(dest => dest.TopicId, src => src.MapFrom(src => src.Id))
 	            .ForMember(dest => dest.LecturerIds, src => src.MapFrom(src => src.TopicLecturers.Select(src => src.LecturerId)))
 	            .ForMember(dest => dest.CompanyId, src => src.MapFrom(src => src.CompanyId));
             CreateMap<User, GetLecturerDTO>()
@@ -130,6 +131,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<GetLecturerDTO, GetLecturerResponse>();
             CreateMap<GetCompanyDTO, GetCompanyResponse>();
             CreateMap<GetTopicsDTO, GetTopicsResponse>()
+                .ForMember(dest => dest.TopicId, src => src.MapFrom(src => src.TopicId))
 	            .ForMember(dest => dest.LecturersDetails, src => src.MapFrom(src => src.LecturerDtos))
 	            .ForMember(dest => dest.CompanyDetail, src => src.MapFrom(src => src.CompanyDto));
         }

@@ -5,6 +5,7 @@ namespace Models.Dtos
 {
 	public class GetTopicsDTO
 	{
+		public Guid TopicId { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
 		public IEnumerable<Guid> LecturerIds { get; set; }

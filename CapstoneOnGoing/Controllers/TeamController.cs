@@ -99,7 +99,7 @@ namespace CapstoneOnGoing.Controllers
 				}
 				else
 				{
-					_logger.LogWarn($"Controller {nameof(TeamController)}, Method {nameof(JoinTeam)} : {studentEmail} join team {id} failed");
+					_logger.LogWarn($"Controller {nameof(TeamController)}, Method {nameof(JoinTeam)} : {studentEmail} join team {joinTeamRequest.JoinCode} failed");
 					return BadRequest(new GenericResponse()
 					{
 						HttpStatus = StatusCodes.Status400BadRequest,

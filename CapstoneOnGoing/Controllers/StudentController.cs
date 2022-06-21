@@ -22,14 +22,16 @@ namespace CapstoneOnGoing.Controllers
         private readonly ILoggerManager _logger;
         private readonly ITeamService _teamService;
         private readonly IUserService _userService;
+        private readonly ITeamStudentService _teamStudentService;
         private readonly IMapper _mapper;
 
-        public StudentController(IStudentService studentService, ILoggerManager logger, ITeamService teamService, IUserService userService, IMapper mapper)
+        public StudentController(IStudentService studentService, ILoggerManager logger, ITeamService teamService, IUserService userService, ITeamStudentService teamStudentService, IMapper mapper)
         {
             _studentService = studentService;
             _logger = logger;
             _teamService = teamService;
             _userService = userService;
+            _teamStudentService = teamStudentService;
             _mapper = mapper;
         }
 
@@ -48,6 +50,25 @@ namespace CapstoneOnGoing.Controllers
                 students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(page, limit));
             }
             return Ok(students);
+        }
+
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        [HttpGet("{id}/teams")]
+        [ProducesResponseType(typeof(GetTeamDetailResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult GetStudentTeamByStudentId(Guid id)
+        {
+            TeamStudent teamStudent = _teamStudentService.GetTeamStudentByStudentId(id);
+            if (teamStudent is not null)
+            {
+                GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(teamStudent.TeamId);
+                return Ok(teamDetailResponse);
+            }
+            else
+            {
+                return BadRequest(new GenericResponse()
+                { HttpStatus = 400, Message = "Get student team detail failed. Student is not in any team!", TimeStamp = DateTime.Now });
+            }
         }
 
         [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
@@ -71,7 +92,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         [ProducesResponseType(typeof(StudentResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

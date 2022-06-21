@@ -62,7 +62,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

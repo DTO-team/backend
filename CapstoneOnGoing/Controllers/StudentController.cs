@@ -50,7 +50,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(students);
         }
 
-        // [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(StudentResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status404NotFound)]

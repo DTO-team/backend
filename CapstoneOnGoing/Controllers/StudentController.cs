@@ -20,13 +20,15 @@ namespace CapstoneOnGoing.Controllers
     {
         private readonly IStudentService _studentService;
         private readonly ILoggerManager _logger;
+        private readonly ITeamService _teamService;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public StudentController(IStudentService studentService, ILoggerManager logger, IUserService userService, IMapper mapper)
+        public StudentController(IStudentService studentService, ILoggerManager logger, ITeamService teamService, IUserService userService, IMapper mapper)
         {
             _studentService = studentService;
             _logger = logger;
+            _teamService = teamService;
             _userService = userService;
             _mapper = mapper;
         }
@@ -50,14 +52,17 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(StudentResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(StudentResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status404NotFound)]
         public IActionResult GetStudentById(Guid id)
         {
             User student = _studentService.GetStudentById(id);
             if (student.Student != null)
             {
+
                 StudentResponse studentDTO = _mapper.Map<StudentResponse>(student);
+                GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(Guid.Parse(studentDTO.TeamId));
+                studentDTO.TeamDetail = teamDetailResponse;
                 return Ok(studentDTO);
             }
             else

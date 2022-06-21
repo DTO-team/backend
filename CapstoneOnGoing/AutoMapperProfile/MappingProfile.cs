@@ -118,6 +118,15 @@ namespace CapstoneOnGoing.AutoMapperProfile
                     src => src.MapFrom(src => new TopicFields() { TopicId = src.TopicId, Description = src.Topic.Description }))
                 .ForMember(dest => dest.Status,
                     src => src.MapFrom(src => src.StatusId));
+            CreateMap<User, CreatedTeamResponse>()
+                .ForMember(dest => dest.TeamLeaderEmail, src => src.MapFrom(src => src.Email))
+                .ForMember(dest => dest.TeamLeaderName, src => src.MapFrom(src => src.FullName));
+
+            CreateMap<Team, CreatedTeamResponse>()
+                .ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, src => src.MapFrom(src => src.Name))
+                .ForMember(dest => dest.JoinCode, src => src.MapFrom(src => src.JoinCode));
+
             CreateMap<Team, GetTeamDetailResponse>()
 	            .IncludeBase<Team,GetTeamResponse>();
             CreateMap<Topic, GetTopicsDTO>()

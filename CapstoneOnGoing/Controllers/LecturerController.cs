@@ -45,7 +45,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(lecturers);
         }
 
-        [Authorize(Roles = "ADMIN,LECTURER")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -62,7 +62,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

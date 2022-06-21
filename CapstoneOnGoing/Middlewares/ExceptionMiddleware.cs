@@ -30,7 +30,7 @@ namespace CapstoneOnGoing.Middlewares
 							await context.Response.WriteAsync(new ErrorDetails()
 							{
 								StatusCode = exception.StatusCode,
-								Message = exception.Message,
+								Error = exception.Message,
 								TimeStamp = DateTime.Now
 							}.ToString());
 						}
@@ -40,7 +40,7 @@ namespace CapstoneOnGoing.Middlewares
 							await context.Response.WriteAsync(new ErrorDetails()
 							{
 								StatusCode = context.Response.StatusCode,
-								Message = contextFeature.Error.Message,
+								Error = contextFeature.Error.Message,
 								TimeStamp = DateTime.Now
 							}.ToString());
 						}

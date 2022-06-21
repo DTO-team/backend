@@ -83,10 +83,10 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "STUDENT")]
-		[HttpPatch("{id}")]
+		[HttpPatch]
 		[ProducesResponseType(typeof(GetTeamDetailResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
-		public IActionResult JoinTeam(Guid id,JoinTeamRequest joinTeamRequest)
+		public IActionResult JoinTeam(,JoinTeamRequest joinTeamRequest)
 		{
 			if (joinTeamRequest != null && "add".Equals(joinTeamRequest.Op) && "student".Equals(joinTeamRequest.Path.Replace("/",string.Empty)))
 			{

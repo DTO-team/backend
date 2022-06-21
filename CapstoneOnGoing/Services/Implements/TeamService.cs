@@ -216,9 +216,9 @@ namespace CapstoneOnGoing.Services.Implements
 				return teamDetailResponse;
 			}
 			else
-			{
-				return null;
-			}
+            {
+                throw new BadHttpRequestException($"Team with {teamId} teamId is not existed");
+            }
 		}
 
 		private GetTeamDetailResponse GetTeamDetail(Team team)

@@ -48,7 +48,8 @@ namespace CapstoneOnGoing.Extensions
 			services.AddScoped<ITopicService, TopicService>();
 			services.AddScoped<ITeamService, TeamService>();
 			services.AddScoped<IApplicationService, ApplicationService>();
-		}
+            services.AddScoped<ITeamStudentService, TeamStudentService>();
+        }
 
 		public static void AddConfigUriForPagination(this IServiceCollection services)
 		{

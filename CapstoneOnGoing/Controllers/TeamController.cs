@@ -83,15 +83,15 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "STUDENT")]
-		[HttpPatch("{id}")]
+		[HttpPatch]
 		[ProducesResponseType(typeof(GetTeamDetailResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
-		public IActionResult JoinTeam(Guid id,JoinTeamRequest joinTeamRequest)
+		public IActionResult JoinTeam(JoinTeamRequest joinTeamRequest)
 		{
 			if (joinTeamRequest != null && "add".Equals(joinTeamRequest.Op) && "student".Equals(joinTeamRequest.Path.Replace("/",string.Empty)))
 			{
 				string studentEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
-				bool isSuccessful = _teamService.JoinTeam(id, studentEmail,joinTeamRequest.JoinCode, out GetTeamDetailResponse getTeamDetailResponse);
+				bool isSuccessful = _teamService.JoinTeam(studentEmail,joinTeamRequest.JoinCode, out GetTeamDetailResponse getTeamDetailResponse);
 				if (isSuccessful)
 				{
 					
@@ -99,7 +99,7 @@ namespace CapstoneOnGoing.Controllers
 				}
 				else
 				{
-					_logger.LogWarn($"Controller {nameof(TeamController)}, Method {nameof(JoinTeam)} : {studentEmail} join team {id} failed");
+					_logger.LogWarn($"Controller {nameof(TeamController)}, Method {nameof(JoinTeam)} : {studentEmail} join team {joinTeamRequest.JoinCode} failed");
 					return BadRequest(new GenericResponse()
 					{
 						HttpStatus = StatusCodes.Status400BadRequest,

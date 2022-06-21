@@ -24,7 +24,7 @@ namespace CapstoneOnGoing.Services.Implements
 			_unitOfWork = unitOfWork;
 		}
 
-		public bool CreateTeam(CreateTeamRequest createTeamRequest,string userEmail, out CreatedTeamResponse createdTeamResponse)
+		public bool CreateTeam(CreateTeamRequest createTeamRequest, string userEmail, out CreatedTeamResponse createdTeamResponse)
 		{
 			//get Current Semester
 			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)TeamStatus.Active).FirstOrDefault();
@@ -85,7 +85,7 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 		}
 
-		public bool DeleteTeam(Guid deleteTeamId,string userEmail)
+		public bool DeleteTeam(Guid deleteTeamId, string userEmail)
 		{
 			Team deletedTeam = _unitOfWork.Team.Get(x => x.Id == deleteTeamId, null, "Semester").FirstOrDefault();
 			//check if deleted team is existed in database
@@ -121,10 +121,10 @@ namespace CapstoneOnGoing.Services.Implements
 			IEnumerable<Team> teamsResult = null;
 			if (!string.IsNullOrEmpty(teamName) || !string.IsNullOrWhiteSpace(teamName))
 			{
-				teamsResult = _unitOfWork.Team.Get(team => team.Name == teamName,null,"TeamStudents",page,limit);
+				teamsResult = _unitOfWork.Team.Get(team => team.Name == teamName, null, "TeamStudents", page, limit);
 				foreach (Team team in teamsResult)
 				{
-					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId,null, "Student,Role").FirstOrDefault();
+					User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
 					GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
 					_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
 					teamResponse.TotalMember = team.TeamStudents.Count;
@@ -147,14 +147,14 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 		}
 
-		public bool JoinTeam(Guid teamId, string studentEmail,string joinCode, out  GetTeamDetailResponse getTeamDetailResponse)
+		public bool JoinTeam(string studentEmail, string joinCode, out GetTeamDetailResponse getTeamDetailResponse)
 		{
 			//check if team is existed
-			Team team = _unitOfWork.Team.Get(x => x.Id == teamId,null,"TeamStudents").FirstOrDefault();
+			Team team = _unitOfWork.Team.Get(x => x.JoinCode.Equals(joinCode), null, "TeamStudents").FirstOrDefault();
 			if (team != null)
 			{
 				//check if student is in progress of current semester
-				Semester semester = _unitOfWork.Semester.Get(x => x.Status == (int) SemesterStatus.Preparing)
+				Semester semester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing)
 					.FirstOrDefault();
 				User student = _unitOfWork.User.Get(x => x.Email == studentEmail, null, "Student").FirstOrDefault();
 				if (student != null && student.Student.SemesterId.Equals(semester?.Id))
@@ -167,44 +167,36 @@ namespace CapstoneOnGoing.Services.Implements
 					}
 					else
 					{
-						//Check join code
-						if (joinCode.Equals(team.JoinCode))
+						team.TeamStudents.Add(new TeamStudent()
 						{
-							team.TeamStudents.Add(new TeamStudent()
-							{
-								TeamId = team.Id,
-								StudentId = student.Id,
-								Status = (int)TeamStudentStatus.Active
-							});
-							_unitOfWork.Team.Update(team);
+							TeamId = team.Id,
+							StudentId = student.Id,
+							Status = (int)TeamStudentStatus.Active
+						});
+						_unitOfWork.Team.Update(team);
 
-							bool isSuccessfully = _unitOfWork.Save() > 0;
-							if (isSuccessfully)
-							{
-								getTeamDetailResponse = GetTeamDetail(team);
-								return isSuccessfully;
-							}
-							else
-							{
-								getTeamDetailResponse = null;
-								return isSuccessfully;
-							}
+						bool isSuccessfully = _unitOfWork.Save() > 0;
+						if (isSuccessfully)
+						{
+							getTeamDetailResponse = GetTeamDetail(team);
+							return isSuccessfully;
 						}
 						else
 						{
-							throw new BadHttpRequestException("Join code is wrong");
+							getTeamDetailResponse = null;
+							return isSuccessfully;
 						}
 					}
 				}
 				else
 				{
-					throw new BadHttpRequestException("Student is not in-progress of current semseter");
+					throw new BadHttpRequestException("Student is not in-progress of current semester");
 				}
 			}
 			else
 			{
 				throw new BadHttpRequestException("Team does not existed");
-			}	
+			}
 		}
 
 		public GetTeamDetailResponse GetTeamDetail(Guid teamId)
@@ -231,7 +223,7 @@ namespace CapstoneOnGoing.Services.Implements
 			_mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
 			Array.ForEach(team.TeamStudents.ToArray(), student =>
 			{
-				User studentInTeam = _unitOfWork.User.Get(x => x.Id == student.StudentId,null, "Student,Role").FirstOrDefault();
+				User studentInTeam = _unitOfWork.User.Get(x => x.Id == student.StudentId, null, "Student,Role").FirstOrDefault();
 				studentInTeam.Student.Semester = _unitOfWork.Semester.GetById(studentInTeam.Student.SemesterId.Value);
 				Member member = _mapper.Map<Member>(studentInTeam);
 				members.Add(member);
@@ -241,17 +233,17 @@ namespace CapstoneOnGoing.Services.Implements
 			return teamResponse;
 		}
 
-        public bool IsTeamLeader(Guid userId)
-        {
-            Team team = _unitOfWork.Team.Get(x => x.TeamLeaderId == userId).FirstOrDefault();
-            if (team is not null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
+		public bool IsTeamLeader(Guid userId)
+		{
+			Team team = _unitOfWork.Team.Get(x => x.TeamLeaderId == userId).FirstOrDefault();
+			if (team is not null)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
 }

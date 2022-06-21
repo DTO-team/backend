@@ -6,6 +6,7 @@ using Models.Request;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -54,10 +55,42 @@ namespace CapstoneOnGoing.Services.Implements
         //Get student by student ID
         public User GetStudentById(Guid studentId)
         {
-            User returnStudent = _unitOfWork.User.GetById(studentId);
-            Student student = _unitOfWork.Student.GetById(studentId);
+            User returnStudent = _unitOfWork.User.Get(x => x.Id.Equals(studentId), null, "Student").FirstOrDefault();
+            Student student = _unitOfWork.Student.Get(x => x.Id.Equals(studentId), null, "TeamStudents").FirstOrDefault();
             if (student != null)
             {
+                TeamStudent teamStudent = _unitOfWork.TeamStudent.Get(x => x.StudentId.Equals(student.Id)).FirstOrDefault();
+                if (teamStudent is not null)
+                {
+                    List<TeamStudent> teamStudents = new List<TeamStudent>();
+                    teamStudents.Add(teamStudent);
+                    returnStudent.Student.TeamStudents = teamStudents;
+                }
+                returnStudent.Student = student;
+                returnStudent.Student.Code = student.Code;
+                returnStudent.Role = _unitOfWork.Role.GetRoleById(3);
+                if (student.SemesterId != null)
+                {
+                    returnStudent.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.SemesterId);
+                }
+            }
+            return returnStudent;
+        }
+
+        //Get student by student ID
+        public User GetStudentByEmail(string userEmail)
+        {
+            User returnStudent = _unitOfWork.User.Get(x => x.Email.Equals(userEmail), null, "Student").FirstOrDefault();
+            Student student = _unitOfWork.Student.Get(x => x.Id.Equals(returnStudent.Id), null, "TeamStudents").FirstOrDefault();
+            if (student != null)
+            {
+                TeamStudent teamStudent = _unitOfWork.TeamStudent.Get(x => x.StudentId.Equals(student.Id)).FirstOrDefault();
+                if (teamStudent is not null)
+                {
+                    List<TeamStudent> teamStudents = new List<TeamStudent>();
+                    teamStudents.Add(teamStudent);
+                    returnStudent.Student.TeamStudents = teamStudents;
+                }
                 returnStudent.Student = student;
                 returnStudent.Student.Code = student.Code;
                 returnStudent.Role = _unitOfWork.Role.GetRoleById(3);

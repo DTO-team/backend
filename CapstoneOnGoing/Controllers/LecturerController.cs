@@ -8,6 +8,7 @@ using Models.Models;
 using Models.Response;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -28,7 +29,7 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet]
         public IActionResult GetAllLecturers([FromQuery] int page, [FromQuery] int limit)
         {
@@ -44,8 +45,10 @@ namespace CapstoneOnGoing.Controllers
             return Ok(lecturers);
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetLecturerById(Guid id)
         {
             User lecturer = _lecturerService.GetLecturerById(id);
@@ -55,33 +58,39 @@ namespace CapstoneOnGoing.Controllers
                 return Ok(lecturerResponse);
             } else
             {
-                return NotFound($"Cannot found lecturer with {id}");
+                return NotFound(new GenericResponse(){HttpStatus = 400, Message =  $"Cannot found lecturer with {id}", TimeStamp = DateTime.Now});
             }
         }
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
+        [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult CreateLecturer([FromBody] LecturerResquest lecturer)
         {
             bool isSuccessful = _userService.CreateNewLectuer(lecturer);
-            GenericResponse response;
             if (isSuccessful)
             {
-                response = new GenericResponse();
-                response.HttpStatus = 201;
-                response.Message = "Lecturer Created";
-                response.TimeStamp = DateTime.Now;
-                return CreatedAtAction(nameof(CreateLecturer), new { response });
+                User lecturerUser = _lecturerService.GetLecturerByEmail(lecturer.Email);
+                GetLecturerResponse lecturerResponse = _mapper.Map<GetLecturerResponse>(lecturerUser);
+                return CreatedAtAction(nameof(CreateLecturer), lecturerResponse);
             }
             else
             {
                 _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(CreateLecturer)}, The user is exist");
-                return BadRequest();
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = 400,
+                    Message = "Create Lecturer Failed !",
+                    TimeStamp = DateTime.Now
+                });
             }
         }
 
         [Authorize(Roles = "ADMIN")]
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequest lecturerUpdateRequest)
         {
             User updateUser = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
@@ -93,7 +102,7 @@ namespace CapstoneOnGoing.Controllers
             else
             {
                 _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerUpdateRequest.Id} do not exist");
-                return BadRequest($"User is not existed");
+                return BadRequest(new GenericResponse() { HttpStatus = 400, Message = $"User is not existed", TimeStamp = DateTime.Now });
             }
         }
     }

@@ -4,6 +4,7 @@ using Models.Models;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -60,7 +61,6 @@ namespace CapstoneOnGoing.Services.Implements
         //Get lecturer by id
         public User GetLecturerById(Guid lecturerId)
         {
-            //Lecturer lecturer = _unitOfWork.Lecturer.GetById(lecturerId);
             User lecturerToReturn = _unitOfWork.User.GetById(lecturerId);
             Lecturer lecturer = _unitOfWork.Lecturer.GetById(lecturerId);
             if (lecturer != null)
@@ -71,6 +71,28 @@ namespace CapstoneOnGoing.Services.Implements
                 lecturerToReturn.Role = _unitOfWork.Role.GetRoleById(2);
             }
             return lecturerToReturn;
+        } 
+        
+        //Get lecturer by email
+        public User GetLecturerByEmail(string userEmail)
+        {
+            User lecturerToReturn = _unitOfWork.User.Get( x => x.Email.Equals(userEmail)).FirstOrDefault();
+            if (lecturerToReturn is not null)
+            {
+                Lecturer lecturer = _unitOfWork.Lecturer.GetById(lecturerToReturn.Id);
+                if (lecturer != null)
+                {
+                    lecturerToReturn.Lecturer = lecturer;
+                    Department department = _unitOfWork.Department.GetById(lecturer.DepartmentId);
+                    lecturerToReturn.Lecturer.Department = department;
+                    lecturerToReturn.Role = _unitOfWork.Role.GetRoleById(2);
+                }
+                return lecturerToReturn;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Lecturer with {userEmail} email is not existed!");
+            }
         }
 
         //Update lecturer

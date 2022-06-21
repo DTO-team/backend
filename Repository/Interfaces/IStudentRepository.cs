@@ -9,5 +9,6 @@ namespace Repository.Interfaces
 {
     public interface IStudentRepository : IGenericRepository<Student>
     {
+        Student GetStudentWithTeamStudentsAndTeamById(Guid studentId);
     }
 }

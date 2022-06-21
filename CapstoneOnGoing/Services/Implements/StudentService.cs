@@ -57,6 +57,7 @@ namespace CapstoneOnGoing.Services.Implements
         {
             User returnStudent = _unitOfWork.User.Get(x => x.Id.Equals(studentId), null, "Student").FirstOrDefault();
             Student student = _unitOfWork.Student.Get(x => x.Id.Equals(studentId), null, "TeamStudents").FirstOrDefault();
+            // Student student = _unitOfWork.Student.GetStudentWithTeamStudentsAndTeamById(studentId);
             if (student != null)
             {
                 TeamStudent teamStudent = _unitOfWork.TeamStudent.Get(x => x.StudentId.Equals(student.Id)).FirstOrDefault();

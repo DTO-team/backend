@@ -86,12 +86,12 @@ namespace CapstoneOnGoing.Controllers
 		[HttpPatch]
 		[ProducesResponseType(typeof(GetTeamDetailResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
-		public IActionResult JoinTeam(,JoinTeamRequest joinTeamRequest)
+		public IActionResult JoinTeam(JoinTeamRequest joinTeamRequest)
 		{
 			if (joinTeamRequest != null && "add".Equals(joinTeamRequest.Op) && "student".Equals(joinTeamRequest.Path.Replace("/",string.Empty)))
 			{
 				string studentEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
-				bool isSuccessful = _teamService.JoinTeam(id, studentEmail,joinTeamRequest.JoinCode, out GetTeamDetailResponse getTeamDetailResponse);
+				bool isSuccessful = _teamService.JoinTeam(studentEmail,joinTeamRequest.JoinCode, out GetTeamDetailResponse getTeamDetailResponse);
 				if (isSuccessful)
 				{
 					

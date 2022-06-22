@@ -136,5 +136,20 @@ namespace CapstoneOnGoing.Controllers
 				});
 			}
 		}
+
+		[Authorize]
+		[HttpGet("{id}/reports")]
+		public IActionResult GetTeamReport()
+		{
+			return Ok();
+		}
+
+		[Authorize(Roles = "STUDENT")]
+		[HttpPost("{id}/reports")]
+		public IActionResult CreateWeeklyReport()
+		{
+			
+			return Ok();
+		}
 	}
 }

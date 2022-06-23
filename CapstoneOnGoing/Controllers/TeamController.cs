@@ -9,6 +9,8 @@ using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Models;
+using Models.Models;
 using Models.Request;
 using Models.Response;
 using Repository.Interfaces;
@@ -136,5 +138,30 @@ namespace CapstoneOnGoing.Controllers
 				});
 			}
 		}
-	}
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPatch("mentor")]
+        [ProducesResponseType(typeof(GetTeamDetailResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status400BadRequest)]
+		public IActionResult UpdateTeamMentor(UpdateMentorRequest updateMentorRequest)
+        {
+            Guid responseUpdatedTeamId = _teamService.UpdateTeamMentor(updateMentorRequest);
+			//Show team detail after update new mentor (add new or delete)
+            if (!responseUpdatedTeamId.Equals(Guid.Empty))
+            {
+                GetTeamDetailResponse updatedMentorTeam = _teamService.GetTeamDetail(responseUpdatedTeamId);
+                return Ok(updatedMentorTeam);
+            }
+            else
+            {
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = 400,
+                    Message = "Update team mentor failed!",
+                    TimeStamp = DateTime.Now
+                });
+            }
+        }
+
+    }
 }

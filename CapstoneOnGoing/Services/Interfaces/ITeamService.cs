@@ -2,6 +2,8 @@
 using Models.Request;
 using Models.Response;
 using System.Collections.Generic;
+using Models.Models;
+
 namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface ITeamService
@@ -12,5 +14,9 @@ namespace CapstoneOnGoing.Services.Interfaces
 		bool JoinTeam(string studentEmail,string joinCode, out GetTeamDetailResponse getTeamDetailResponse);
 		GetTeamDetailResponse GetTeamDetail(Guid teamId);
         bool IsTeamLeader(Guid userId);
+
+        //Return team Id for controller to get team detail
+        //and return response of team detail
+		Guid UpdateTeamMentor(UpdateMentorRequest updateMentorRequest);
     }
 }

@@ -112,14 +112,14 @@ namespace CapstoneOnGoing.Services.Implements
             {
                 switch (operation)
                 {
-                    case "reject":
+                    case "rejected":
                         application.StatusId = (int)ApplicationStatus.Rejected;
                         isSuccess = true;
                         _unitOfWork.Applications.Update(application);
                         _unitOfWork.Save();
                         break;
 
-                    case "approve":
+                    case "approved":
                         //Change status of application to approve
                         application.StatusId = (int)ApplicationStatus.Approved;
                         _unitOfWork.Applications.Update(application);
@@ -159,7 +159,7 @@ namespace CapstoneOnGoing.Services.Implements
                         isSuccess = true;
                         break;
 
-                    case "delete":
+                    case "deleted":
                         application.StatusId = (int)ApplicationStatus.Deleted;
                         isSuccess = true;
                         _unitOfWork.Applications.Update(application);

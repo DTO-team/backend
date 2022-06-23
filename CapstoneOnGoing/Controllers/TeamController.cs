@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using CapstoneOnGoing.Logger;
@@ -10,10 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-using Models.Models;
 using Models.Request;
 using Models.Response;
-using Repository.Interfaces;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -163,5 +159,19 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("{id}/reports")]
+        public IActionResult GetTeamReport()
+        {
+            return Ok();
+        }
+
+        [Authorize(Roles = "STUDENT")]
+        [HttpPost("{id}/reports")]
+        public IActionResult CreateWeeklyReport()
+        {
+            return Ok();
+        }
     }
 }
+

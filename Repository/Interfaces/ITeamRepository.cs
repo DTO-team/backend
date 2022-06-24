@@ -7,5 +7,6 @@ namespace Repository.Interfaces
 {
     public interface ITeamRepository : IGenericRepository<Team>
     {
+        Team GetTeamWithProject(Guid teamId);
     }
 }

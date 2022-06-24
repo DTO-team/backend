@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Models.Response
 {
     public class GetProjectResponse
     {
-        public GetMentorDetail MentorDetail { get; set; }
-        public GetTeamDetailResponse TeamDetail { get; set; }
-        public GetTopicsResponse TopicDetail { get; set; }
+        public GetTopicsResponse TopicsResponse { get; set; }
+        public GetTeamDetailResponse TeamDetailResponse { get; set; }
     }
 }

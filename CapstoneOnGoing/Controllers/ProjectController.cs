@@ -23,7 +23,7 @@ namespace CapstoneOnGoing.Controllers
         [HttpGet("{id}")]
         public IActionResult GetProjectById(Guid id)
         {
-            GetProjectResponse projectResponse = new GetProjectResponse();
+            GetProjectDetailResponse projectResponse = new GetProjectDetailResponse();
 
             GetProjectDetailDTO projectDetailDto = _projectService.GetProjectDetailById(id);
             GetTopicsResponse topicsResponse = _mapper.Map<GetTopicsResponse>(projectDetailDto.Topics);

@@ -2,6 +2,7 @@
 using System;
 using AutoMapper;
 using CapstoneOnGoing.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Response;
 
@@ -21,6 +22,8 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(GetProjectDetailResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetProjectById(Guid id)
         {
             GetProjectDetailResponse projectResponse = new GetProjectDetailResponse();

@@ -15,6 +15,6 @@ namespace Models.Dtos
 		public string Role { get; set; }
 		public int StatusId { get; set; }
 		public string AvatarUrl { get; set; }
-		public string Department { get; set; }
+		public GetDepartmentDTO Department { get; set; }
     }
 }

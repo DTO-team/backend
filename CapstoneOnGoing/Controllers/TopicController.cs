@@ -93,5 +93,16 @@ namespace CapstoneOnGoing.Controllers
 				});
 			}
 		}
+
+		//[Authorize]
+		[HttpGet("{id}")]
+		[ProducesResponseType(typeof(GetTopicsResponse),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
+		public IActionResult GetTopicDetails(Guid id)
+		{
+			GetTopicsDTO topicDTO = _topicService.GetTopicDetails(id);
+			GetTopicsResponse topicResponse = _mapper.Map<GetTopicsResponse>(topicDTO);
+			return Ok(topicResponse);
+		}
 	}
 }

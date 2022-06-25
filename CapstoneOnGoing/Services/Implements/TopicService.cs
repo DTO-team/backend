@@ -24,12 +24,12 @@ namespace CapstoneOnGoing.Services.Implements
 			_mapper = mapper;
 		}
 
-        public Topic GetTopicById(Guid id)
-        {
-            return _unitOfWork.Topic.GetById(id);
-        }
+		public Topic GetTopicById(Guid id)
+		{
+			return _unitOfWork.Topic.GetById(id);
+		}
 
-        public bool ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
+		public bool ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest)
 		{
 			bool isSuccessful = true;
 			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
@@ -49,9 +49,9 @@ namespace CapstoneOnGoing.Services.Implements
 						}
 					}//end If the topic related to company
 					 //Get lectures
-					 Topic importedTopic = _mapper.Map<Topic>(importTopic);
-					 importedTopic.CompanyId = company?.Id;
-					 importedTopic.SemesterId = currentSemester.Id;
+					Topic importedTopic = _mapper.Map<Topic>(importTopic);
+					importedTopic.CompanyId = company?.Id;
+					importedTopic.SemesterId = currentSemester.Id;
 					Array.ForEach(importTopic.LecturerEmail.ToArray(), lecturerEmail =>
 					{
 						User lecturer = _unitOfWork.User.Get(x => (lecturerEmail.Equals(x.Email) && x.RoleId == (int)RoleEnum.Lecturer)).FirstOrDefault();
@@ -110,7 +110,7 @@ namespace CapstoneOnGoing.Services.Implements
 						getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
 						if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
 						{
-							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId,null,"Role").FirstOrDefault();
+							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId, null, "Role").FirstOrDefault();
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
 						}
 					});
@@ -136,7 +136,7 @@ namespace CapstoneOnGoing.Services.Implements
 						getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
 						if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
 						{
-							User companyUser = _unitOfWork.User.GetById(getTopicsDto.CompanyId);
+							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId,null,"Role").FirstOrDefault();
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
 						}
 					});
@@ -148,6 +148,28 @@ namespace CapstoneOnGoing.Services.Implements
 				totalRecords = 0;
 				return null;
 			}
+		}
+
+		public GetTopicsDTO GetTopicDetails(Guid topicId)
+		{
+			GetTopicsDTO topicDto = null;
+			Topic topic = _unitOfWork.Topic.Get(x => x.Id == topicId, null, "TopicLecturers").FirstOrDefault();
+			if (topic == null)
+			{
+				throw new BadHttpRequestException("Topic does not exist");
+			}
+			else
+			{
+				topicDto = _mapper.Map<GetTopicsDTO>(topic);
+				IEnumerable<User> lecturersUserDetails = _unitOfWork.User.GetLecturersByIds(topic.TopicLecturers.Select(x => x.LecturerId).ToArray());
+				if (topic.CompanyId != null)
+				{
+					User companyUser = _unitOfWork.User.Get(x => x.Id == topicDto.CompanyId, null, "Role").FirstOrDefault();
+					topicDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
+				}
+				topicDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturersUserDetails);
+			}
+			return topicDto;
 		}
 	}
 }

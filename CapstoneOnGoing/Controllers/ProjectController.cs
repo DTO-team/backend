@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using AutoMapper;
+using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -36,6 +38,27 @@ namespace CapstoneOnGoing.Controllers
             projectResponse.TeamDetailResponse = teamDetailResponse;
 
             return Ok(projectResponse);
+        }
+
+        [HttpGet]
+        public IActionResult GetAllProjects([FromQuery] PaginationFilter paginationFilter)
+        {
+            string route = Request.Path.Value;
+            PaginationFilter validFilter;
+            if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
+                string.IsNullOrWhiteSpace(paginationFilter.SearchString))
+            {
+                validFilter =
+                    new PaginationFilter(String.Empty, paginationFilter.PageNumber, paginationFilter.PageSize);
+            }
+            else
+            {
+                validFilter =
+                    new PaginationFilter(paginationFilter.SearchString, paginationFilter.PageNumber, paginationFilter.PageSize);
+            }
+
+            IEnumerable<GetProjectDetailResponse> projectsDetail = new List<GetProjectDetailResponse>();
+            return Ok(projectsDetail);
         }
     }
 }

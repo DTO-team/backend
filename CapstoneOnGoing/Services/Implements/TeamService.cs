@@ -201,7 +201,8 @@ namespace CapstoneOnGoing.Services.Implements
 
         public GetTeamDetailResponse GetTeamDetail(Guid teamId)
         {
-            Team team = _unitOfWork.Team.Get(x => x.Id == teamId, null, "TeamStudents").FirstOrDefault();
+            // Team team = _unitOfWork.Team.Get(x => x.Id == teamId, null, "TeamStudents,Project").FirstOrDefault();
+            Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
             if (team != null)
             {
                 GetTeamDetailResponse teamDetailResponse = GetTeamDetail(team);
@@ -221,6 +222,7 @@ namespace CapstoneOnGoing.Services.Implements
             teamResponse.Leader = new Member();
             IList<Member> members = new List<Member>();
             _mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
+            //Get student details in team
             Array.ForEach(team.TeamStudents.ToArray(), student =>
             {
                 User studentInTeam = _unitOfWork.User.Get(x => x.Id == student.StudentId, null, "Student,Role").FirstOrDefault();
@@ -228,6 +230,20 @@ namespace CapstoneOnGoing.Services.Implements
                 Member member = _mapper.Map<Member>(studentInTeam);
                 members.Add(member);
             });
+            // team.Project = _unitOfWork.Project.GetProjectWithLecturersByTeamId(team.Id);
+			//get mentors for project
+			teamResponse.Mentors = new List<GetLecturerResponse>();
+			if (team.Project != null)
+			{
+                Array.ForEach(team.Project.Mentors.ToArray(), mentor =>
+                {
+	                User mentorDetail = _unitOfWork.User.Get(x => x.Id == mentor.LecturerId,null, "Role,Lecturer").FirstOrDefault();
+	                mentorDetail.Lecturer.Department =
+		                _unitOfWork.Department.GetById(mentorDetail.Lecturer.DepartmentId);
+	                GetLecturerResponse mentorResponse = _mapper.Map<GetLecturerResponse>(mentorDetail);
+                    teamResponse.Mentors.Add(mentorResponse);
+                });
+			}
             teamResponse.Members = members;
             teamResponse.TotalMember = members.Count();
             return teamResponse;

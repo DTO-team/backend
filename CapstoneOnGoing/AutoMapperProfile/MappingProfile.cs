@@ -33,8 +33,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<User, LoginUserLecturerResponse>()
                 .ForMember(dest => dest.AccessToken, src => src.Ignore())
-                .ForMember(dest => dest.DepartmentName,
-                    src => src.MapFrom(src => src.Lecturer.Department.Name.ToString()))
+                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             ;
             CreateMap<User, LoginUserCompanyResponse>()
@@ -55,10 +54,10 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<UpdateLecturerRequest, User>();
 
             CreateMap<Lecturer, GetLecturerResponse>()
-                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department.Name));
+                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department));
 
             CreateMap<User, GetLecturerResponse>()
-                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department.Name))
+                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
             CreateMap<Student, StudentResponse>()
@@ -134,12 +133,15 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.LecturerIds, src => src.MapFrom(src => src.TopicLecturers.Select(src => src.LecturerId)))
 	            .ForMember(dest => dest.CompanyId, src => src.MapFrom(src => src.CompanyId));
             CreateMap<User, GetLecturerDTO>()
-	            .ForMember(dest => dest.Department,src => src.MapFrom(src => src.Lecturer.Department.Name))
+	            .ForMember(dest => dest.Department,src => src.MapFrom(src => src.Lecturer.Department))
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<User, GetCompanyDTO>()
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
-            CreateMap<GetLecturerDTO, GetLecturerResponse>();
+            CreateMap<GetLecturerDTO, GetLecturerResponse>()
+                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department));
             CreateMap<GetCompanyDTO, GetCompanyResponse>();
+
+            CreateMap<GetTeamDetailResponse, Member>();
             CreateMap<GetTopicsDTO, GetTopicsResponse>()
                 .ForMember(dest => dest.TopicName, src => src.MapFrom(src => src.Name))
                 .ForMember(dest => dest.TopicId, src => src.MapFrom(src => src.TopicId))
@@ -147,6 +149,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.CompanyDetail, src => src.MapFrom(src => src.CompanyDto));
 
             CreateMap<StudentRequest, User>();
+            CreateMap<Department,GetDepartmentResponse>();
         }
     }
 }

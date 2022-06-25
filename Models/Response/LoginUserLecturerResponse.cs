@@ -8,6 +8,6 @@ namespace Models.Response
 {
 	public class LoginUserLecturerResponse : LoginUserResponse
 	{
-		public string DepartmentName { get; set; }
+		public GetDepartmentResponse Department { get; set; }
 	}
 }

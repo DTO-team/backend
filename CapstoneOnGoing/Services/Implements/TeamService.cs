@@ -201,7 +201,8 @@ namespace CapstoneOnGoing.Services.Implements
 
         public GetTeamDetailResponse GetTeamDetail(Guid teamId)
         {
-            Team team = _unitOfWork.Team.Get(x => x.Id == teamId, null, "TeamStudents").FirstOrDefault();
+            // Team team = _unitOfWork.Team.Get(x => x.Id == teamId, null, "TeamStudents,Project").FirstOrDefault();
+            Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
             if (team != null)
             {
                 GetTeamDetailResponse teamDetailResponse = GetTeamDetail(team);

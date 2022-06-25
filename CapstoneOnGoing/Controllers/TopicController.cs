@@ -33,7 +33,7 @@ namespace CapstoneOnGoing.Controllers
 			_uriService = uriService;
 		}
 
-		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
 		[HttpGet]
 		[ProducesResponseType(typeof(PagedResponse<IEnumerable<GetTopicsResponse>>),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]

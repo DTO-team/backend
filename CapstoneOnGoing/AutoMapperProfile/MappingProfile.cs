@@ -132,8 +132,10 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.TopicId, src => src.MapFrom(src => src.Id))
 	            .ForMember(dest => dest.LecturerIds, src => src.MapFrom(src => src.TopicLecturers.Select(src => src.LecturerId)))
 	            .ForMember(dest => dest.CompanyId, src => src.MapFrom(src => src.CompanyId));
+            CreateMap<Department,GetDepartmentDTO>();
+            CreateMap<GetDepartmentDTO, GetDepartmentResponse>();
             CreateMap<User, GetLecturerDTO>()
-	            .ForMember(dest => dest.Department,src => src.MapFrom(src => src.Lecturer.Department))
+                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department))
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<User, GetCompanyDTO>()
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
@@ -150,6 +152,9 @@ namespace CapstoneOnGoing.AutoMapperProfile
 
             CreateMap<StudentRequest, User>();
             CreateMap<Department,GetDepartmentResponse>();
+            CreateMap<CreateWeeklyReportRequest, CreateWeeklyReportDTO>()
+	            .ForMember(dest => dest.ReportEvidenceName, src => src.MapFrom(src => src.ReportEvidence.Name))
+	            .ForMember(dest => dest.ReportEvidenceUrl, src => src.MapFrom(src => src.ReportEvidence.Url));
         }
     }
 }

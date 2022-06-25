@@ -1,9 +1,9 @@
 ﻿using System;
-
-namespace Models.Request
+namespace Models.Dtos
 {
-	public class CreateWeeklyReportRequest
+	public class CreateWeeklyReportDTO
 	{
+		public Guid TeamId { get; set; }
 		public bool IsTeamReport { get; set; }
 		public long FromDate { get; set; }
 		public long ToDate { get; set; }
@@ -14,12 +14,7 @@ namespace Models.Request
 		public string UrgentIssues { get; set; }
 		public string SelfAssessment { get; set; }
 		public string FeedBack { get; set; }
-		public ReportEvidence ReportEvidence { get; set; }
-	}
-
-	public class ReportEvidence
-	{
-		public string Name { get; set; }
-		public string Url { get; set; }
+		public string ReportEvidenceName { get; set; }
+		public string ReportEvidenceUrl { get; set; }
 	}
 }

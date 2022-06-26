@@ -96,7 +96,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize]
+		[Authorize]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetTopicsResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]

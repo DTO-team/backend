@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Enums;
+using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Services.Interfaces;
 using Models.Dtos;
 using Models.Models;
@@ -23,10 +25,33 @@ namespace CapstoneOnGoing.Services.Implements
             _teamService = teamService;
         }
 
-        // public IEnumerable<GetProjectResponse> GetAllProjectResponse()
-        // {
-        //     return new List<GetProjectResponse>();
-        // }
+        public IEnumerable<GetAllProjectsDetailDTO> GetAllProjectResponse(PaginationFilter validFilter, out int totalRecords)
+        {
+            IEnumerable<Project> projects = _unitOfWork.Project
+                .GetAllProjectWithMentorTeamAndTeamStudents(validFilter.SearchString, validFilter.PageNumber, validFilter.PageSize, out totalRecords);
+
+            List<GetAllProjectsDetailDTO> allProjectsDetailDetailDtos = new List<GetAllProjectsDetailDTO>();
+
+            if (projects.Any())
+            {
+                GetAllProjectsDetailDTO allProjectDetailDto;
+                Array.ForEach(projects.ToArray(), project =>
+                {
+                    allProjectDetailDto = new GetAllProjectsDetailDTO();
+                    Application projectApplication = _unitOfWork.Applications.GetById(project.ApplicationId);
+                    Topic projectTopic = _unitOfWork.Topic.GetById(projectApplication.TopicId);
+
+                    GetTopicAllProjectDTO getTopicsAllProjectDto = new GetTopicAllProjectDTO()
+                    { TopicId = projectTopic.Id, Name = projectTopic.Name, Description = projectTopic.Description, CompanyId = projectTopic.CompanyId };
+
+                    allProjectDetailDto.TopicsAllProjectDto = getTopicsAllProjectDto;
+                    allProjectDetailDto.TeamDetailResponse = _teamService.GetTeamDetail(project.TeamId);
+                    allProjectsDetailDetailDtos.Add(allProjectDetailDto);
+                });
+                return allProjectsDetailDetailDtos;
+            }
+            return new List<GetAllProjectsDetailDTO>();
+        }
 
         public GetProjectDetailDTO GetProjectDetailById(Guid projectId)
         {

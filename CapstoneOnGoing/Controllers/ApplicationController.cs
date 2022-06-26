@@ -182,7 +182,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        // [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [ProducesResponseType(typeof(GetApplicationResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetApplicationById(Guid id)

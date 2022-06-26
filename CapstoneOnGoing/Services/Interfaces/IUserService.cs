@@ -7,7 +7,8 @@ using Models.Request;
 namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface IUserService
-	{
+    {
+        User GetUserWithRoleById(Guid id);
 		User GetUserWithRoleByEmail(string email);
 		User GetUserById(Guid id);
 		IEnumerable<User> GetAllUsers(string name,int page, int limit, out int totalRecords);

@@ -52,6 +52,35 @@ namespace CapstoneOnGoing.Services.Implements
             }
             return user;
         }
+
+        public User GetUserWithRoleById(Guid id)
+        {
+            User user = null;
+            if (id.Equals(Guid.Empty))
+            {
+                return null;
+            }
+            user = _unitOfWork.User.Get(x => x.Id == id, null, "Role").FirstOrDefault();
+            if (user != null)
+            {
+                switch (user.RoleId)
+                {
+                    case 2:
+                        user.Lecturer = _unitOfWork.Lecturer.Get(x => x.Id == user.Id, null, "Department").FirstOrDefault();
+                        break;
+                    case 3:
+                        user.Student = _unitOfWork.Student.Get(x => x.Id == user.Id, null, "Semester").FirstOrDefault();
+                        break;
+                    case 4:
+                        user.Company = _unitOfWork.Companies.Get(x => x.Id == user.Id, null, null).FirstOrDefault();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return user;
+        }
+
         public User GetUserById(Guid id)
         {
             User user = null;

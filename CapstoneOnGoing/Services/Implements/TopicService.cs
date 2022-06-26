@@ -175,6 +175,7 @@ namespace CapstoneOnGoing.Services.Implements
 			return topicDto;
 		}
 
+
 		private void SetIsRegisteredInGetAllTopics(string email, IEnumerable<GetTopicsDTO> getTopicsDtos, Semester currentSemester)
 		{
 			User student = _userService.GetUserWithRoleByEmail(email);

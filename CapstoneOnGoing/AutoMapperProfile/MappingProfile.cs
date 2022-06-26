@@ -141,6 +141,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department));
             CreateMap<GetCompanyDTO, GetCompanyResponse>();
 
+            CreateMap<User, GetUserResponse>();
+
             CreateMap<GetTeamDetailResponse, Member>();
             CreateMap<GetTopicsDTO, GetTopicsResponse>()
                 .ForMember(dest => dest.TopicName, src => src.MapFrom(src => src.Name))

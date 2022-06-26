@@ -10,6 +10,7 @@ using Models.Response;
 using System;
 using System.Collections.Generic;
 using System.Net.Mail;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace CapstoneOnGoing.Controllers
@@ -134,16 +135,26 @@ namespace CapstoneOnGoing.Controllers
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult UpdateStudent(UpdateStudentRequest student)
         {
-            //if student is exist, Update student, if not return error
-            User updatedUser = _studentService.UpdateStudent(student);
-            if (updatedUser != null)
+            string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+            User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
+            if (userByEmail.Id.Equals(student.Id))
             {
-                return Ok(_mapper.Map<StudentUpdateResponse>(updatedUser));
+                //if student is exist, Update student, if not return error
+                User updatedUser = _studentService.UpdateStudent(student);
+                if (updatedUser != null)
+                {
+                    return Ok(_mapper.Map<StudentUpdateResponse>(updatedUser));
 
-            } else
+                }
+                else
+                {
+                    _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
+                    return BadRequest(new GenericResponse() { HttpStatus = 400, Message = "Student is not existed to update", TimeStamp = DateTime.Now });
+                }
+            }
+            else
             {
-                _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
-                return BadRequest(new GenericResponse(){HttpStatus = 400, Message = "Student is not existed to update", TimeStamp = DateTime.Now});
+                return BadRequest("Cannot update profile of another student! Only update yourself!");
             }
         }
     }

@@ -8,6 +8,7 @@ using Models.Models;
 using Models.Response;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace CapstoneOnGoing.Controllers
@@ -93,16 +94,25 @@ namespace CapstoneOnGoing.Controllers
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequest lecturerUpdateRequest)
         {
-            User updateUser = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
-            if (updateUser != null)
+            string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+            User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
+            if (userByEmail.Id.Equals(lecturerUpdateRequest.Id))
             {
-                User lecturer = _lecturerService.GetLecturerById(updateUser.Id);
-                return Ok(_mapper.Map<GetLecturerResponse>(lecturer));
+                User updateUser = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
+                if (updateUser != null)
+                {
+                    User lecturer = _lecturerService.GetLecturerById(updateUser.Id);
+                    return Ok(_mapper.Map<GetLecturerResponse>(lecturer));
+                }
+                else
+                {
+                    _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerUpdateRequest.Id} do not exist");
+                    return BadRequest(new GenericResponse() { HttpStatus = 400, Message = $"User is not existed", TimeStamp = DateTime.Now });
+                }
             }
             else
             {
-                _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerUpdateRequest.Id} do not exist");
-                return BadRequest(new GenericResponse() { HttpStatus = 400, Message = $"User is not existed", TimeStamp = DateTime.Now });
+                return BadRequest("Cannot update profile of another lecturer! Only update yourself!");
             }
         }
     }

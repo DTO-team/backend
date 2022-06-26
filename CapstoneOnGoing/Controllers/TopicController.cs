@@ -34,7 +34,7 @@ namespace CapstoneOnGoing.Controllers
 			_uriService = uriService;
 		}
 
-		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
 		[HttpGet]
 		[ProducesResponseType(typeof(PagedResponse<IEnumerable<GetTopicsResponse>>),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]
@@ -96,7 +96,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize]
+		[Authorize]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetTopicsResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]

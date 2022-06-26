@@ -168,7 +168,7 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "STUDENT")]
         [HttpPost("{id}/reports")]
-        public IActionResult CreateWeeklyReport()
+        public IActionResult CreateWeeklyReport(Guid id,CreateWeeklyReportRequest createWeeklyReportRequest)
         {
             return Ok();
         }

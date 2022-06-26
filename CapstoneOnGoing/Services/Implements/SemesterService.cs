@@ -4,12 +4,17 @@ using Models.Models;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
+using CapstoneOnGoing.Enums;
+using CapstoneOnGoing.Helper;
+using Microsoft.AspNetCore.Http;
 
 namespace CapstoneOnGoing.Services.Implements
 {
 	public class SemesterService : ISemesterService
 	{
 		private readonly IUnitOfWork _unitOfWork;
+		private const int GetSunday = 6;
+		private const int GetNextMonday = 7;
 		public SemesterService(IUnitOfWork unitOfWork)
 		{
 			_unitOfWork = unitOfWork;
@@ -23,7 +28,7 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 			else{
 				//set status of new semester is Preparing
-				newSemester.Status = 1;
+				newSemester.Status = (int)SemesterStatus.Preparing;
 				_unitOfWork.Semester.Insert(newSemester);
 				_unitOfWork.Save();
 				return newSemester;
@@ -51,52 +56,55 @@ namespace CapstoneOnGoing.Services.Implements
 			bool isSuccessful = false;
 			switch (updatedSemester.Status)
 			{
-				case 1:
-					if (semesterDto.Status == 2)
+				case (int)SemesterStatus.Preparing:
+					if (semesterDto.Status == (int)SemesterStatus.Ongoing)
 					{
 						updatedSemester.Status = semesterDto.Status;
+						//Generate week based on start day of semester
+						GenerateWeeksForSemester(updatedSemester, semesterDto);
 						_unitOfWork.Semester.Update(updatedSemester);
 						_unitOfWork.Save();
 						isSuccessful = true;
 					}
 					break;
-				case 2:
-					if (semesterDto.Status == 3)
+				case (int)SemesterStatus.Ongoing:
+					if (semesterDto.Status == (int)SemesterStatus.Ended)
 					{
 						updatedSemester.Status = semesterDto.Status;
 						_unitOfWork.Semester.Update(updatedSemester);
 						_unitOfWork.Save();
 						isSuccessful = true;
 					}
-					else if (semesterDto.Status == 1)
-					{
-						updatedSemester.Status = semesterDto.Status;
-						_unitOfWork.Semester.Update(updatedSemester);
-						_unitOfWork.Save();
-						isSuccessful = true;
-					}
-					break;
-				case 3:
-					if (semesterDto.Status == 4)
-					{
-						updatedSemester.Status = semesterDto.Status;
-						_unitOfWork.Semester.Update(updatedSemester);
-						_unitOfWork.Save();
-						isSuccessful = true;
-					}
-					else if (semesterDto.Status == 2)
-					{
-						updatedSemester.Status = semesterDto.Status;
-						_unitOfWork.Semester.Update(updatedSemester);
-						_unitOfWork.Save();
-						isSuccessful = true;
-					}
-					break;
-				case 4:
 					break;
 			}
-
 			return isSuccessful;
+		}
+
+		private void GenerateWeeksForSemester(Semester semester, UpdateSemesterDTO semesterDto)
+		{
+			DateTime startDateOfSemester = DateTimeHelper.ConvertLongToDateTime(semesterDto.StartDayOfSemester);
+			if (startDateOfSemester.DayOfWeek != DayOfWeek.Monday)
+			{
+				throw new BadHttpRequestException("Start date of semester must be Monday");
+			}
+
+			int numberWeeksOfSemester = 1;
+			DateTime previousMonday;
+			ICollection<Week> weeksOfSemester = new List<Week>();
+			while (weeksOfSemester.Count < 15)
+			{
+				previousMonday = startDateOfSemester;
+				Week newWeek = new Week()
+				{
+					Number = numberWeeksOfSemester++,
+					FromDate = DateTimeHelper.ConvertDateTimeToLong(startDateOfSemester),
+					ToDate = DateTimeHelper.ConvertDateTimeToLong(startDateOfSemester.AddDays(GetSunday)),
+					SemesterId = semester.Id,
+				};
+				weeksOfSemester.Add(newWeek);
+				startDateOfSemester = previousMonday.AddDays(GetNextMonday);
+			}
+			_unitOfWork.Week.InsertRange(weeksOfSemester);
 		}
 	}
 }

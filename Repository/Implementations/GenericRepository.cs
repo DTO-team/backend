@@ -80,5 +80,10 @@ namespace Repository.Implementations
 			dbSet.Attach(updatedEntity);
 			context.Entry(updatedEntity).State = EntityState.Modified;
 		}
+
+		public void InsertRange(IEnumerable<TEntity> newEntities)
+		{
+			dbSet.AddRange(newEntities);
+		}
 	}
 }

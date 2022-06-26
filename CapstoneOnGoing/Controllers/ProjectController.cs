@@ -6,6 +6,7 @@ using AutoMapper;
 using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
@@ -32,6 +33,7 @@ namespace CapstoneOnGoing.Controllers
             _userService = userService;
         }
 
+        [Authorize (Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetProjectDetailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -49,7 +51,9 @@ namespace CapstoneOnGoing.Controllers
             return Ok(projectResponse);
         }
 
+        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<IEnumerable<GetAllProjectDetailResponse>>), StatusCodes.Status200OK)]
         public IActionResult GetAllProjects([FromQuery] PaginationFilter paginationFilter)
         {
             string route = Request.Path.Value;

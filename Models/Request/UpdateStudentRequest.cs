@@ -18,6 +18,8 @@ namespace Models.Request
         public string FullName { get; set; }
      
         public string Code { get; set; }
-       
+
+        public string AvatarUrl { get; set; }
+
     }
 }

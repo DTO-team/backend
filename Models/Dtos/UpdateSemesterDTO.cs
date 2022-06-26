@@ -14,5 +14,6 @@ namespace Models.Dtos
 		[Required]
 		public int Status { get; set; }
 
+		public long StartDayOfSemester { get; set; }
 	}
 }

@@ -50,7 +50,8 @@ namespace CapstoneOnGoing.Extensions
 			services.AddScoped<IApplicationService, ApplicationService>();
             services.AddScoped<ITeamStudentService, TeamStudentService>();
             services.AddScoped<IProjectService, ProjectService>();
-        }
+            services.AddScoped<IWeekRepository, WeekRepository>();
+		}
 
 		public static void AddConfigUriForPagination(this IServiceCollection services)
 		{

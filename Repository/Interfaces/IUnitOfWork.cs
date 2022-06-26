@@ -37,9 +37,8 @@ namespace Repository.Interfaces
         IUserRepository User { get; }
 
         IDepartmentRepository Department { get; }
-
-
-        public IReportRepository Report { get; }
+        IReportRepository Report { get; }
+        IWeekRepository Week { get; }
 
         public int Save();
     }

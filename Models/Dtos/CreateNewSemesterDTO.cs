@@ -10,5 +10,9 @@ namespace Models.Dtos
 		public int Year { get; set; }
 		[Required]
 		public string Season { get; set; }
+		[Required]
+		public long StartDate { get; set; }
+		[Required]
+		public long EndDate { get; set; }
 	}
 }

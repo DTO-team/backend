@@ -49,5 +49,7 @@ namespace Repository.Interfaces
         /// </summary>
         /// <param name="updatedEntity">TEntity need to be updated</param>
         void Update(TEntity updatedEntity);
+
+        void InsertRange(IEnumerable<TEntity> newEntities);
     }
 }

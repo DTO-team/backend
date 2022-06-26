@@ -16,9 +16,6 @@ namespace Models.Models
         public Guid ProjectId { get; set; }
         public bool IsTeamReport { get; set; }
         public Guid ReporterId { get; set; }
-        public int Week { get; set; }
-        public long FromDate { get; set; }
-        public long ToDate { get; set; }
         public long Deadline { get; set; }
         public string CompletedTasks { get; set; }
         public string InProgressTasks { get; set; }
@@ -26,9 +23,11 @@ namespace Models.Models
         public string UrgentIssues { get; set; }
         public string SelfAssessments { get; set; }
         public string Feedbacks { get; set; }
+        public Guid WeekId { get; set; }
 
         public virtual Project Project { get; set; }
         public virtual Student Reporter { get; set; }
+        public virtual Week Week { get; set; }
         public virtual ICollection<ReportEvidence> ReportEvidences { get; set; }
     }
 }

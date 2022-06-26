@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Models.Models;
 
 #nullable disable
@@ -46,6 +50,7 @@ namespace Repository
         public virtual DbSet<Topic> Topics { get; set; }
         public virtual DbSet<TopicLecturer> TopicLecturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Week> Weeks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -414,6 +419,12 @@ namespace Repository
                     .HasForeignKey(d => d.ReporterId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Report_StudentID");
+
+                entity.HasOne(d => d.Week)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.WeekId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Report_WeekID");
             });
 
             modelBuilder.Entity<ReportEvidence>(entity =>
@@ -740,6 +751,19 @@ namespace Repository
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_User_RoleID");
+            });
+
+            modelBuilder.Entity<Week>(entity =>
+            {
+                entity.ToTable("Week");
+
+                entity.Property(e => e.Id).HasValueGenerator<TemporaryGuidValueGenerator>();
+
+                entity.HasOne(d => d.Semester)
+                    .WithMany(p => p.Weeks)
+                    .HasForeignKey(d => d.SemesterId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Week_Semester_Id");
             });
 
             OnModelCreatingPartial(modelBuilder);

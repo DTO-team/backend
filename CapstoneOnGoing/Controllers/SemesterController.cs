@@ -24,7 +24,7 @@ namespace CapstoneOnGoing.Controllers
 			_semesterService = semesterService;
 		}
 
-		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		//[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet]
 		public IActionResult GetAllSemester([FromQuery] int page, [FromQuery] int limit)
 		{
@@ -52,7 +52,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 
-		[Authorize(Roles = "ADMIN")]
+		//[Authorize(Roles = "ADMIN")]
 		[HttpPut("{id}")] 
 		public IActionResult UpdateSemester([FromBody] UpdateSemesterDTO updateSemesterDTO)
 		{

@@ -25,6 +25,7 @@ namespace CapstoneOnGoing.Services.Implements
 		{
 			//check team is exist
 			Team team = _unitOfWork.Team.GetById(teamId);
+			
 			if (team == null)
 			{
 				throw new BadHttpRequestException("Team does not exist");

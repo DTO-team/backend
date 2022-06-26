@@ -8,6 +8,7 @@ namespace Models.Dtos
 		public Guid TopicId { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
+		public bool IsRegistered { get; set; } = false;
 		public IEnumerable<Guid> LecturerIds { get; set; }
 		public IEnumerable<GetLecturerDTO> LecturerDtos { get; set; }
 		public Guid CompanyId { get; set; }

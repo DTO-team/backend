@@ -13,6 +13,7 @@ namespace Models.Models
             Students = new HashSet<Student>();
             Teams = new HashSet<Team>();
             Topics = new HashSet<Topic>();
+            Weeks = new HashSet<Week>();
         }
 
         public Guid Id { get; set; }
@@ -27,5 +28,6 @@ namespace Models.Models
         public virtual ICollection<Student> Students { get; set; }
         public virtual ICollection<Team> Teams { get; set; }
         public virtual ICollection<Topic> Topics { get; set; }
+        public virtual ICollection<Week> Weeks { get; set; }
     }
 }

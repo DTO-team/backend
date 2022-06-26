@@ -17,11 +17,12 @@ namespace CapstoneOnGoing.Services.Implements
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
-
-		public TopicService(IUnitOfWork unitOfWork, IMapper mapper)
+		private readonly IUserService _userService;
+		public TopicService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
+			_userService = userService;
 		}
 
 		public Topic GetTopicById(Guid id)
@@ -83,7 +84,7 @@ namespace CapstoneOnGoing.Services.Implements
 			return isSuccessful;
 		}
 
-		public IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter, out int totalRecords)
+		public IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter, string email, out int totalRecords)
 		{
 			//get current semester 
 			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
@@ -136,10 +137,11 @@ namespace CapstoneOnGoing.Services.Implements
 						getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
 						if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
 						{
-							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId,null,"Role").FirstOrDefault();
+							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId, null, "Role").FirstOrDefault();
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
 						}
 					});
+					SetIsRegisteredInGetAllTopics(email, getTopicsDtos, currentSemester);
 					return getTopicsDtos;
 				}
 			}
@@ -170,6 +172,33 @@ namespace CapstoneOnGoing.Services.Implements
 				topicDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturersUserDetails);
 			}
 			return topicDto;
+		}
+    
+		private void SetIsRegisteredInGetAllTopics(string email, IEnumerable<GetTopicsDTO> getTopicsDtos, Semester currentSemester)
+		{
+			User user = _userService.GetUserWithRoleByEmail(email);
+			if (user.RoleId != (int)RoleEnum.Student)
+			{
+				return;
+			}
+			Team team = user.Student.Teams.FirstOrDefault(x => x.SemesterId == currentSemester.Id);
+			if (team == null)
+			{
+				return;
+			}
+
+			team.Applications = _unitOfWork.Applications.Get(x => x.TeamId == team.Id).ToList();
+			if (team.Applications != null)
+			{
+				IEnumerable<Guid> registeredTopics = team.Applications.Select(x => x.TopicId);
+				Array.ForEach(getTopicsDtos.ToArray(), getTopicsDto =>
+				{
+					if (registeredTopics.Contains(getTopicsDto.TopicId))
+					{
+						getTopicsDto.IsRegistered = true;
+					}
+				});
+			}
 		}
 	}
 }

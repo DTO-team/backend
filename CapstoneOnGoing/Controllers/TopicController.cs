@@ -2,6 +2,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+ using System.Security.Claims;
  using AutoMapper;
  using CapstoneOnGoing.Filter;
  using CapstoneOnGoing.Helper;
@@ -39,6 +40,7 @@ namespace CapstoneOnGoing.Controllers
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]
 		public IActionResult GetAllTopics([FromQuery] PaginationFilter paginationFilter)
 		{
+			string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			string route = Request.Path.Value;
 			PaginationFilter validFilter;
 			if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
@@ -50,7 +52,7 @@ namespace CapstoneOnGoing.Controllers
 			{
 				validFilter = new PaginationFilter(paginationFilter.SearchString,paginationFilter.PageNumber,paginationFilter.PageSize);
 			}
-			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(validFilter,out int totalRecords);
+			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(validFilter, email, out int totalRecords);
 			if (topicsDtos != null)
 			{
 				IEnumerable<GetTopicsResponse> getTopicsResponses = _mapper.Map<IEnumerable<GetTopicsResponse>>(topicsDtos);

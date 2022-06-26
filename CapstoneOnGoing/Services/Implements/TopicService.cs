@@ -115,6 +115,7 @@ namespace CapstoneOnGoing.Services.Implements
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
 						}
 					});
+					SetIsRegisteredInGetAllTopics(email, getTopicsDtos, currentSemester);
 					return getTopicsDtos;
 				}
 				else
@@ -176,12 +177,14 @@ namespace CapstoneOnGoing.Services.Implements
 
 		private void SetIsRegisteredInGetAllTopics(string email, IEnumerable<GetTopicsDTO> getTopicsDtos, Semester currentSemester)
 		{
-			User user = _userService.GetUserWithRoleByEmail(email);
-			if (user.RoleId != (int)RoleEnum.Student)
+			User student = _userService.GetUserWithRoleByEmail(email);
+			if (student.RoleId != (int)RoleEnum.Student)
 			{
 				return;
 			}
-			Team team = user.Student.Teams.FirstOrDefault(x => x.SemesterId == currentSemester.Id);
+
+			Team team = _unitOfWork.Team.Get(x => student.Student.TeamStudents.Select(x => x.TeamId).Contains(x.Id) && x.SemesterId == currentSemester.Id)
+				.FirstOrDefault();
 			if (team == null)
 			{
 				return;

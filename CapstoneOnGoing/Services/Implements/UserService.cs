@@ -41,7 +41,7 @@ namespace CapstoneOnGoing.Services.Implements
                         user.Lecturer = _unitOfWork.Lecturer.Get(x => x.Id == user.Id, null, "Department").FirstOrDefault();
                         break;
                     case 3:
-                        user.Student = _unitOfWork.Student.Get(x => x.Id == user.Id, null, "Semester,Teams").FirstOrDefault();
+                        user.Student = _unitOfWork.Student.Get(x => x.Id == user.Id, null, "Semester,TeamStudents").FirstOrDefault();
                         break;
                     case 4:
                         user.Company = _unitOfWork.Companies.Get(x => x.Id == user.Id, null, null).FirstOrDefault();

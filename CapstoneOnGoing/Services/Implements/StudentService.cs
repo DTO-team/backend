@@ -128,6 +128,10 @@ namespace CapstoneOnGoing.Services.Implements
                     student.Code = updateStudentRequest.Code;
                     studentToUpdate.Student = student;
                 }
+                if (!string.IsNullOrEmpty(updateStudentRequest.AvatarUrl))
+                {
+                    studentToUpdate.AvatarUrl = updateStudentRequest.AvatarUrl;
+                }
                 Role studentRole = _unitOfWork.Role.GetRoleByName("STUDENT");
                 studentToUpdate.Role = studentRole;
 

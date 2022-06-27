@@ -102,13 +102,13 @@ namespace CapstoneOnGoing.Controllers
             return CreatedAtAction("createNewUser", createdUserResponse);
         }
 
-        [Authorize(Roles = "ADMIN")]
-        [HttpPut("{id}")]
-        public IActionResult UpdateUser([FromBody] UpdateUserInAdminRequest userInAdminUpdateData)
-        {
-            User user = _userService.GetUserById(userInAdminUpdateData.Id);
-            return Ok(user);
-        }
+        // [Authorize(Roles = "ADMIN")]
+        // [HttpPut("{id}")]
+        // public IActionResult UpdateUser([FromBody] UpdateUserInAdminRequest userInAdminUpdateData)
+        // {
+        //     User user = _userService.GetUserById(userInAdminUpdateData.Id);
+        //     return Ok(user);
+        // }
 
         [Authorize(Roles = "ADMIN")]
         [HttpDelete("{id}")]

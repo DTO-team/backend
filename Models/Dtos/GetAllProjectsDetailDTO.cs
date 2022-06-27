@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Models.Response;
 
 namespace Models.Dtos
 {
-    public class GetProjectDetailDTO
+    public class GetAllProjectsDetailDTO
     {
-        public GetTopicsDTO Topics { get; set; }
+        public GetTopicAllProjectDTO TopicsAllProjectDto { get; set; }
         public GetTeamDetailResponse TeamDetailResponse { get; set; }
-
     }
 }

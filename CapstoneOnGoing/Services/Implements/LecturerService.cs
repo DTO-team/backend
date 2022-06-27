@@ -118,6 +118,10 @@ namespace CapstoneOnGoing.Services.Implements
                 {
                     lecturerToUpdate.UserName = lecturer.UserName;
                 }
+                if (string.IsNullOrEmpty(lecturerToUpdate.AvatarUrl))
+                {
+                    lecturerToUpdate.AvatarUrl = lecturer.AvatarUrl;
+                }
 
                 _unitOfWork.User.Update(lecturerToUpdate);
                 _unitOfWork.Save();

@@ -6,7 +6,6 @@ using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
-using ReportEvidence = Models.Request.ReportEvidence;
 
 namespace CapstoneOnGoing.AutoMapperProfile
 {

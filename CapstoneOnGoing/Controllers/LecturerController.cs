@@ -88,7 +88,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,LECTURER")]
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

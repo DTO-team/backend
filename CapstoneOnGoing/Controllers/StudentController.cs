@@ -129,7 +129,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN,LECTURER")]
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpPut]
         [ProducesResponseType(typeof(StudentUpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

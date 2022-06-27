@@ -172,14 +172,34 @@ namespace CapstoneOnGoing.Controllers
             return Ok();
         }
 
-        //[Authorize(Roles = "STUDENT")]
-        [HttpPost("{id}/reports")]
+		[Authorize(Roles = "STUDENT")]
+		[HttpPost("{id}/reports")]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
         public IActionResult CreateWeeklyReport(Guid id,CreateWeeklyReportRequest createWeeklyReportRequest)
         {
 	        string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 	        CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
 	        bool isSuccessful = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
-			return Ok();
+	        if (isSuccessful)
+	        {
+				return CreatedAtAction(nameof(CreateWeeklyReport), new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status200OK,
+					Message = "Create weekly report successfully",
+					TimeStamp = DateTime.Now
+				});
+			}
+	        else
+	        {
+				_logger.LogWarn($"Controller: {nameof(TeamController)}, Method: {nameof(CreateWeeklyReport)}: create weekly report failed");
+				return BadRequest(new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status400BadRequest,
+					Message = "Create weekly report failed",
+					TimeStamp = DateTime.Now
+				});
+	        }
         }
     }
 }

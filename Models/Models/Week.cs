@@ -17,6 +17,7 @@ namespace Models.Models
         public Guid SemesterId { get; set; }
         public long FromDate { get; set; }
         public long ToDate { get; set; }
+        public long Deadline { get; set; }
 
         public virtual Semester Semester { get; set; }
         public virtual ICollection<Report> Reports { get; set; }

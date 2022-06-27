@@ -1,8 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Models.Models;
 
 #nullable disable
@@ -757,7 +755,7 @@ namespace Repository
             {
                 entity.ToTable("Week");
 
-                entity.Property(e => e.Id).HasValueGenerator<TemporaryGuidValueGenerator>();
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.Weeks)

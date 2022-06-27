@@ -14,6 +14,7 @@ namespace CapstoneOnGoing.Services.Implements
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private const int GetSunday = 6;
+		private const int GetFriday = 4;
 		private const int GetNextMonday = 7;
 		public SemesterService(IUnitOfWork unitOfWork)
 		{
@@ -99,6 +100,7 @@ namespace CapstoneOnGoing.Services.Implements
 					Number = numberWeeksOfSemester++,
 					FromDate = DateTimeHelper.ConvertDateTimeToLong(startDateOfSemester),
 					ToDate = DateTimeHelper.ConvertDateTimeToLong(startDateOfSemester.AddDays(GetSunday)),
+					Deadline = DateTimeHelper.ConvertDateTimeToLong(startDateOfSemester.AddDays(GetFriday).AddHours(12)),
 					SemesterId = semester.Id,
 				};
 				weeksOfSemester.Add(newWeek);

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
+using AutoMapper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.Dtos;
 using Models.Request;
 using Models.Response;
 
@@ -19,10 +21,14 @@ namespace CapstoneOnGoing.Controllers
 	{
 		private readonly ILoggerManager _logger;
 		private readonly ITeamService _teamService;
-		public TeamController(ILoggerManager logger, ITeamService teamService)
+		private readonly IReportService _reportService;
+		private readonly IMapper _mapper;
+		public TeamController(ILoggerManager logger, ITeamService teamService, IReportService reportService, IMapper mapper)
 		{
 			_logger = logger;
 			_teamService = teamService;
+			_reportService = reportService;
+			_mapper = mapper;
 		}
 
 		[Authorize(Roles = "STUDENT")]
@@ -166,11 +172,14 @@ namespace CapstoneOnGoing.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "STUDENT")]
+        //[Authorize(Roles = "STUDENT")]
         [HttpPost("{id}/reports")]
         public IActionResult CreateWeeklyReport(Guid id,CreateWeeklyReportRequest createWeeklyReportRequest)
         {
-            return Ok();
+	        string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+	        CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
+	        bool isSuccessful = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
+			return Ok();
         }
     }
 }

@@ -6,6 +6,7 @@ using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
+using ReportEvidence = Models.Request.ReportEvidence;
 
 namespace CapstoneOnGoing.AutoMapperProfile
 {
@@ -152,9 +153,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
 
             CreateMap<StudentRequest, User>();
             CreateMap<Department,GetDepartmentResponse>();
-            CreateMap<CreateWeeklyReportRequest, CreateWeeklyReportDTO>()
-	            .ForMember(dest => dest.ReportEvidenceName, src => src.MapFrom(src => src.ReportEvidence.Name))
-	            .ForMember(dest => dest.ReportEvidenceUrl, src => src.MapFrom(src => src.ReportEvidence.Url));
+            CreateMap<CreateWeeklyReportRequest, CreateWeeklyReportDTO>();
+            CreateMap<ReportEvidenceRequest, ReportEvidenceDTO>();
         }
     }
 }

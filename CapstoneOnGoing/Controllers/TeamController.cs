@@ -167,7 +167,7 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize]
         [HttpGet("{id}/reports")]
-        public IActionResult GetTeamReport()
+        public IActionResult GetTeamReport(Guid id)
         {
             return Ok();
         }

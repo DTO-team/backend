@@ -83,8 +83,15 @@ namespace CapstoneOnGoing.Controllers
             {
 
                 StudentResponse studentDTO = _mapper.Map<StudentResponse>(student);
-                GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(Guid.Parse(studentDTO.TeamId));
-                studentDTO.TeamDetail = teamDetailResponse;
+                if (!string.IsNullOrEmpty(studentDTO.TeamId))
+                {
+                    GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(Guid.Parse(studentDTO.TeamId));
+                    if (teamDetailResponse is not null)
+                    {
+                        studentDTO.TeamDetail = teamDetailResponse;
+                    }
+                }
+
                 return Ok(studentDTO);
             }
             else
@@ -130,25 +137,25 @@ namespace CapstoneOnGoing.Controllers
         }
 
         [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
-        [HttpPut]
+        [HttpPut("{id}")]
         [ProducesResponseType(typeof(StudentUpdateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateStudent(UpdateStudentRequest student)
+        public IActionResult UpdateStudent(Guid id,UpdateStudentRequest student)
         {
             string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
             User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
-            if (userByEmail.Id.Equals(student.Id))
+            if (userByEmail.Id.Equals(id))
             {
                 //if student is exist, Update student, if not return error
-                User updatedUser = _studentService.UpdateStudent(student);
-                if (updatedUser != null)
+                User updatedUser = _studentService.UpdateStudent(id, student);
+                User updatedUserDetail = _userService.GetUserWithRoleByEmail(updatedUser.Email);
+                if (updatedUserDetail != null)
                 {
-                    return Ok(_mapper.Map<StudentUpdateResponse>(updatedUser));
-
+                    return Ok(_mapper.Map<StudentUpdateResponse>(updatedUserDetail));
                 }
                 else
                 {
-                    _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {student.Id} is not existed in database");
+                    _logger.LogError($"{nameof(UpdateStudent)} in {nameof(StudentController)}: Student with {id} is not existed in database");
                     return BadRequest(new GenericResponse() { HttpStatus = 400, Message = "Student is not existed to update", TimeStamp = DateTime.Now });
                 }
             }

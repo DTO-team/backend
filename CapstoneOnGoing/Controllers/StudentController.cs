@@ -83,9 +83,9 @@ namespace CapstoneOnGoing.Controllers
             {
 
                 StudentResponse studentDTO = _mapper.Map<StudentResponse>(student);
-                if (!string.IsNullOrEmpty(studentDTO.TeamId))
+                if (!studentDTO.TeamId.Equals(Guid.Empty))
                 {
-                    GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(Guid.Parse(studentDTO.TeamId));
+                    GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(studentDTO.TeamId);
                     if (teamDetailResponse is not null)
                     {
                         studentDTO.TeamDetail = teamDetailResponse;

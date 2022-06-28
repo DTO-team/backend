@@ -11,7 +11,7 @@ namespace CapstoneOnGoing.Services.Interfaces
         void CreateLecturer(Lecturer lecturer, Guid userId, Guid departmentId);
         IEnumerable<User> GetAllLecturers(int page, int limit);
         User GetLecturerById(Guid lecturerId);
-        User UpdateLecturer(User lecturerToUpdate);
+        User UpdateLecturer(Guid lecturerId, UpdateLecturerRequest lecturerToUpdate);
         User GetLecturerByEmail(string userEmail);
         void DeleteLecturer(Lecturer lecturerToDelete);
         void DeleteLecturerById(Guid lecturerId);

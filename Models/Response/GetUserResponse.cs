@@ -12,7 +12,7 @@ namespace Models.Response
         public string Email { get; set; }
         public string UserName { get; set; }
         public string FullName { get; set; }
-        public int StatusId { get; set; }
+        public UserStatusResponse Status { get; set; }
         public string AvatarUrl { get; set; }
     }
 }

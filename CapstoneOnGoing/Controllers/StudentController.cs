@@ -83,8 +83,11 @@ namespace CapstoneOnGoing.Controllers
             {
 
                 StudentResponse studentDTO = _mapper.Map<StudentResponse>(student);
-                GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(Guid.Parse(studentDTO.TeamId));
-                studentDTO.TeamDetail = teamDetailResponse;
+                if (studentDTO.TeamId != Guid.Empty)
+                {
+	                GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(studentDTO.TeamId);
+	                studentDTO.TeamDetail = teamDetailResponse;
+                }
                 return Ok(studentDTO);
             }
             else

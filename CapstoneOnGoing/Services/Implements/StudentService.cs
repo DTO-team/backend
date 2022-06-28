@@ -7,6 +7,7 @@ using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CapstoneOnGoing.Enums;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -68,7 +69,7 @@ namespace CapstoneOnGoing.Services.Implements
                 }
                 returnStudent.Student = student;
                 returnStudent.Student.Code = student.Code;
-                returnStudent.Role = _unitOfWork.Role.GetRoleById(3);
+                returnStudent.Role = _unitOfWork.Role.GetRoleById((int)RoleEnum.Student);
                 if (student.SemesterId != null)
                 {
                     returnStudent.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.SemesterId);

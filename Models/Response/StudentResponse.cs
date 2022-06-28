@@ -5,7 +5,7 @@ namespace Models.Response
     public class StudentResponse
     {
         public Guid Id { get; set; }
-        public string TeamId { get; set; }
+        public Guid TeamId { get; set; }
         public string Email { get; set; }
         public string UserName { get; set; }
         public string FullName { get; set; }

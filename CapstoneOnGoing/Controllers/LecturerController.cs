@@ -92,13 +92,13 @@ namespace CapstoneOnGoing.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(GetLecturerResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateLecturer([FromBody] UpdateLecturerRequest lecturerUpdateRequest)
+        public IActionResult UpdateLecturer(Guid id, [FromBody] UpdateLecturerRequest lecturerUpdateRequest)
         {
             string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
             User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
-            if (userByEmail.Id.Equals(lecturerUpdateRequest.Id))
+            if (userByEmail.Id.Equals(id))
             {
-                User updateUser = _lecturerService.UpdateLecturer(_mapper.Map<User>(lecturerUpdateRequest));
+                User updateUser = _lecturerService.UpdateLecturer(id, lecturerUpdateRequest);
                 if (updateUser != null)
                 {
                     User lecturer = _lecturerService.GetLecturerById(updateUser.Id);
@@ -106,7 +106,7 @@ namespace CapstoneOnGoing.Controllers
                 }
                 else
                 {
-                    _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {lecturerUpdateRequest.Id} do not exist");
+                    _logger.LogWarn($"Controller: {nameof(UserController)},Method: {nameof(UpdateLecturer)}, The user {id} do not exist");
                     return BadRequest(new GenericResponse() { HttpStatus = 400, Message = $"User is not existed", TimeStamp = DateTime.Now });
                 }
             }

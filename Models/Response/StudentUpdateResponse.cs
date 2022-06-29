@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Models.Response;
 
 namespace Models.Dtos
 {
@@ -14,7 +11,7 @@ namespace Models.Dtos
         public string FullName { get; set; }
         public string Role { get; set; }
         public string Code { get; set; }
+        public UserStatusResponse Status { get; set; }
         public string Semester { get; set; }
-
     }
 }

@@ -5,6 +5,7 @@ using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Models.Dtos;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -96,41 +97,60 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Update lecturer
-        public User UpdateLecturer(User lecturerToUpdate)
+        public User UpdateLecturer(Guid lecturerId, UpdateLecturerRequest lecturerToUpdate)
         {
-
-            User lecturer = _unitOfWork.User.GetById(lecturerToUpdate.Id);
-            if (lecturer != null)
+            User returnLecturer = null;
+            Lecturer updateLecturer = _unitOfWork.Lecturer.GetById(lecturerId);
+            if (updateLecturer is not null)
             {
-                if (string.IsNullOrEmpty(lecturerToUpdate.Email))
+                User lecturer = _unitOfWork.User.GetById(lecturerId);
+                if (lecturer != null)
                 {
-                    lecturerToUpdate.Email = lecturer.Email;
-                }
-                if (string.IsNullOrEmpty(lecturerToUpdate.UserName))
-                {
-                    lecturerToUpdate.UserName = lecturer.UserName;
-                }
-                if (string.IsNullOrEmpty(lecturerToUpdate.FullName))
-                {
-                    lecturerToUpdate.FullName = lecturer.FullName;
-                }
-                if (string.IsNullOrEmpty(lecturerToUpdate.UserName))
-                {
-                    lecturerToUpdate.UserName = lecturer.UserName;
-                }
-                if (string.IsNullOrEmpty(lecturerToUpdate.AvatarUrl))
-                {
-                    lecturerToUpdate.AvatarUrl = lecturer.AvatarUrl;
-                }
+                    if (!string.IsNullOrEmpty(lecturerToUpdate.UserName))
+                    {
+                        lecturer.UserName = lecturerToUpdate.UserName;
+                    }
 
-                _unitOfWork.User.Update(lecturerToUpdate);
-                _unitOfWork.Save();
-                return lecturer;
+                    if (!string.IsNullOrEmpty(lecturerToUpdate.FullName))
+                    {
+                        lecturer.FullName = lecturerToUpdate.FullName;
+                    }
+
+                    if (!string.IsNullOrEmpty(lecturerToUpdate.UserName))
+                    {
+                        lecturer.UserName = lecturerToUpdate.UserName;
+                    }
+
+                    if (!string.IsNullOrEmpty(lecturerToUpdate.AvatarUrl))
+                    {
+                        lecturer.AvatarUrl = lecturerToUpdate.AvatarUrl;
+                    }
+
+                    _unitOfWork.User.Update(lecturer);
+
+                    if (!lecturerToUpdate.DepartmentId.Equals(Guid.Empty))
+                    {
+                        Department newDepartment = _unitOfWork.Department.GetById(lecturerToUpdate.DepartmentId);
+                        if (newDepartment is not null)
+                        {
+                            updateLecturer.DepartmentId = newDepartment.Id;
+                            _unitOfWork.Lecturer.Update(updateLecturer);
+                        }
+                        else
+                        {
+                            throw new BadHttpRequestException(
+                                $"Department with {updateLecturer.DepartmentId} id is not existed!");
+                        }
+                    }
+                    _unitOfWork.Save();
+                    returnLecturer = GetLecturerById(lecturerId);
+                }
+                else
+                {
+                    throw new BadHttpRequestException($"Lecturer with {lecturerId} is not existed!");
+                }
             }
-            else
-            {
-                throw new BadHttpRequestException("Lecturer is not exist");
-            }
+            return returnLecturer;
         }
     }
 }

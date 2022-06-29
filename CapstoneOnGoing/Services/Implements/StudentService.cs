@@ -7,6 +7,7 @@ using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CapstoneOnGoing.Enums;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -68,7 +69,7 @@ namespace CapstoneOnGoing.Services.Implements
                 }
                 returnStudent.Student = student;
                 returnStudent.Student.Code = student.Code;
-                returnStudent.Role = _unitOfWork.Role.GetRoleById(3);
+                returnStudent.Role = _unitOfWork.Role.GetRoleById((int)RoleEnum.Student);
                 if (student.SemesterId != null)
                 {
                     returnStudent.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.SemesterId);
@@ -103,18 +104,13 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Update student
-        public User UpdateStudent(UpdateStudentRequest updateStudentRequest)
+        public User UpdateStudent(Guid studentId, UpdateStudentRequest updateStudentRequest)
         {
-            Student student = _unitOfWork.Student.GetById(updateStudentRequest.Id);
+            Student student = _unitOfWork.Student.GetById(studentId);
             if (student != null)
             {
+                User studentToUpdate = _unitOfWork.User.GetById(studentId);
 
-                User studentToUpdate = _unitOfWork.User.GetById(updateStudentRequest.Id);
-
-                if (!string.IsNullOrEmpty(updateStudentRequest.Email))
-                {
-                    studentToUpdate.Email = updateStudentRequest.Email;
-                }
                 if (!string.IsNullOrEmpty(updateStudentRequest.UserName))
                 {
                     studentToUpdate.UserName = updateStudentRequest.UserName;
@@ -122,11 +118,6 @@ namespace CapstoneOnGoing.Services.Implements
                 if (!string.IsNullOrEmpty(updateStudentRequest.FullName))
                 {
                     studentToUpdate.FullName = updateStudentRequest.FullName;
-                }
-                if (!string.IsNullOrEmpty(updateStudentRequest.Code))
-                {
-                    student.Code = updateStudentRequest.Code;
-                    studentToUpdate.Student = student;
                 }
                 if (!string.IsNullOrEmpty(updateStudentRequest.AvatarUrl))
                 {
@@ -138,7 +129,7 @@ namespace CapstoneOnGoing.Services.Implements
                 _unitOfWork.User.Update(studentToUpdate);
                 _unitOfWork.Save();
 
-                User userUpdated = _unitOfWork.User.GetById(updateStudentRequest.Id);
+                User userUpdated = _unitOfWork.User.GetById(studentId);
                 return userUpdated;
             }
             else

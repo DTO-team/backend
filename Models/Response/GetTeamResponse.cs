@@ -5,6 +5,7 @@ namespace Models.Response
 {
 	public class GetTeamResponse
 	{
+        public bool isApplicationApprove { get; set; }
 		public Guid TeamId { get; set; }
 		public string TeamName { get; set; }
 		public Member Leader { get; set; }

@@ -31,7 +31,7 @@ namespace CapstoneOnGoing.Controllers
 			_uriService = uriService;
 		}
 
-		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet]
 		public IActionResult GetAllUser([FromQuery] PaginationFilter paginationFilter)
 		{
@@ -59,7 +59,7 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(new List<UserInAdminDTO>());
 		}
 
-        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+        // [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
 		public IActionResult GetUserById(Guid id)
 		{
@@ -101,14 +101,6 @@ namespace CapstoneOnGoing.Controllers
             StudentResponse createdUserResponse = _mapper.Map<StudentResponse>(createdUser);
             return CreatedAtAction("createNewUser", createdUserResponse);
         }
-
-        // [Authorize(Roles = "ADMIN")]
-        // [HttpPut("{id}")]
-        // public IActionResult UpdateUser([FromBody] UpdateUserInAdminRequest userInAdminUpdateData)
-        // {
-        //     User user = _userService.GetUserById(userInAdminUpdateData.Id);
-        //     return Ok(user);
-        // }
 
         [Authorize(Roles = "ADMIN")]
         [HttpDelete("{id}")]

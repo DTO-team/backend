@@ -23,7 +23,7 @@ namespace Models.Response
 		public string Email { get; set; }
 		public string Role { get; set; }
 		public string Semester { get; set; }
-		public string Status { get; set; }
+		public UserStatusResponse Status { get; set; }
 		public string AvatarUrl { get; set; }
 	}
 }

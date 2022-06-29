@@ -100,12 +100,12 @@ namespace CapstoneOnGoing.Services.Implements
                     return isCreated;
                 }
 
-                //If have => check is team report or not (because of team leader can create 2 report)
-                //If not team report => create new team report 
+                //If have => check is have team report or not (because of team leader can create 2 report)
+                //If not have team report => create new team report 
                 else if (reports.Any())
                 {
                     bool isExistedReport = reports.ToArray().Select(report =>
-                            report.IsTeamReport.Equals(createWeeklyReportDTO.IsTeamReport))
+                            report.IsTeamReport.Equals(true))
                         .FirstOrDefault();
                     if (!isExistedReport)
                     {

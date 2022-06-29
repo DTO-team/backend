@@ -122,7 +122,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		// [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetTeamDetailResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -183,7 +183,6 @@ namespace CapstoneOnGoing.Controllers
         public IActionResult CreateWeeklyReport(Guid id, CreateWeeklyReportRequest createWeeklyReportRequest)
         {
             bool isSuccessful;
-
             string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
             CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
 

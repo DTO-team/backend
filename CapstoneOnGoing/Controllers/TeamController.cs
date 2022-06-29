@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.Dtos;
+using Models.Models;
 using Models.Request;
 using Models.Response;
 
@@ -22,16 +23,19 @@ namespace CapstoneOnGoing.Controllers
 		private readonly ILoggerManager _logger;
 		private readonly ITeamService _teamService;
 		private readonly IReportService _reportService;
+        private readonly IUserService _userService;
 		private readonly IMapper _mapper;
-		public TeamController(ILoggerManager logger, ITeamService teamService, IReportService reportService, IMapper mapper)
-		{
-			_logger = logger;
-			_teamService = teamService;
-			_reportService = reportService;
-			_mapper = mapper;
-		}
 
-		[Authorize(Roles = "STUDENT")]
+        public TeamController(ILoggerManager logger, ITeamService teamService, IReportService reportService, IUserService userService, IMapper mapper)
+        {
+            _logger = logger;
+            _teamService = teamService;
+            _reportService = reportService;
+            _userService = userService;
+            _mapper = mapper;
+        }
+
+        [Authorize(Roles = "STUDENT")]
 		[HttpPost]
 		[ProducesResponseType(typeof(CreatedTeamResponse), StatusCodes.Status201Created)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -172,34 +176,44 @@ namespace CapstoneOnGoing.Controllers
             return Ok();
         }
 
-		[Authorize(Roles = "STUDENT")]
-		[HttpPost("{id}/reports")]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status201Created)]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
-        public IActionResult CreateWeeklyReport(Guid id,CreateWeeklyReportRequest createWeeklyReportRequest)
+        [Authorize(Roles = "STUDENT")]
+        [HttpPost("{id}/reports")]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult CreateWeeklyReport(Guid id, CreateWeeklyReportRequest createWeeklyReportRequest)
         {
-	        string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
-	        CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
-	        bool isSuccessful = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
-	        if (isSuccessful)
-	        {
-				return CreatedAtAction(nameof(CreateWeeklyReport), new GenericResponse()
-				{
-					HttpStatus = StatusCodes.Status200OK,
-					Message = "Create weekly report successfully",
-					TimeStamp = DateTime.Now
-				});
-			}
-	        else
-	        {
-				_logger.LogWarn($"Controller: {nameof(TeamController)}, Method: {nameof(CreateWeeklyReport)}: create weekly report failed");
-				return BadRequest(new GenericResponse()
-				{
-					HttpStatus = StatusCodes.Status400BadRequest,
-					Message = "Create weekly report failed",
-					TimeStamp = DateTime.Now
-				});
-	        }
+            bool isSuccessful;
+            string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+            CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
+
+            User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
+            bool isTeamLeader = _teamService.IsTeamLeader(userByEmail.Id);
+            isSuccessful = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
+            if (isSuccessful)
+            {
+                return CreatedAtAction(nameof(CreateWeeklyReport), new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status200OK,
+                    Message = (isTeamLeader && createWeeklyReportRequest.IsTeamReport) ? 
+                        "Create team weekly report successfully" 
+                        : 
+                        "Create personal weekly report successfully",
+                    TimeStamp = DateTime.Now
+                });
+            }
+            else
+            {
+                _logger.LogWarn((isTeamLeader && createWeeklyReportRequest.IsTeamReport) ? 
+                    $"Controller: {nameof(TeamController)}, Method: {nameof(CreateWeeklyReport)}: create team weekly report failed" 
+                    : 
+                    $"Controller: {nameof(TeamController)}, Method: {nameof(CreateWeeklyReport)}: create personal weekly report failed");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Create weekly report failed",
+                    TimeStamp = DateTime.Now
+                });
+            }
         }
     }
 }

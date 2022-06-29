@@ -1,4 +1,6 @@
 ﻿using System;
+using Models.Response;
+
 namespace Models.Dtos
 {
     public class UserInAdminDTO
@@ -9,6 +11,6 @@ namespace Models.Dtos
         public string FullName { get; set; }
         public string Role { get; set; }
         public string AvatarUrl { get; set; }
-        public string Status { get; set; }
+        public UserStatusResponse Status { get; set; }
     }
 }

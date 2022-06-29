@@ -127,6 +127,17 @@ namespace CapstoneOnGoing.Services.Implements
                     User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
                     GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
                     _mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
+                    Application teamApplication = _unitOfWork.Applications.Get(application => application.TeamId.Equals(team.Id) && application.StatusId.Equals((int)ApplicationStatus.Approved))
+                        .FirstOrDefault();
+                    if (teamApplication is not null)
+                    {
+                        teamResponse.isApplicationApprove = true;
+                    }
+                    else
+                    {
+                        teamResponse.isApplicationApprove = false;
+                    }
+
                     teamResponse.TotalMember = team.TeamStudents.Count;
                     yield return teamResponse;
                 }
@@ -141,6 +152,16 @@ namespace CapstoneOnGoing.Services.Implements
                     GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
                     teamResponse.Leader = new Member();
                     _mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
+                    Application teamApplication = _unitOfWork.Applications.Get(application => application.TeamId.Equals(team.Id) && application.StatusId.Equals((int)ApplicationStatus.Approved))
+                        .FirstOrDefault();
+                    if (teamApplication is not null)
+                    {
+                        teamResponse.isApplicationApprove = true;
+                    }
+                    else
+                    {
+                        teamResponse.isApplicationApprove = false;
+                    }
                     teamResponse.TotalMember = team.TeamStudents.Count;
                     yield return teamResponse;
                 }
@@ -205,7 +226,17 @@ namespace CapstoneOnGoing.Services.Implements
             Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
             if (team != null)
             {
+                Application teamApplication = _unitOfWork.Applications.Get(application => application.TeamId.Equals(team.Id) && application.StatusId.Equals((int)ApplicationStatus.Approved))
+                    .FirstOrDefault();
                 GetTeamDetailResponse teamDetailResponse = GetTeamDetail(team);
+                if (teamApplication is not null)
+                {
+                    teamDetailResponse.isApplicationApprove = true;
+                }
+                else
+                {
+                    teamDetailResponse.isApplicationApprove = false;
+                }
                 return teamDetailResponse;
             }
             else

@@ -52,7 +52,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpPut("{id}")] 
 		public IActionResult UpdateSemester([FromBody] UpdateSemesterDTO updateSemesterDTO)
 		{

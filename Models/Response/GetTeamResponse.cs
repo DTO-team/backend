@@ -3,20 +3,21 @@ using System.Collections.Generic;
 
 namespace Models.Response
 {
-	public class GetTeamResponse
-	{
-        public bool isApplicationApprove { get; set; }
-		public Guid TeamId { get; set; }
-		public string TeamName { get; set; }
-		public Member Leader { get; set; }
-		public int TotalMember { get; set; }
+    public class GetTeamResponse
+    {
+        public GetTeamResponse()
+        {
+        }
 
-		public GetTeamResponse()
-		{
-		}
-	}
+        public Guid TeamId { get; set; }
+        public Guid? ProjectId { get; set; }
+        public bool IsApplicationApproved { get; set; }
+        public string TeamName { get; set; }
+        public Member Leader { get; set; }
+        public int TotalMember { get; set; }
+    }
 
-	public class Member
+    public class Member
 	{
 		public Guid Id { get; set; }
 		public string Code { get; set; }

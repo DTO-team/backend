@@ -5,7 +5,8 @@ namespace Models.Response
 {
 	public class GetTeamDetailResponse : GetTeamResponse
 	{
-        public bool isApplicationApprove { get; set; }
+        public Guid ProjectId { get; set; }
+        public bool IsApplicationApproved { get; set; }
 		public IList<GetLecturerResponse> Mentors { get; set; }
 		public IList<Member> Members { get; set; }
 	}

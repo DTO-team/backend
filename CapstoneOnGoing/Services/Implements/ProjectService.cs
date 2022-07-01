@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
 using Models.Response;
@@ -38,11 +40,20 @@ namespace CapstoneOnGoing.Services.Implements
                 Array.ForEach(projects.ToArray(), project =>
                 {
                     allProjectDetailDto = new GetAllProjectsDetailDTO();
+                    allProjectDetailDto.ProjectId = project.Id;
                     Application projectApplication = _unitOfWork.Applications.GetById(project.ApplicationId);
                     Topic projectTopic = _unitOfWork.Topic.GetById(projectApplication.TopicId);
+                    IEnumerable<TopicLecturer> teamStudents =
+                        _unitOfWork.TopicLecturer.Get(topicLecturer => topicLecturer.TopicId.Equals(projectTopic.Id));
+
+                    List<Guid> lecturerIds = new List<Guid>();
+                    Array.ForEach(teamStudents.ToArray(), teamStudent =>
+                    {
+                        lecturerIds.Add(teamStudent.LecturerId);
+                    });
 
                     GetTopicAllProjectDTO getTopicsAllProjectDto = new GetTopicAllProjectDTO()
-                    { TopicId = projectTopic.Id, Name = projectTopic.Name, Description = projectTopic.Description, CompanyId = projectTopic.CompanyId };
+                    { TopicId = projectTopic.Id, Name = projectTopic.Name, Description = projectTopic.Description, CompanyId = projectTopic.CompanyId, LecturerIds = lecturerIds};
 
                     allProjectDetailDto.TopicsAllProjectDto = getTopicsAllProjectDto;
                     allProjectDetailDto.TeamDetailResponse = _teamService.GetTeamDetail(project.TeamId);
@@ -58,18 +69,38 @@ namespace CapstoneOnGoing.Services.Implements
             GetProjectDetailDTO projectDto = new GetProjectDetailDTO();
             Project project = _unitOfWork.Project.GetById(projectId);
 
-            Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
+            if (project is not null)
+            {
+                projectDto.ProjectId = project.Id;
+                Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
 
-            Topic topic = _unitOfWork.Topic.Get(x => (x.SemesterId == currentSemester.Id ), null, "TopicLecturers").FirstOrDefault();
+                Application projectApplication =
+                    _unitOfWork.Applications.GetApplicationWithTeamTopicProject(project.ApplicationId);
 
-            GetTopicsDTO topicDto = _mapper.Map<GetTopicsDTO>(topic);
-            projectDto.Topics = topicDto;
+                Topic topic = _unitOfWork.Topic.Get(x => (x.SemesterId == currentSemester.Id && x.Id.Equals(projectApplication.TopicId)), null, "TopicLecturers").FirstOrDefault();
+                // Topic topic = _unitOfWork.Topic.Get(x => (x.Id.Equals(projectApplication.Id)), null, "TopicLecturers").FirstOrDefault();
 
+                GetTopicsDTO topicDto = _mapper.Map<GetTopicsDTO>(topic);
+                projectDto.Topics = topicDto;
 
-            GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(project.TeamId);
+                IEnumerable<TopicLecturer> topicLecturers =
+                    _unitOfWork.TopicLecturer.Get(topicLecturer => topicLecturer.TopicId.Equals(topic.Id));
 
-            projectDto.TeamDetailResponse = teamDetailResponse;
+                List<Guid> lecturerIds = new List<Guid>();
+                Array.ForEach(topicLecturers.ToArray(), topicLecturer =>
+                {
+                    lecturerIds.Add(topicLecturer.LecturerId);
+                });
 
+                GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(project.TeamId);
+
+                projectDto.Topics.LecturerIds = lecturerIds;
+                projectDto.TeamDetailResponse = teamDetailResponse;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Project with {projectId} id is not existed !");
+            }
             return projectDto;
         }
     }

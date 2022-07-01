@@ -96,8 +96,8 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize]
-		[HttpGet("{id}")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+        [HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetTopicsResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
 		public IActionResult GetTopicDetails(Guid id)

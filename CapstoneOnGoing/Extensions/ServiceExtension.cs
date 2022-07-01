@@ -1,6 +1,7 @@
 ﻿using CapstoneOnGoing.Services.Implements;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Repository.Implementations;
 using Repository.Interfaces;
@@ -63,6 +64,15 @@ namespace CapstoneOnGoing.Extensions
 				var request = accessor.HttpContext.Request;
 				var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
 				return new UriService(uri);
+			});
+		}
+
+		public static void AddRedisService(this IServiceCollection services)
+		{
+			services.AddStackExchangeRedisCache(options =>
+			{
+				options.Configuration = Startup.Configuration.GetValue<string>("");
+				options.InstanceName = "";
 			});
 		}
 	}

@@ -25,6 +25,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<Semester, GetSemesterDTO>();
             CreateMap<User, UserByIdDTO>().ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<User, LoginUserStudentResponse>()
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
                 .ForMember(dest => dest.StudentCode, src => src.MapFrom(src => src.Student.Code))
                 .ForMember(dest => dest.Semester,
                     src => src.MapFrom(src =>
@@ -32,17 +33,20 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.AccessToken, src => src.Ignore())
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<User, LoginUserLecturerResponse>()
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
                 .ForMember(dest => dest.AccessToken, src => src.Ignore())
                 .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             ;
             CreateMap<User, LoginUserCompanyResponse>()
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
                 .ForMember(dest => dest.AccessToken, src => src.Ignore());
             CreateMap<InProgressStudentsRequest, User>()
                 .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
                 .ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
                 .ForPath(dest => dest.Student.Code, src => src.MapFrom(src => src.StudentCode));
             CreateMap<User, LoginUserAdminResponse>()
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
                 .ForMember(dest => dest.AccessToken, src => src.Ignore())
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
@@ -57,6 +61,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department));
 
             CreateMap<User, GetLecturerResponse>()
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => new UserStatusResponse() { StatusId = src.StatusId, StatusName = src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper() }))
                 .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Lecturer.Department))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
@@ -83,11 +88,19 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<UpdateStudentRequest, User>();
 
             CreateMap<User, StudentUpdateResponse>()
+                .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name))
                 .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
-                .ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Season));
+                .ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Season))
+                .ForMember(dest => dest.Status,
+                    src => src.MapFrom(src => new UserStatusResponse()
+                    {
+                        StatusId = src.StatusId,
+                        StatusName = src.StatusId.Equals((int)UserStatus.Activated)
+                            ? UserStatus.Activated.ToString().ToUpper()
+                            : UserStatus.Inactivated.ToString().ToUpper()
+                    }));
 
-            CreateMap<UpdateStudentRequest, Student>()
-                .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Code));
+            CreateMap<UpdateStudentRequest, Student>();
 
             CreateMap<User, LoginUserAdminResponse>()
                 .ForMember(dest => dest.AccessToken, src => src.Ignore())
@@ -100,12 +113,12 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.TeamName, src => src.MapFrom(src => src.Name))
 	            .ForMember(dest => dest.Leader, src => src.Ignore());
             CreateMap<User, Member>()
-	            .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => new UserStatusResponse() { StatusId = src.StatusId, StatusName = src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper() }))
+                .ForMember(dest => dest.Email, src => src.MapFrom(src => src.Email))
 	            .ForMember(dest => dest.FullName, src => src.MapFrom(src => src.FullName))
 	            .ForMember(dest => dest.Id, src => src.MapFrom(src => src.Id))
 	            .ForMember(dest => dest.AvatarUrl, src => src.MapFrom(src => src.AvatarUrl))
 	            .ForMember(dest => dest.Semester, src => src.MapFrom(src => src.Student.Semester.Year + "-" + src.Student.Semester.Season))
-	            .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId))
 	            .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
 
@@ -140,11 +153,36 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<User, GetCompanyDTO>()
 	            .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
             CreateMap<GetLecturerDTO, GetLecturerResponse>()
-                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department));
-            CreateMap<GetCompanyDTO, GetCompanyResponse>();
+                .ForMember(dest => dest.Department, src => src.MapFrom(src => src.Department))
+                .ForMember(dest => dest.Status,
+                    src => src.MapFrom(src => new UserStatusResponse()
+                    {
+                        StatusId = src.StatusId,
+                        StatusName = src.StatusId.Equals((int)UserStatus.Activated)
+                            ? UserStatus.Activated.ToString().ToUpper()
+                            : UserStatus.Inactivated.ToString().ToUpper()
+                    }));
 
-            CreateMap<User, GetUserResponse>();
 
+            CreateMap<GetCompanyDTO, GetCompanyResponse>()
+                .ForMember(dest => dest.Status,
+                    src => src.MapFrom(src => new UserStatusResponse()
+                    {
+                        StatusId = src.StatusId,
+                        StatusName = src.StatusId.Equals((int)UserStatus.Activated)
+                            ? UserStatus.Activated.ToString().ToUpper()
+                            : UserStatus.Inactivated.ToString().ToUpper()
+                    })); ;
+
+            CreateMap<User, GetUserResponse>()
+                .ForMember(dest => dest.Status,
+                    src => src.MapFrom(src => new UserStatusResponse()
+                    {
+                        StatusId = src.StatusId,
+                        StatusName = src.StatusId.Equals((int)UserStatus.Activated)
+                            ? UserStatus.Activated.ToString().ToUpper()
+                            : UserStatus.Inactivated.ToString().ToUpper()
+                    }));
             CreateMap<GetTeamDetailResponse, Member>();
             CreateMap<GetTopicsDTO, GetTopicsResponse>()
                 .ForMember(dest => dest.TopicName, src => src.MapFrom(src => src.Name))

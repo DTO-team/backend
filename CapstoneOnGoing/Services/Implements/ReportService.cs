@@ -78,5 +78,9 @@ namespace CapstoneOnGoing.Services.Implements
 				throw new BadHttpRequestException("You're not in the team");
 			}
 		}
+
+		GetTeamWeeklyReport GetTeamWeeklyReport(string teamId, int week, StringValues currentSemester, string role){
+			
+		}
 	}
 }

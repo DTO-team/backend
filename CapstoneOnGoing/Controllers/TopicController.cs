@@ -11,6 +11,7 @@ using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+ using Microsoft.Extensions.Caching.Distributed;
  using Models.Dtos;
  using Models.Request;
 using Models.Response;
@@ -25,13 +26,15 @@ namespace CapstoneOnGoing.Controllers
 		private readonly ITopicService _topicService;
 		private readonly IMapper _mapper;
 		private readonly IUriService _uriService;
+		private readonly IDistributedCache _redisService;
 
-		public TopicController(ILoggerManager logger, ITopicService topicService, IMapper mapper, IUriService uriService)
+		public TopicController(ILoggerManager logger, ITopicService topicService, IMapper mapper, IUriService uriService, IDistributedCache redisService)
 		{
 			_logger = logger;
 			_topicService = topicService;
 			_mapper = mapper;
 			_uriService = uriService;
+			_redisService = redisService;
 		}
 
 		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]

@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using AutoMapper;
+using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Models;
 using Models.Dtos;
+using Models.Models;
 using Models.Request;
 using Models.Response;
 
@@ -78,7 +81,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
+		// [Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
 		[HttpGet]
 		[ProducesResponseType(typeof(GetTeamResponse),StatusCodes.Status200OK)]
 		public IActionResult GetAllTeams([FromQuery] string teamName , [FromQuery] int page, [FromQuery] int limit){
@@ -118,7 +121,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		// [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetTeamDetailResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -165,10 +168,40 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "STUDENT,LECTURER")]
         [HttpGet("{id}/reports")]
-        public IActionResult GetTeamReport(Guid id)
+        public IActionResult GetTeamReport(Guid id,[FromQuery]int week)
         {
+	        string role = HttpContext.User.FindFirstValue(ClaimTypes.Role);
+	        var headers = Request.Headers;
+	        StringValues currentsemester;
+	        if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out currentsemester))
+	        {
+		        return BadRequest(new GenericResponse()
+		        {
+					HttpStatus = StatusCodes.Status400BadRequest,
+					Message = "Does not have semester",
+					TimeStamp = DateTime.Now
+		        });
+	        }
+	        if (!role.Equals(RoleEnum.Student.ToString().ToUpper()) &&
+	            !role.Equals(RoleEnum.Lecturer.ToString().ToUpper()))
+	        {
+		        return BadRequest(new GenericResponse()
+		        {
+			        HttpStatus = StatusCodes.Status400BadRequest,
+			        Message = "You do not have permission to view weekly report of this team",
+			        TimeStamp = DateTime.Now
+		        });
+	        }
+	        if (role.Equals(RoleEnum.Student.ToString().ToUpper()))
+	        {
+				
+	        }
+	        if (role.Equals(RoleEnum.Student.ToString().ToUpper()))
+	        {
+
+	        }
             return Ok();
         }
 

@@ -109,7 +109,7 @@ namespace CapstoneOnGoing.Services.Implements
 					{
 						IEnumerable<User> lecturers = _unitOfWork.User.GetLecturersByIds(getTopicsDto.LecturerIds.ToArray());
 						getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
-						if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
+						if (getTopicsDto.CompanyId == Guid.Empty)
 						{
 							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId, null, "Role").FirstOrDefault();
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
@@ -136,7 +136,7 @@ namespace CapstoneOnGoing.Services.Implements
 					{
 						IEnumerable<User> lecturers = _unitOfWork.User.GetLecturersByIds(getTopicsDto.LecturerIds.ToArray());
 						getTopicsDto.LecturerDtos = _mapper.Map<IEnumerable<GetLecturerDTO>>(lecturers);
-						if (getTopicsDto.CompanyId != null || getTopicsDto.CompanyId == Guid.Empty)
+						if (getTopicsDto.CompanyId == Guid.Empty)
 						{
 							User companyUser = _unitOfWork.User.Get(x => x.Id == getTopicsDto.CompanyId, null, "Role").FirstOrDefault();
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);

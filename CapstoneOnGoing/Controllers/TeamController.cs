@@ -82,7 +82,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		// [Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
 		[HttpGet]
 		[ProducesResponseType(typeof(GetTeamResponse),StatusCodes.Status200OK)]
 		public IActionResult GetAllTeams([FromQuery] string teamName , [FromQuery] int page, [FromQuery] int limit){
@@ -122,7 +122,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		// [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetTeamDetailResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

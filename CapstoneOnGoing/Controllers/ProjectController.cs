@@ -33,7 +33,7 @@ namespace CapstoneOnGoing.Controllers
             _userService = userService;
         }
 
-        [Authorize (Roles = "ADMIN,STUDENT,LECTURER")]
+        // [Authorize (Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetProjectDetailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -76,7 +76,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(projectResponse);
         }
 
-        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+        // [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<IEnumerable<GetAllProjectDetailResponse>>), StatusCodes.Status200OK)]
         public IActionResult GetAllProjects([FromQuery] PaginationFilter paginationFilter)
@@ -113,7 +113,7 @@ namespace CapstoneOnGoing.Controllers
                     GetTopicAllProjectResponse topicAllProjectResponse = new GetTopicAllProjectResponse();
                     topicAllProjectResponse.TopicId = projectsDetailDto.TopicsAllProjectDto.TopicId;
                     topicAllProjectResponse.Description = projectsDetailDto.TopicsAllProjectDto.Description;
-                    topicAllProjectResponse.Name = projectsDetailDto.TopicsAllProjectDto.Name;
+                    topicAllProjectResponse.TopicName = projectsDetailDto.TopicsAllProjectDto.Name;
                     List<GetLecturerResponse> lecturerResponses = new List<GetLecturerResponse>();
                     if (projectsDetailDto.TopicsAllProjectDto.LecturerIds is not null)
                     {
@@ -144,7 +144,8 @@ namespace CapstoneOnGoing.Controllers
                     }
 
                     User company = _userService.GetUserWithRoleById(companyId);
-                    topicAllProjectResponse.CompanyDetail = _mapper.Map<GetUserResponse>(company);
+                    GetCompanyDTO companyDto = _mapper.Map<GetCompanyDTO>(company);
+                    topicAllProjectResponse.CompanyDetail = _mapper.Map<GetCompanyResponse>(companyDto);
 
 
                     allProjectDetailResponse.TopicsResponse = topicAllProjectResponse;

@@ -2,13 +2,13 @@
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using CapstoneOnGoing.Utils;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
 using Models.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using AutoMapper;
+using CapstoneOnGoing.Enums;
 using Microsoft.IdentityModel.Tokens;
 using Models.Response;
 
@@ -53,24 +53,52 @@ namespace CapstoneOnGoing.Controllers
 				}
 
 				string accessToken = JwtUtil.GenerateJwtToken(user.Email, user.Role.Name);
-				LoginUserResponse loginUserResponse = null;
-				switch (user.RoleId)
-				{
+                LoginUserResponse loginUserResponse = null;
+                switch (user.RoleId)
+                {
 					case 1:
-						loginUserResponse = _mapper.Map<LoginUserAdminResponse>(user);
+                        loginUserResponse = _mapper.Map<LoginUserAdminResponse>(user);
+                        loginUserResponse.Status = new UserStatusResponse()
+                        {
+                            StatusId = user.StatusId,
+                            StatusName = user.StatusId.Equals(1)
+                                ? UserStatus.Activated.ToString().ToUpper()
+                                : UserStatus.Inactivated.ToString().ToUpper()
+                        };
 						loginUserResponse.AccessToken = accessToken;
 						break;
 					case 2:
 						loginUserResponse =
 							_mapper.Map<LoginUserLecturerResponse>(user);
+                        loginUserResponse.Status = new UserStatusResponse()
+                        {
+                            StatusId = user.StatusId,
+                            StatusName = user.StatusId.Equals(1)
+                                ? UserStatus.Activated.ToString().ToUpper()
+                                : UserStatus.Inactivated.ToString().ToUpper()
+                        };
 						loginUserResponse.AccessToken = accessToken;
 						break;
 					case 3:
 						loginUserResponse = _mapper.Map<LoginUserStudentResponse>(user);
+                        loginUserResponse.Status = new UserStatusResponse()
+                        {
+                            StatusId = user.StatusId,
+                            StatusName = user.StatusId.Equals(1)
+                                ? UserStatus.Activated.ToString().ToUpper()
+                                : UserStatus.Inactivated.ToString().ToUpper()
+                        };
 						loginUserResponse.AccessToken = accessToken;
-						break;
+                        break;
 					case 4:
 						loginUserResponse = _mapper.Map<LoginUserCompanyResponse>(user);
+                        loginUserResponse.Status = new UserStatusResponse()
+                        {
+                            StatusId = user.StatusId,
+                            StatusName = user.StatusId.Equals(1)
+                                ? UserStatus.Activated.ToString().ToUpper()
+                                : UserStatus.Inactivated.ToString().ToUpper()
+                        };
 						loginUserResponse.AccessToken = accessToken;
 						break;
 				}

@@ -127,6 +127,28 @@ namespace CapstoneOnGoing.Services.Implements
                     User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
                     GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
                     _mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
+                    Application teamApplication = _unitOfWork.Applications.Get(application => application.TeamId.Equals(team.Id) && application.StatusId.Equals((int)ApplicationStatus.Approved))
+                        .FirstOrDefault();
+                    if (teamApplication is not null)
+                    {
+                        teamResponse.IsApplicationApproved = true;
+                    }
+                    else
+                    {
+                        teamResponse.IsApplicationApproved = false;
+                    }
+
+                    Project teamProject =
+                        _unitOfWork.Project.Get(project => project.TeamId.Equals(team.Id)).FirstOrDefault();
+                    if (teamProject is not null)
+                    {
+                        teamResponse.ProjectId = teamProject.Id;
+                    }
+                    else
+                    {
+                        teamResponse.ProjectId = null;
+                    }
+
                     teamResponse.TotalMember = team.TeamStudents.Count;
                     yield return teamResponse;
                 }
@@ -141,6 +163,23 @@ namespace CapstoneOnGoing.Services.Implements
                     GetTeamResponse teamResponse = _mapper.Map<GetTeamResponse>(team);
                     teamResponse.Leader = new Member();
                     _mapper.Map<User, Member>(teamLeader, teamResponse.Leader);
+                    Application teamApplication = _unitOfWork.Applications.Get(application => application.TeamId.Equals(team.Id) && application.StatusId.Equals((int)ApplicationStatus.Approved))
+                        .FirstOrDefault();
+                    if (teamApplication is not null)
+                    {
+                        teamResponse.IsApplicationApproved = true;
+                    }
+                    else
+                    {
+                        teamResponse.IsApplicationApproved = false;
+                    }
+
+                    Project teamProject =
+                        _unitOfWork.Project.Get(project => project.TeamId.Equals(team.Id)).FirstOrDefault();
+                    if (teamProject is not null)
+                    {
+                        teamResponse.ProjectId = teamProject.Id;
+                    }
                     teamResponse.TotalMember = team.TeamStudents.Count;
                     yield return teamResponse;
                 }
@@ -219,6 +258,29 @@ namespace CapstoneOnGoing.Services.Implements
             User teamLeader = _unitOfWork.User.Get(x => x.Id == team.TeamLeaderId, null, "Student,Role").FirstOrDefault();
             teamLeader.Student.Semester = _unitOfWork.Semester.GetById(teamLeader.Student.SemesterId.Value);
             GetTeamDetailResponse teamResponse = _mapper.Map<GetTeamDetailResponse>(team);
+
+            Application teamApplication = _unitOfWork.Applications.Get(application => application.TeamId.Equals(team.Id) && application.StatusId.Equals((int)ApplicationStatus.Approved))
+                .FirstOrDefault();
+            if (teamApplication is not null)
+            {
+                teamResponse.IsApplicationApproved = true;
+            }
+            else
+            {
+                teamResponse.IsApplicationApproved = false;
+            }
+
+            Project teamProject =
+                _unitOfWork.Project.Get(project => project.TeamId.Equals(team.Id)).FirstOrDefault();
+            if (teamProject is not null)
+            {
+                teamResponse.ProjectId = teamProject.Id;
+            }
+            else
+            {
+                teamResponse.ProjectId = Guid.Empty;
+            }
+
             teamResponse.Leader = new Member();
             IList<Member> members = new List<Member>();
             _mapper.Map<User, Member>(teamLeader, teamResponse.Leader);

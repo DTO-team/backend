@@ -42,12 +42,37 @@ namespace CapstoneOnGoing.Controllers
             GetProjectDetailResponse projectResponse = new GetProjectDetailResponse();
 
             GetProjectDetailDTO projectDetailDto = _projectService.GetProjectDetailById(id);
-            GetTopicsResponse topicsResponse = _mapper.Map<GetTopicsResponse>(projectDetailDto.Topics);
-            GetTeamDetailResponse teamDetailResponse = projectDetailDto.TeamDetailResponse;
+            if (projectDetailDto is not null)
+            {
+                GetTopicsResponse topicsResponse = _mapper.Map<GetTopicsResponse>(projectDetailDto.Topics);
+                List<GetLecturerResponse> lecturerResponses = new List<GetLecturerResponse>();
 
-            projectResponse.TopicsResponse = topicsResponse;
-            projectResponse.TeamDetailResponse = teamDetailResponse;
 
+                if (projectDetailDto.Topics.LecturerIds.Any())
+                {
+                    Array.ForEach(projectDetailDto.Topics.LecturerIds.ToArray(), lecturerId =>
+                    {
+                        User lecturerUser = _userService.GetUserWithRoleById(lecturerId);
+                        if (lecturerUser is not null)
+                        {
+                            GetLecturerResponse lecturerResponse = _mapper.Map<GetLecturerResponse>(lecturerUser);
+                            lecturerResponses.Add(lecturerResponse);
+                        }
+                    });
+                }
+
+                User company = _userService.GetUserWithRoleById(projectDetailDto.Topics.CompanyId);
+                GetCompanyDTO companyDto = _mapper.Map<GetCompanyDTO>(company);
+                GetCompanyResponse companyResponse = _mapper.Map<GetCompanyResponse>(companyDto);
+
+                GetTeamDetailResponse teamDetailResponse = projectDetailDto.TeamDetailResponse;
+
+                projectResponse.ProjectId = projectDetailDto.ProjectId;
+                projectResponse.TopicsResponse = topicsResponse;
+                projectResponse.TopicsResponse.LecturersDetails = lecturerResponses;
+                projectResponse.TopicsResponse.CompanyDetail = companyResponse;
+                projectResponse.TeamDetailResponse = teamDetailResponse;
+            }
             return Ok(projectResponse);
         }
 
@@ -78,15 +103,17 @@ namespace CapstoneOnGoing.Controllers
                 Array.ForEach(projectsDetailDtos.ToArray(), projectsDetailDto =>
                 {
                     GetAllProjectDetailResponse allProjectDetailResponse = new GetAllProjectDetailResponse();
+
                     GetTeamDetailResponse teamDetail =
                         _teamService.GetTeamDetail(projectsDetailDto.TeamDetailResponse.TeamId);
 
+                    allProjectDetailResponse.ProjectId = projectsDetailDto.ProjectId;
                     allProjectDetailResponse.TeamDetailResponse = teamDetail;
 
                     GetTopicAllProjectResponse topicAllProjectResponse = new GetTopicAllProjectResponse();
                     topicAllProjectResponse.TopicId = projectsDetailDto.TopicsAllProjectDto.TopicId;
                     topicAllProjectResponse.Description = projectsDetailDto.TopicsAllProjectDto.Description;
-                    topicAllProjectResponse.Name = projectsDetailDto.TopicsAllProjectDto.Name;
+                    topicAllProjectResponse.TopicName = projectsDetailDto.TopicsAllProjectDto.Name;
                     List<GetLecturerResponse> lecturerResponses = new List<GetLecturerResponse>();
                     if (projectsDetailDto.TopicsAllProjectDto.LecturerIds is not null)
                     {
@@ -99,11 +126,11 @@ namespace CapstoneOnGoing.Controllers
                                 lecturerResponses.Add(lecturerResponse);
                             }
                         });
-                        topicAllProjectResponse.Lecturer = lecturerResponses;
+                        topicAllProjectResponse.LecturersDetails = lecturerResponses;
                     }
                     else
                     {
-                        topicAllProjectResponse.Lecturer = null;
+                        topicAllProjectResponse.LecturersDetails = null;
                     }
 
                     Guid companyId;
@@ -117,10 +144,11 @@ namespace CapstoneOnGoing.Controllers
                     }
 
                     User company = _userService.GetUserWithRoleById(companyId);
-                        topicAllProjectResponse.Company = _mapper.Map<GetUserResponse>(company);
+                    GetCompanyDTO companyDto = _mapper.Map<GetCompanyDTO>(company);
+                    topicAllProjectResponse.CompanyDetail = _mapper.Map<GetCompanyResponse>(companyDto);
 
 
-                        allProjectDetailResponse.TopicsResponse = topicAllProjectResponse;
+                    allProjectDetailResponse.TopicsResponse = topicAllProjectResponse;
                     projectDetailResponses.Add(allProjectDetailResponse);
                 });
             }

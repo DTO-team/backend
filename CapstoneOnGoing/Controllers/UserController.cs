@@ -31,7 +31,7 @@ namespace CapstoneOnGoing.Controllers
 			_uriService = uriService;
 		}
 
-		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet]
 		public IActionResult GetAllUser([FromQuery] PaginationFilter paginationFilter)
 		{

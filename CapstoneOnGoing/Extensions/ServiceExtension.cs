@@ -71,8 +71,8 @@ namespace CapstoneOnGoing.Extensions
 		{
 			services.AddStackExchangeRedisCache(options =>
 			{
-				options.Configuration = Startup.Configuration.GetValue<string>("");
-				options.InstanceName = "";
+				options.Configuration =
+					$"{Startup.Configuration.GetValue<string>("REDIS_HOST")}:{Startup.Configuration.GetValue<string>("REDIS_PORT")}";
 			});
 		}
 	}

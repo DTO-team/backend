@@ -7,9 +7,11 @@ using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
+using Models.Response;
 using Repository.Interfaces;
 
 namespace CapstoneOnGoing.Services.Implements
@@ -126,6 +128,62 @@ namespace CapstoneOnGoing.Services.Implements
             {
                 throw new BadHttpRequestException("You're not in the team");
             }
+        }
+
+        public List<GetTeamWeeklyReportResponse> GetTeamWeeklyReport(Guid teamId, int week, GetSemesterDTO currentSemester, string email)
+        {
+	        Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
+	        User user = _unitOfWork.User.Get(x => x.Email.Equals(email)).FirstOrDefault();
+	        Semester semseter = _unitOfWork.Semester.GetById(currentSemester.Id);
+	        Week currentWeek = _unitOfWork.Week.Get(x => x.SemesterId == semseter.Id && x.Number == week).FirstOrDefault();
+	        if (team == null)
+	        {
+		        throw new BadHttpRequestException("Team does not exits");
+
+	        }
+
+	        if (user == null)
+	        {
+		        throw new BadHttpRequestException("User does not exits");
+	        }
+            //check if user is student in team or mentor of the team
+	        if (team.TeamStudents.Select(x => x.StudentId).Contains(user.Id) || team.Project.Mentors.Select(x => x.LecturerId).Contains(user.Id))
+	        {
+		        List<GetTeamWeeklyReportResponse> teamWeeklyReportsResponse = new List<GetTeamWeeklyReportResponse>(); 
+		        switch (user.RoleId)
+		        {
+                    case (int)RoleEnum.Student:
+	                    Report studentWeeklyReport = _unitOfWork.Report
+		                    .Get(x => x.WeekId == currentWeek.Id && x.ReporterId.Equals(user.Id) && x.ProjectId == team.Project.Id,null, "Week,ReportEvidences").FirstOrDefault();
+	                    Report teamWeeklyReports = _unitOfWork.Report
+		                    .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences").FirstOrDefault();
+	                    GetTeamWeeklyReportResponse studentWeeklyReportResponse =
+		                    _mapper.Map<GetTeamWeeklyReportResponse>(studentWeeklyReport);
+	                    GetTeamWeeklyReportResponse teamWeeklyReportResponse =
+		                    _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReports);
+	                        teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
+	                        teamWeeklyReportsResponse.Add(teamWeeklyReportResponse);
+	                    break;
+                    case (int)RoleEnum.Lecturer:
+	                    IEnumerable<Report> studentWeeklyReports = _unitOfWork.Report.Get(
+		                    x => x.WeekId == currentWeek.Id && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences");
+                        Report teamWeeklyReport = _unitOfWork.Report
+	                        .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences").FirstOrDefault();
+	                    IEnumerable<GetTeamWeeklyReportResponse> studentWeeklyReportsResponse =
+		                    _mapper.Map<IEnumerable<GetTeamWeeklyReportResponse>>(studentWeeklyReports);
+	                    GetTeamWeeklyReportResponse teamsWeeklyReportResponse =
+		                    _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReport);
+	                    teamWeeklyReportsResponse.AddRange(studentWeeklyReportsResponse);
+	                    teamWeeklyReportsResponse.Add(teamsWeeklyReportResponse);
+                        break;
+		        }
+		        return teamWeeklyReportsResponse;
+
+	        }
+	        else
+	        {
+		        throw new BadHttpRequestException("You can view this team report");
+	        }
         }
     }
 }

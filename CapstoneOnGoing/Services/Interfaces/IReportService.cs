@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 using Models.Dtos;
 using Models.Request;
@@ -10,6 +11,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 	{
 		bool CreateWeeklyReport(Guid teamId, string studentEmail,CreateWeeklyReportDTO createWeeklyReportDTO);
 
-		GetTeamWeeklyReport GetTeamWeeklyReport(string teamId, int week, StringValues currentSemester, string role);
+		List<GetTeamWeeklyReportResponse> GetTeamWeeklyReport(Guid teamId, int week, GetSemesterDTO currentSemester, string email);
 	}
 }

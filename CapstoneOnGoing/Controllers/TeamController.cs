@@ -15,6 +15,7 @@ using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
+using Newtonsoft.Json;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -171,11 +172,11 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize(Roles = "STUDENT,LECTURER")]
+        //[Authorize(Roles = "STUDENT,LECTURER")]
         [HttpGet("{id}/reports")]
         public IActionResult GetTeamReport(Guid id,[FromQuery]int week)
         {
-	        string role = HttpContext.User.FindFirstValue(ClaimTypes.Role);
+	        string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 	        var headers = Request.Headers;
 	        StringValues currentsemester;
 	        if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out currentsemester))
@@ -183,29 +184,17 @@ namespace CapstoneOnGoing.Controllers
 		        return BadRequest(new GenericResponse()
 		        {
 					HttpStatus = StatusCodes.Status400BadRequest,
-					Message = "Does not have semester",
+					Message = "Request does not have semester",
 					TimeStamp = DateTime.Now
 		        });
 	        }
-	        if (!role.Equals(RoleEnum.Student.ToString().ToUpper()) &&
-	            !role.Equals(RoleEnum.Lecturer.ToString().ToUpper()))
+	        else
 	        {
-		        return BadRequest(new GenericResponse()
-		        {
-			        HttpStatus = StatusCodes.Status400BadRequest,
-			        Message = "You do not have permission to view weekly report of this team",
-			        TimeStamp = DateTime.Now
-		        });
+		        GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
+				List<GetTeamWeeklyReportResponse> teamWeeklyReportResponses =
+			        _reportService.GetTeamWeeklyReport(id, week, semesterDto, userEmail);
 	        }
-	        if (role.Equals(RoleEnum.Student.ToString().ToUpper()))
-	        {
-				
-	        }
-	        if (role.Equals(RoleEnum.Student.ToString().ToUpper()))
-	        {
-
-	        }
-            return Ok();
+	        return Ok();
         }
 
         [Authorize(Roles = "STUDENT")]

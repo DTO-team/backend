@@ -196,6 +196,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<Department,GetDepartmentResponse>();
             CreateMap<CreateWeeklyReportRequest, CreateWeeklyReportDTO>();
             CreateMap<ReportEvidenceRequest, ReportEvidenceDTO>();
+            CreateMap<Report, GetTeamWeeklyReportResponse>();
         }
     }
 }

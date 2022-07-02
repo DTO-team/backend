@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Models.Response
 {
-	public class GetTeamWeeklyReport
+	public class GetTeamWeeklyReportResponse
 	{
 		public Guid Id { get; set; }
 		public Guid ProjectId { get; set; }
@@ -15,5 +16,13 @@ namespace Models.Response
 		public string SelfAssessments { get; set; }
 		public string Feedbacks { get; set; }
         public GetWeekResponse Week { get; set; }
+        public IEnumerable<GetTeamWeeklyReportsEvidenceResponse> ReportEvidences { get; set; }
+	}
+	public class GetTeamWeeklyReportsEvidenceResponse
+	{
+		public Guid Id { get; set; }
+		public string Url { get; set; }
+		public string Name { get; set; }
+		public Guid ReportId { get; set; }
 	}
 }

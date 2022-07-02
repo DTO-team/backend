@@ -9,7 +9,6 @@ using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
-using Models.Request;
 using Repository.Interfaces;
 
 namespace CapstoneOnGoing.Services.Implements
@@ -74,15 +73,18 @@ namespace CapstoneOnGoing.Services.Implements
             Team team = _unitOfWork.Team
                 .Get(x => (x.Id == teamId && x.SemesterId == currentSemester.Id), null, "TeamStudents")
                 .FirstOrDefault();
-            Project currentProject = _unitOfWork.Project.Get(x => x.TeamId == team.Id).FirstOrDefault();
-            User user = _unitOfWork.User.Get(x => x.Email.Equals(studentEmail)).FirstOrDefault();
             if (team == null)
             {
                 throw new BadHttpRequestException("Team does not exist");
             }
 
+            User user = _unitOfWork.User.Get(x => x.Email.Equals(studentEmail)).FirstOrDefault();
+
             if (team.TeamStudents.Select(x => x.StudentId).Contains(user.Id))
             {
+                //Get team project
+                Project currentProject = _unitOfWork.Project.Get(x => x.TeamId == team.Id).FirstOrDefault();
+
                 //Get current week
                 long currentDateTime = DateTimeHelper.ConvertDateTimeToLong(DateTime.Now);
                 Week currentWeek = _unitOfWork.Week
@@ -94,7 +96,7 @@ namespace CapstoneOnGoing.Services.Implements
                         report.ReporterId.Equals(user.Id) && report.WeekId.Equals(currentWeek.Id));
 
                 //If not have any exist => create new report
-                if (!reports.Any())
+                if (reports.Any().Equals(false))
                 {
                     bool isCreated = CreateWeeklyReport(currentProject, user, createWeeklyReportDTO, currentWeek, currentDateTime);
                     return isCreated;
@@ -102,12 +104,12 @@ namespace CapstoneOnGoing.Services.Implements
 
                 //If have => check is have team report or not (because of team leader can create 2 report)
                 //If not have team report => create new team report 
-                else if (reports.Any())
+                else if (reports.Any().Equals(true) && user.Id.Equals(team.TeamLeaderId) && createWeeklyReportDTO.IsTeamReport.Equals(true))
                 {
                     bool isExistedReport = reports.ToArray().Select(report =>
-                            report.IsTeamReport.Equals(true))
+                            report.IsTeamReport.Equals(true) && report.ProjectId.Equals(currentProject.Id))
                         .FirstOrDefault();
-                    if (!isExistedReport)
+                    if (isExistedReport.Equals(false))
                     {
                         bool isCreated = CreateWeeklyReport(currentProject, user, createWeeklyReportDTO, currentWeek, currentDateTime);
                         return isCreated;

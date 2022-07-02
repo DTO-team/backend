@@ -172,8 +172,8 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        //[Authorize(Roles = "STUDENT,LECTURER")]
-        [HttpGet("{id}/reports")]
+		[Authorize(Roles = "STUDENT,LECTURER")]
+		[HttpGet("{id}/reports")]
         public IActionResult GetTeamReport(Guid id,[FromQuery]int week)
         {
 	        string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
@@ -193,8 +193,8 @@ namespace CapstoneOnGoing.Controllers
 		        GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
 				List<GetTeamWeeklyReportResponse> teamWeeklyReportResponses =
 			        _reportService.GetTeamWeeklyReport(id, week, semesterDto, userEmail);
-	        }
-	        return Ok();
+				return Ok(teamWeeklyReportResponses);
+			}
         }
 
         [Authorize(Roles = "STUDENT")]

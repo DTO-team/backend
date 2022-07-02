@@ -59,8 +59,10 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(new List<UserInAdminDTO>());
 		}
 
-        // [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(UserByIdDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult GetUserById(Guid id)
 		{
 			User user = _userService.GetUserById(id);

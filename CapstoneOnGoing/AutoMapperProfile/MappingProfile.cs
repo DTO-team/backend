@@ -24,6 +24,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<CreateNewSemesterDTO, Semester>();
             CreateMap<Semester, GetSemesterDTO>();
             CreateMap<User, UserByIdDTO>()
+                .ForMember(dest => dest.AvatarUrl, src => src.MapFrom(src=> src.AvatarUrl))
                 .ForMember(dest => dest.Status, src => src.MapFrom(src => new UserStatusResponse() { StatusId = src.StatusId, StatusName = src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper() }))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name));
            

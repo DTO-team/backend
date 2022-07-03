@@ -169,6 +169,7 @@ namespace CapstoneOnGoing.Services.Implements
 	                    break;
                     case (int)RoleEnum.Lecturer:
                     case (int)RoleEnum.Admin:
+
 	                    IEnumerable<Report> studentWeeklyReports = _unitOfWork.Report.Get(
 		                    x => x.WeekId == currentWeek.Id && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences");
                         Report teamWeeklyReport = _unitOfWork.Report

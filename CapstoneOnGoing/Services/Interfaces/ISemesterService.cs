@@ -2,6 +2,7 @@
 using Models.Models;
 using System;
 using System.Collections.Generic;
+using Models.Response;
 
 namespace CapstoneOnGoing.Services.Interfaces
 {
@@ -13,5 +14,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		IEnumerable<Semester> GetAllSemesters(int page, int limit);
 
 		bool UpdateSemester(Semester updatedSemester, UpdateSemesterDTO semesterDto);
+
+		Week GetCurrentWeek(Guid semesterId, long currentDateTime);
 	}
 }

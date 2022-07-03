@@ -200,6 +200,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<Report, GetTeamWeeklyReportResponse>()
 	            .ForMember(dest => dest.Week, src => src.MapFrom(src => src.Week))
 	            .ForMember(dest => dest.ReportEvidences, src => src.MapFrom(src => src.ReportEvidences));
+            CreateMap<Week, GetWeekResponse>();
         }
     }
 }

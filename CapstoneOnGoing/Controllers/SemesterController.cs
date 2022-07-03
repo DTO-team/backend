@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
+using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos;
 using Models.Models;
+using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -72,6 +76,26 @@ namespace CapstoneOnGoing.Controllers
 				_logger.LogWarn($"Controller: {nameof(SemesterController)},Method: {nameof(UpdateSemester)}, The {updateSemesterDTO.Id} is not existed");
 				return BadRequest($"Semester does not exist");
 			}
+		}
+
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+		[HttpGet("{id}/weeks/current")]
+		public IActionResult GetCurrentWeek(Guid id)
+		{
+			DateTime currentDateTime = DateTime.Now;
+			long currentDateTimeInLong = DateTimeHelper.ConvertDateTimeToLong(currentDateTime);
+			Week currentWeek = _semesterService.GetCurrentWeek(id, currentDateTimeInLong);
+			if (currentWeek == null)
+			{
+				return NotFound(new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status404NotFound,
+					Message = "Current Week is not found",
+					TimeStamp = DateTime.Now
+				});
+			}
+			GetWeekResponse currentWeekResponse = _mapper.Map<GetWeekResponse>(currentWeek);
+			return Ok(currentWeekResponse);
 		}
 	}
 }

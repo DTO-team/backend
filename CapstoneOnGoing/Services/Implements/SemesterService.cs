@@ -4,9 +4,11 @@ using Models.Models;
 using Repository.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Helper;
 using Microsoft.AspNetCore.Http;
+using Models.Response;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -79,6 +81,21 @@ namespace CapstoneOnGoing.Services.Implements
 					break;
 			}
 			return isSuccessful;
+		}
+
+		public Week GetCurrentWeek(Guid semesterId, long currentDateTime)
+		{
+			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Id == semesterId, null, "Weeks").FirstOrDefault();
+			Week currentWeek = null;
+			if (currentSemester == null || !currentSemester.Weeks.Any())
+			{
+				throw new BadHttpRequestException("Current Semester is not exist");
+			}
+			else
+			{
+				currentWeek = currentSemester.Weeks.FirstOrDefault(x => x.FromDate >= currentDateTime && currentDateTime <= x.ToDate);
+				return currentWeek;
+			}
 		}
 
 		private void GenerateWeeksForSemester(Semester semester, UpdateSemesterDTO semesterDto)

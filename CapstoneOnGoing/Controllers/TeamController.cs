@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using AutoMapper;
+using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Models;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
+using Newtonsoft.Json;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -169,11 +172,29 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet("{id}/reports")]
-        public IActionResult GetTeamReport(Guid id)
+		[Authorize(Roles = "STUDENT,LECTURER")]
+		[HttpGet("{id}/reports")]
+        public IActionResult GetTeamReport(Guid id,[FromQuery]int week)
         {
-            return Ok();
+	        string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+	        var headers = Request.Headers;
+	        StringValues currentsemester;
+	        if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out currentsemester))
+	        {
+		        return BadRequest(new GenericResponse()
+		        {
+					HttpStatus = StatusCodes.Status400BadRequest,
+					Message = "Request does not have semester",
+					TimeStamp = DateTime.Now
+		        });
+	        }
+	        else
+	        {
+		        GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
+				List<GetTeamWeeklyReportResponse> teamWeeklyReportResponses =
+			        _reportService.GetTeamWeeklyReport(id, week, semesterDto, userEmail);
+				return Ok(teamWeeklyReportResponses);
+			}
         }
 
         [Authorize(Roles = "STUDENT")]

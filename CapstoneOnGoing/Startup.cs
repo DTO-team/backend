@@ -45,6 +45,7 @@ namespace CapstoneOnGoing
 			services.AddDbContext<CAPSTONEONGOINGContext>(options => options.UseSqlServer(connectionString));
 			services.AddSingleton<ILoggerManager, LoggerManager>();
 			services.AddRepository();
+			services.AddRedisService();
 			services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

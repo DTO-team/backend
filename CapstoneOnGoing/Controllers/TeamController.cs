@@ -172,7 +172,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-		[Authorize(Roles = "STUDENT,LECTURER")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet("{id}/reports")]
         public IActionResult GetTeamReport(Guid id,[FromQuery]int week)
         {
@@ -235,6 +235,13 @@ namespace CapstoneOnGoing.Controllers
                     TimeStamp = DateTime.Now
                 });
             }
+        }
+
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        [HttpPatch("{id}/reports/{reportId}")]
+        public IActionResult GetWeeklyReportDetail(Guid reportId)
+        {
+	        return Ok();
         }
     }
 }

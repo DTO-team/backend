@@ -6,7 +6,7 @@ namespace Models.Response
 	{
 		public Guid Id { get; set; }
 		public int Number { get; set; }
-		public Guid Semester { get; set; }
+		public Guid SemesterId { get; set; }
 		public long FromDate { get; set; }
 		public long ToDate { get; set; }
 		public long Deadline { get; set; }

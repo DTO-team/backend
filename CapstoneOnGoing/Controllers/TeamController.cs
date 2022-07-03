@@ -172,7 +172,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-		[Authorize(Roles = "STUDENT,LECTURER")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet("{id}/reports")]
         public IActionResult GetTeamReport(Guid id,[FromQuery]int week)
         {

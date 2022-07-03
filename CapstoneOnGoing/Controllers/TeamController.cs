@@ -236,6 +236,13 @@ namespace CapstoneOnGoing.Controllers
                 });
             }
         }
+
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        [HttpPatch("{id}/reports/{reportId}")]
+        public IActionResult GetWeeklyReportDetail(Guid reportId)
+        {
+	        return Ok();
+        }
     }
 }
 

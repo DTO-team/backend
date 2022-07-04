@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using AutoMapper;
-using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;

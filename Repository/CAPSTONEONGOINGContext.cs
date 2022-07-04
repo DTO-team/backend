@@ -27,6 +27,7 @@ namespace Repository
         public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<EvaluationSession> EvaluationSessions { get; set; }
         public virtual DbSet<EvaluationSessionCriterion> EvaluationSessionCriteria { get; set; }
+        public virtual DbSet<Feedback> Feedbacks { get; set; }
         public virtual DbSet<Grade> Grades { get; set; }
         public virtual DbSet<GradeCopy> GradeCopies { get; set; }
         public virtual DbSet<Lecturer> Lecturers { get; set; }
@@ -228,6 +229,29 @@ namespace Repository
                     .HasConstraintName("FK_EvaluationSessionCriteria_EvaluationSessionID");
             });
 
+            modelBuilder.Entity<Feedback>(entity =>
+            {
+                entity.ToTable("Feedback");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Content)
+                    .IsRequired()
+                    .HasMaxLength(3000);
+
+                entity.HasOne(d => d.Author)
+                    .WithMany(p => p.Feedbacks)
+                    .HasForeignKey(d => d.AuthorId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Feedback_LecturerID");
+
+                entity.HasOne(d => d.Report)
+                    .WithMany(p => p.Feedbacks)
+                    .HasForeignKey(d => d.ReportId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Feedback_ReportID");
+            });
+
             modelBuilder.Entity<Grade>(entity =>
             {
                 entity.ToTable("Grade");
@@ -395,8 +419,6 @@ namespace Repository
                 entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.CompletedTasks).HasMaxLength(3000);
-
-                entity.Property(e => e.Feedbacks).HasMaxLength(3000);
 
                 entity.Property(e => e.InProgressTasks).HasMaxLength(3000);
 

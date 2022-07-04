@@ -49,7 +49,7 @@ namespace CapstoneOnGoing.Services.Implements
                 NextWeekTasks = createWeeklyReportDTO.NextWeekTasks,
                 UrgentIssues = createWeeklyReportDTO.UrgentIssues,
                 SelfAssessments = createWeeklyReportDTO.SelfAssessment,
-                Feedbacks = createWeeklyReportDTO.FeedBack,
+                Feedbacks = new List<Feedback>(),
                 WeekId = currentWeek.Id
             };
             Array.ForEach(createWeeklyReportDTO.ReportEvidences.ToArray(), reportEvidence =>
@@ -266,7 +266,10 @@ namespace CapstoneOnGoing.Services.Implements
 			{
 				throw new BadHttpRequestException("Report does not exist");
 			}
-			report.Feedbacks = feedbackReportRequest.Value;
+			report.Feedbacks.Add(new Feedback()
+			{
+
+			});
             _unitOfWork.Report.Update(report);
             bool isSuccessful = _unitOfWork.Save() > 0;
             return isSuccessful;

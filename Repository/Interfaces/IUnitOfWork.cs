@@ -39,7 +39,7 @@ namespace Repository.Interfaces
         IDepartmentRepository Department { get; }
         IReportRepository Report { get; }
         IWeekRepository Week { get; }
-
+        IFeedbackRepository Feedback { get; }
         public int Save();
     }
 }

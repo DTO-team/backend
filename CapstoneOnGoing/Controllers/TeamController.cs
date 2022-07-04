@@ -204,14 +204,14 @@ namespace CapstoneOnGoing.Controllers
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult CreateWeeklyReport(Guid id, CreateWeeklyReportRequest createWeeklyReportRequest)
 		{
-			bool isSuccessful;
+			Guid? reportId;
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
 
 			User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
 			bool isTeamLeader = _teamService.IsTeamLeader(userByEmail.Id);
-			isSuccessful = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
-			if (isSuccessful)
+			reportId = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
+			if (reportId is not null)
 			{
 				return CreatedAtAction(nameof(CreateWeeklyReport), new GenericResponse()
 				{
@@ -239,7 +239,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
-		[HttpPatch("{id}/reports/{reportId}")]
+		[HttpGet("{id}/reports/{reportId}")]
 		[ProducesResponseType(typeof(GetWeeklyReportDetailResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status404NotFound)]
 		public IActionResult GetWeeklyReportDetail(Guid id, Guid reportId)

@@ -261,6 +261,8 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "LECTURER")]
 		[HttpPatch("{id}/reports/{reportId}")]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
         public IActionResult FeedbackReport(Guid id, Guid reportId,[FromBody] FeedbackReportRequest feedbackReportRequest)
         {
 	        string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);

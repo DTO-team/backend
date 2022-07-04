@@ -181,6 +181,7 @@ namespace CapstoneOnGoing.Controllers
 	        StringValues currentsemester;
 	        if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out currentsemester))
 	        {
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetTeamReport)}: Semester {currentsemester}");
 		        return BadRequest(new GenericResponse()
 		        {
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -239,9 +240,59 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpPatch("{id}/reports/{reportId}")]
-        public IActionResult GetWeeklyReportDetail(Guid reportId)
+		[ProducesResponseType(typeof(GetWeeklyReportDetailResponse),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]
+        public IActionResult GetWeeklyReportDetail(Guid id,Guid reportId)
         {
-	        return Ok();
+	        string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+	        GetWeeklyReportDetailResponse reportResponse = _reportService.GetReportDetail(id, reportId, email);
+	        if (reportResponse == null)
+	        {
+				_logger.LogWarn($"Controller: {nameof(TeamController)}, Method: {nameof(GetWeeklyReportDetail)}: Report {reportId} is not found");
+		        return NotFound(new GenericResponse()
+		        {
+			        HttpStatus = StatusCodes.Status404NotFound,
+			        Message = "No report is found",
+			        TimeStamp = DateTime.Now,
+		        });
+	        }
+	        return Ok(reportResponse);
+        }
+
+		[Authorize(Roles = "LECTURER")]
+		[HttpPatch("{id}/reports/{reportId}")]
+        public IActionResult FeedbackReport(Guid id, Guid reportId,[FromBody] FeedbackReportRequest feedbackReportRequest)
+        {
+	        string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+	        feedbackReportRequest.Path.Remove(0);
+	        if (!feedbackReportRequest.Op.Equals("add") || !feedbackReportRequest.Path.Equals("feedbacks")|| string.IsNullOrWhiteSpace(feedbackReportRequest.Value) || string.IsNullOrEmpty(feedbackReportRequest.Value))
+	        {
+				_logger.LogWarn($"Controller: {nameof(TeamController)}, Method: {nameof(FeedbackReport)}: Value is invalid {feedbackReportRequest.Op} - {feedbackReportRequest.Path} - {feedbackReportRequest.Value}");
+		        return BadRequest(new GenericResponse()
+		        {
+			        HttpStatus = StatusCodes.Status400BadRequest,
+			        Message = "Invalid value",
+			        TimeStamp = DateTime.Now
+		        });
+	        }
+
+	        bool isSuccessful = _reportService.FeedbackReport(id, reportId, email, feedbackReportRequest);
+	        if (!isSuccessful)
+	        {
+		        _logger.LogWarn($"Controller: {nameof(TeamController)}, Method: {nameof(FeedbackReport)}:Lecturer {email} feedback for report {reportId} is failed");
+				return BadRequest(new GenericResponse()
+		        {
+			        HttpStatus = StatusCodes.Status400BadRequest,
+			        Message = "Feedback for report is failed",
+			        TimeStamp = DateTime.Now
+		        });
+	        }
+	        return Ok(new GenericResponse()
+	        {
+				HttpStatus = StatusCodes.Status200OK,
+				Message = "Feedback for report successful",
+				TimeStamp = DateTime.Now
+	        });
         }
     }
 }

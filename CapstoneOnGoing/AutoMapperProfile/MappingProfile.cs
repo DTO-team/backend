@@ -201,6 +201,12 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.Week, src => src.MapFrom(src => src.Week))
 	            .ForMember(dest => dest.ReportEvidences, src => src.MapFrom(src => src.ReportEvidences));
             CreateMap<Week, GetWeekResponse>();
+            CreateMap<User, Reporter>()
+	            .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
+	            .ForMember(dest => dest.Semester,
+		            src => src.MapFrom(src =>
+			            (src.Student.Semester.Year.ToString() + " - " + src.Student.Semester.Season.ToString())))
+	            .ForMember(dest => dest.Status, src => src.MapFrom(src => new UserStatusResponse() { StatusId = src.StatusId, StatusName = src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper() }));
         }
     }
 }

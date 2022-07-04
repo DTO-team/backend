@@ -12,5 +12,9 @@ namespace CapstoneOnGoing.Services.Interfaces
 		bool CreateWeeklyReport(Guid teamId, string studentEmail,CreateWeeklyReportDTO createWeeklyReportDTO);
 
 		List<GetTeamWeeklyReportResponse> GetTeamWeeklyReport(Guid teamId, int week, GetSemesterDTO currentSemester, string email);
+
+		GetWeeklyReportDetailResponse GetReportDetail(Guid teamId, Guid reportId, string email);
+
+		bool FeedbackReport(Guid teamId, Guid reportId,string email, FeedbackReportRequest feedbackReportRequest);
 	}
 }

@@ -7,7 +7,6 @@ using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
@@ -40,7 +39,6 @@ namespace CapstoneOnGoing.Services.Implements
                     $"Deadline of week was: {DateTimeHelper.ConvertLongToDateTime(currentWeek.Deadline)}");
             }
 
-            //
             Report newReport = new Report()
             {
                 ProjectId = currentProject.Id,
@@ -68,8 +66,26 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
 
-        public bool CreateWeeklyReport(Guid teamId, string studentEmail, CreateWeeklyReportDTO createWeeklyReportDTO)
+        private Report GetCreatedReport(CreateWeeklyReportDTO createWeeklyReportDTO, User user, Week currentWeek)
         {
+            Report createdReport = null;
+            createdReport =_unitOfWork.Report.Get(report =>
+                report.IsTeamReport.Equals(createWeeklyReportDTO.IsTeamReport) &&
+                report.ProjectId.Equals(createWeeklyReportDTO.ProjectId) && report.ReporterId.Equals(user.Id) &&
+                report.WeekId.Equals(currentWeek.Id)).FirstOrDefault();
+            if (createdReport is not null)
+            {
+                return createdReport;
+            }
+            else
+            {
+                throw new BadHttpRequestException("Report is not created !");
+            }
+        }
+
+        public Guid? CreateWeeklyReport(Guid teamId, string studentEmail, CreateWeeklyReportDTO createWeeklyReportDTO)
+        {
+            Guid? returnReportId = null;
             //check team is exist
             Semester currentSemester =
                 _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Ongoing).FirstOrDefault();
@@ -102,7 +118,13 @@ namespace CapstoneOnGoing.Services.Implements
                 if (reports.Any().Equals(false))
                 {
                     bool isCreated = CreateWeeklyReport(currentProject, user, createWeeklyReportDTO, currentWeek, currentDateTime);
-                    return isCreated;
+                    if (isCreated)
+                    {
+                        Report createdReport = GetCreatedReport(createWeeklyReportDTO, user, currentWeek);
+                        returnReportId = createdReport.Id;
+                    }
+
+                    return returnReportId;
                 }
 
                 //If have => check is have team report or not (because of team leader can create 2 report)
@@ -115,7 +137,13 @@ namespace CapstoneOnGoing.Services.Implements
                     if (isExistedReport.Equals(false))
                     {
                         bool isCreated = CreateWeeklyReport(currentProject, user, createWeeklyReportDTO, currentWeek, currentDateTime);
-                        return isCreated;
+                        if (isCreated)
+                        {
+                            Report createdReport = GetCreatedReport(createWeeklyReportDTO, user, currentWeek);
+                            returnReportId = createdReport.Id;
+                        }
+
+                        return returnReportId;
                     }
                     else
                     {

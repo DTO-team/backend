@@ -207,6 +207,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
 		            src => src.MapFrom(src =>
 			            (src.Student.Semester.Year.ToString() + " - " + src.Student.Semester.Season.ToString())))
 	            .ForMember(dest => dest.Status, src => src.MapFrom(src => new UserStatusResponse() { StatusId = src.StatusId, StatusName = src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper() }));
+
         }
     }
 }

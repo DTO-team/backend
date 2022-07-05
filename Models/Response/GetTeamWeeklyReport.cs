@@ -14,7 +14,7 @@ namespace Models.Response
 		public string NextWeekTasks { get; set; }
 		public string UrgentIssues { get; set; }
 		public string SelfAssessments { get; set; }
-		public string Feedbacks { get; set; }
+		public IEnumerable<GetFeedbackResponse> Feedback { get; set; }
         public GetWeekResponse Week { get; set; }
         public IEnumerable<GetTeamWeeklyReportsEvidenceResponse> ReportEvidences { get; set; }
 	}

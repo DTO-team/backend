@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
@@ -20,12 +21,14 @@ namespace CapstoneOnGoing.Services.Implements
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILecturerService _lecturerService;
 
-        public ReportService(ILoggerManager logger, IMapper mapper, IUnitOfWork unitOfWork)
+        public ReportService(ILoggerManager logger, IMapper mapper, IUnitOfWork unitOfWork, ILecturerService lecturerService)
         {
             _logger = logger;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _lecturerService = lecturerService;
         }
 
         private bool CreateWeeklyReport(Project currentProject, User user, CreateWeeklyReportDTO createWeeklyReportDTO,
@@ -161,6 +164,38 @@ namespace CapstoneOnGoing.Services.Implements
             }
         }
 
+        private IEnumerable<GetFeedbackResponse> FeedbackResponses(ICollection<Feedback> feedbacks, Report report)
+        {
+            IEnumerable<GetFeedbackDTO> feedbackDtos = null;
+            List<GetFeedbackResponse> feedbackResponses = new List<GetFeedbackResponse>();
+            if (feedbacks is not null)
+            {
+                feedbackDtos = _mapper.Map<IEnumerable<GetFeedbackDTO>>(feedbacks);
+            }
+
+            if (feedbackDtos is not null)
+            {
+                Array.ForEach(feedbackDtos.ToArray(), feedbackDto =>
+                {
+                    GetFeedbackResponse feedbackResponse = new GetFeedbackResponse();
+                    feedbackResponse.Id = feedbackDto.Id;
+                    feedbackResponse.CreatedDateTime = feedbackDto.CreatedDateTime;
+                    feedbackResponse.Content = feedbackDto.Content;
+
+                    if (report.IsTeamReport.Equals(true))
+                    {
+                        feedbackResponse.IsTeamReport = true;
+                    }
+
+                    User lecturer = _lecturerService.GetLecturerById(feedbackDto.AuthorId);
+                    feedbackResponse.Author = _mapper.Map<GetLecturerResponse>(lecturer);
+                    feedbackResponses.Add(feedbackResponse);
+                });
+            }
+
+            return feedbackResponses;
+        }
+
         public List<GetTeamWeeklyReportResponse> GetTeamWeeklyReport(Guid teamId, int week, GetSemesterDTO currentSemester, string email)
         {
 	        Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
@@ -185,13 +220,17 @@ namespace CapstoneOnGoing.Services.Implements
 		        {
                     case (int)RoleEnum.Student:
 	                    Report studentWeeklyReport = _unitOfWork.Report
-		                    .Get(x => x.WeekId == currentWeek.Id && x.ReporterId.Equals(user.Id) && x.ProjectId == team.Project.Id,null, "Week,ReportEvidences").FirstOrDefault();
-	                    Report teamWeeklyReports = _unitOfWork.Report
-		                    .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences").FirstOrDefault();
+		                    .Get(x => x.WeekId == currentWeek.Id && x.ReporterId.Equals(user.Id) && x.ProjectId == team.Project.Id,null, "Week,ReportEvidences,Feedbacks").FirstOrDefault();
+                        Report teamWeeklyReports = _unitOfWork.Report
+		                    .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences,Feedbacks").FirstOrDefault();
 	                    GetTeamWeeklyReportResponse studentWeeklyReportResponse =
 		                    _mapper.Map<GetTeamWeeklyReportResponse>(studentWeeklyReport);
+                        studentWeeklyReportResponse.Feedback = FeedbackResponses(studentWeeklyReport.Feedbacks, studentWeeklyReport);
+
 	                    GetTeamWeeklyReportResponse teamWeeklyReportResponse =
 		                    _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReports);
+                        teamWeeklyReportResponse.Feedback = FeedbackResponses(teamWeeklyReports.Feedbacks, teamWeeklyReports);
+
 	                        teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
 	                        teamWeeklyReportsResponse.Add(teamWeeklyReportResponse);
 	                    break;
@@ -199,13 +238,27 @@ namespace CapstoneOnGoing.Services.Implements
                     case (int)RoleEnum.Admin:
 
 	                    IEnumerable<Report> studentWeeklyReports = _unitOfWork.Report.Get(
-		                    x => x.WeekId == currentWeek.Id && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences");
+		                    x => x.WeekId == currentWeek.Id && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences,Feedbacks");
+
                         Report teamWeeklyReport = _unitOfWork.Report
-	                        .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences").FirstOrDefault();
+	                        .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences,Feedbacks").FirstOrDefault();
 	                    IEnumerable<GetTeamWeeklyReportResponse> studentWeeklyReportsResponse =
 		                    _mapper.Map<IEnumerable<GetTeamWeeklyReportResponse>>(studentWeeklyReports);
+                        Array.ForEach(studentWeeklyReportsResponse.ToArray(), studentWeeklyReportResponse =>
+                        {
+                            IEnumerable<GetFeedbackResponse> feedbackResponses = null;
+                            Array.ForEach(studentWeeklyReports.ToArray(), studentWeeklyReport =>
+                            {
+                                ICollection<Feedback> feedbacks = studentWeeklyReport.Feedbacks;
+                                feedbackResponses =
+                                    FeedbackResponses(feedbacks, studentWeeklyReport);
+                            });
+                            studentWeeklyReportResponse.Feedback = feedbackResponses;
+                        });
+
 	                    GetTeamWeeklyReportResponse teamsWeeklyReportResponse =
 		                    _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReport);
+
 	                    teamWeeklyReportsResponse.AddRange(studentWeeklyReportsResponse);
 	                    teamWeeklyReportsResponse.Add(teamsWeeklyReportResponse);
                         break;
@@ -229,13 +282,13 @@ namespace CapstoneOnGoing.Services.Implements
 		        throw new BadHttpRequestException("Team or student does not exist");
 	        }
 
-	        if (!team.TeamStudents.Select(x => x.Id).Contains(user.Id) ||
-	            !team.Project.Mentors.Select(x => x.Id).Contains(user.Id))
+	        if (!team.TeamStudents.Select(x => x.StudentId).Contains(user.Id) ||
+	            !team.Project.Mentors.Select(x => x.LecturerId).Contains(user.Id))
 	        {
 		        throw new BadHttpRequestException("You don't have permission to view this report");
 	        }
 
-	        Report report = _unitOfWork.Report.Get(x => x.Id == reportId, null, "Reporter,ReportEvidences,Week").FirstOrDefault();
+	        Report report = _unitOfWork.Report.Get(x => x.Id == reportId, null, "Reporter,ReportEvidences,Week,Feedbacks").FirstOrDefault();
 	        if (report == null)
 	        {
 		        return null;
@@ -243,8 +296,52 @@ namespace CapstoneOnGoing.Services.Implements
 
 	        User reporter = _unitOfWork.User.Get(x => x.Id == report.ReporterId, null, "Student").FirstOrDefault();
 	        reporter.Student.Semester = _unitOfWork.Semester.GetById(reporter.Student.SemesterId.Value);
-	        GetWeeklyReportDetailResponse getWeeklyReportDetailResponse =
+
+            IEnumerable<Feedback> feedbacks = report.Feedbacks;
+            IEnumerable<GetFeedbackDTO> feedbackDtos = null;
+            List<GetFeedbackResponse> feedbackResponses = new List<GetFeedbackResponse>();
+            if (feedbacks is not null)
+            {
+                feedbackDtos = _mapper.Map<IEnumerable<GetFeedbackDTO>>(feedbacks);
+            }
+
+            if (feedbackDtos is not null)
+            {
+                Array.ForEach(feedbackDtos.ToArray(), feedbackDto =>
+                {
+                    GetFeedbackResponse feedbackResponse = new GetFeedbackResponse();
+                    feedbackResponse.Id = feedbackDto.Id;
+                    feedbackResponse.CreatedDateTime = feedbackDto.CreatedDateTime;
+                    feedbackResponse.Content = feedbackDto.Content;
+
+                    if (report.IsTeamReport.Equals(true))
+                    {
+                        feedbackResponse.IsTeamReport = true;
+                    }
+
+                    User lecturer = _lecturerService.GetLecturerById(feedbackDto.AuthorId);
+                    feedbackResponse.Author = _mapper.Map<GetLecturerResponse>(lecturer);
+                    feedbackResponses.Add(feedbackResponse);
+                });
+            }
+
+            Week week = report.Week;
+            GetWeekResponse weekResponse = _mapper.Map<GetWeekResponse>(week);
+
+            IEnumerable<GetTeamWeeklyReportsEvidenceResponse> teamWeeklyReportsEvidenceResponses =
+                _mapper.Map<IEnumerable<GetTeamWeeklyReportsEvidenceResponse>>(report.ReportEvidences);
+
+            GetWeeklyReportDetailResponse getWeeklyReportDetailResponse =
 		        _mapper.Map<GetWeeklyReportDetailResponse>(report);
+            getWeeklyReportDetailResponse.Reporter = _mapper.Map<Reporter>(reporter);
+            getWeeklyReportDetailResponse.Week = weekResponse;
+            getWeeklyReportDetailResponse.ReportsEvidences = teamWeeklyReportsEvidenceResponses;
+
+
+            if (feedbackResponses.Any())
+            {
+                getWeeklyReportDetailResponse.Feedbacks = feedbackResponses;
+            }
             return getWeeklyReportDetailResponse;
         }
 

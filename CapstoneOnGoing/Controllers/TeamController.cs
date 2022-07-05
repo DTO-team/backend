@@ -172,7 +172,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet("{id}/reports")]
 		public IActionResult GetTeamReport(Guid id, [FromQuery] int week)
 		{
@@ -238,7 +238,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		// [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet("{id}/reports/{reportId}")]
 		[ProducesResponseType(typeof(GetWeeklyReportDetailResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status404NotFound)]

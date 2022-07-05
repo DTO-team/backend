@@ -204,7 +204,6 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.Feedback, src => src.MapFrom(src => new GetFeedbackResponse()));
             CreateMap<Week, GetWeekResponse>();
             CreateMap<User, Reporter>()
-                .ForMember(dest => dest.TeamId, src => src.MapFrom(src => src.))
 	            .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
 	            .ForMember(dest => dest.Semester,
 		            src => src.MapFrom(src =>

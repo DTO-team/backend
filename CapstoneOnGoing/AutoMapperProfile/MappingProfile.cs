@@ -73,7 +73,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
                     src => src.MapFrom(src => $"{src.Semester.Year.ToString()} - {src.Semester.Season.ToString()}"));
 
             CreateMap<User, StudentResponse>()
-                .ForMember(dest => dest.Status, src => src.MapFrom(src => src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper()))
+                .ForMember(dest => dest.Status, src => src.MapFrom(src => new UserStatusResponse() { StatusId = src.StatusId, StatusName = src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper() }))
                 .ForMember(dest => dest.TeamId, src=> src.MapFrom(src => (src.Student.TeamStudents != null) ? src.Student.TeamStudents.FirstOrDefault().TeamId : Guid.Empty))
                 .ForMember(dest => dest.Semester, src => src.MapFrom(src => $"{src.Student.Semester.Year.ToString()} - {src.Student.Semester.Season.ToString()}"))
                 .ForMember(dest => dest.Role, src => src.MapFrom(src => src.Role.Name))

@@ -50,9 +50,11 @@ namespace CapstoneOnGoing.Controllers
                 CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
                 createWeeklyReportDto.ReportEvidences = reportEvidenceDto;
 
-                bool isCreated = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
-                if (isCreated)
+                Guid? reportId = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
+                if (reportId is not null)
                 {
+                    GetWeeklyReportDetailResponse weeklyReportDetailResponse =
+                        _reportService.GetReportDetail(id, (Guid)reportId, userEmail);
                     return CreatedAtAction("CreatePersonalOrTeamWeeklyReport", id);
                 }
                 else

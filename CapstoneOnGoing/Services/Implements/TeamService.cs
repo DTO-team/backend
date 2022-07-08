@@ -356,65 +356,79 @@ namespace CapstoneOnGoing.Services.Implements
                                 {
                                     //Add new mentor
                                     case "add":
-                                        Array.ForEach(updateMentorRequest.NewLecturerId.ToArray(), newLecturerId =>
+                                        if (updateMentorRequest.NewLecturerId.Any() == true)
                                         {
-                                            Mentor existMentor = _unitOfWork.Mentor.Get(mentor =>
-                                                (mentor.LecturerId.Equals(newLecturerId) &&
-                                                 mentor.ProjectId.Equals(projectId))).FirstOrDefault();
-                                            if (existMentor is null)
+                                            Array.ForEach(updateMentorRequest.NewLecturerId.ToArray(), newLecturerId =>
                                             {
-                                                Lecturer newLecturer = _unitOfWork.Lecturer.GetById(newLecturerId);
-                                                if (newLecturer is not null)
+                                                Mentor existMentor = _unitOfWork.Mentor.Get(mentor =>
+                                                    (mentor.LecturerId.Equals(newLecturerId) &&
+                                                     mentor.ProjectId.Equals(projectId))).FirstOrDefault();
+                                                if (existMentor is null)
                                                 {
+                                                    Lecturer newLecturer = _unitOfWork.Lecturer.GetById(newLecturerId);
+                                                    if (newLecturer is not null)
+                                                    {
 
-                                                    Mentor newMentor = new Mentor()
-                                                    { ProjectId = projectId, LecturerId = newLecturerId };
-                                                    _unitOfWork.Mentor.Insert(newMentor);
+                                                        Mentor newMentor = new Mentor()
+                                                        { ProjectId = projectId, LecturerId = newLecturerId };
+                                                        _unitOfWork.Mentor.Insert(newMentor);
 
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new BadHttpRequestException(
+                                                            $"Lecturer with {newLecturerId} id is not existed to process!");
+                                                    }
                                                 }
                                                 else
                                                 {
                                                     throw new BadHttpRequestException(
-                                                        $"Lecturer with {newLecturerId} id is not existed to process!");
+                                                        "Lecturer is already mentor this team");
                                                 }
-                                            }
-                                            else
-                                            {
-                                                throw new BadHttpRequestException(
-                                                    "Lecturer is already mentor this team");
-                                            }
-                                        });
-                                        _unitOfWork.Save();
-                                        responseUpdatedTeamId = teamId;
+                                            });
+                                            _unitOfWork.Save();
+                                            responseUpdatedTeamId = teamId;
+                                        }
+                                        else
+                                        {
+                                            throw new BadHttpRequestException("New lecturer id list is empty");
+                                        }
                                         break;
 
                                     //Delete mentor
                                     case "remove":
-                                        IEnumerable<Mentor> teamMentors =
-                                            _unitOfWork.Mentor.Get(x => x.ProjectId.Equals(projectId));
-                                        if (!teamMentors.Count().Equals(1))
+                                        if (updateMentorRequest.MentorId.Any() == true)
                                         {
-                                            Array.ForEach(updateMentorRequest.MentorId.ToArray(), deleteMentorId =>
+                                            IEnumerable<Mentor> teamMentors =
+                                                _unitOfWork.Mentor.Get(x => x.ProjectId.Equals(projectId));
+                                            if (!teamMentors.Count().Equals(1))
                                             {
-                                                Mentor mentor = _unitOfWork.Mentor
-                                                    .Get(mentor => (mentor.ProjectId.Equals(projectId) && mentor.Id.Equals(deleteMentorId)))
-                                                    .FirstOrDefault();
-                                                if (mentor is not null)
+                                                Array.ForEach(updateMentorRequest.MentorId.ToArray(), deleteMentorId =>
                                                 {
-                                                    _unitOfWork.Mentor.DeleteById(deleteMentorId);
-                                                    _unitOfWork.Save();
-                                                    responseUpdatedTeamId = teamId;
-                                                }
-                                                else
-                                                {
-                                                    throw new BadHttpRequestException(
-                                                        $"Mentor with {deleteMentorId} id is not mentor this team");
-                                                }
-                                            });
+                                                    Mentor mentor = _unitOfWork.Mentor
+                                                        .Get(mentor => (mentor.ProjectId.Equals(projectId) && mentor.Id.Equals(deleteMentorId)))
+                                                        .FirstOrDefault();
+                                                    if (mentor is not null)
+                                                    {
+                                                        _unitOfWork.Mentor.DeleteById(deleteMentorId);
+                                                        _unitOfWork.Save();
+                                                        responseUpdatedTeamId = teamId;
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new BadHttpRequestException(
+                                                            $"Mentor with {deleteMentorId} id is not mentor this team");
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                throw new BadHttpRequestException("At least 1 mentor for 1 team");
+                                            }
                                         }
                                         else
                                         {
-                                            throw new BadHttpRequestException("At least 1 mentor for 1 team");
+                                            throw new BadHttpRequestException("Mentor id list is empty");
                                         }
 
                                         break;
@@ -424,7 +438,7 @@ namespace CapstoneOnGoing.Services.Implements
                             }
                             else
                             {
-                                throw new BadHttpRequestException("Only update for a team in ongoing semester!");
+                                throw new BadHttpRequestException("Only update for a team in preparing semester!");
                             }
                         }
                         else

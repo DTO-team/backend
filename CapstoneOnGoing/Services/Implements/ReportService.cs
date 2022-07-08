@@ -7,7 +7,6 @@ using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
@@ -40,7 +39,6 @@ namespace CapstoneOnGoing.Services.Implements
                     $"Deadline of week was: {DateTimeHelper.ConvertLongToDateTime(currentWeek.Deadline)}");
             }
 
-            //
             Report newReport = new Report()
             {
                 ProjectId = currentProject.Id,
@@ -51,7 +49,7 @@ namespace CapstoneOnGoing.Services.Implements
                 NextWeekTasks = createWeeklyReportDTO.NextWeekTasks,
                 UrgentIssues = createWeeklyReportDTO.UrgentIssues,
                 SelfAssessments = createWeeklyReportDTO.SelfAssessment,
-                Feedbacks = createWeeklyReportDTO.FeedBack,
+                Feedbacks = new List<Feedback>(),
                 WeekId = currentWeek.Id
             };
             Array.ForEach(createWeeklyReportDTO.ReportEvidences.ToArray(), reportEvidence =>
@@ -68,8 +66,26 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
 
-        public bool CreateWeeklyReport(Guid teamId, string studentEmail, CreateWeeklyReportDTO createWeeklyReportDTO)
+        private Report GetCreatedReport(CreateWeeklyReportDTO createWeeklyReportDTO, User user, Week currentWeek)
         {
+            Report createdReport = null;
+            createdReport =_unitOfWork.Report.Get(report =>
+                report.IsTeamReport.Equals(createWeeklyReportDTO.IsTeamReport) &&
+                report.ProjectId.Equals(createWeeklyReportDTO.ProjectId) && report.ReporterId.Equals(user.Id) &&
+                report.WeekId.Equals(currentWeek.Id)).FirstOrDefault();
+            if (createdReport is not null)
+            {
+                return createdReport;
+            }
+            else
+            {
+                throw new BadHttpRequestException("Report is not created !");
+            }
+        }
+
+        public Guid? CreateWeeklyReport(Guid teamId, string studentEmail, CreateWeeklyReportDTO createWeeklyReportDTO)
+        {
+            Guid? returnReportId = null;
             //check team is exist
             Semester currentSemester =
                 _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Ongoing).FirstOrDefault();
@@ -102,7 +118,13 @@ namespace CapstoneOnGoing.Services.Implements
                 if (reports.Any().Equals(false))
                 {
                     bool isCreated = CreateWeeklyReport(currentProject, user, createWeeklyReportDTO, currentWeek, currentDateTime);
-                    return isCreated;
+                    if (isCreated)
+                    {
+                        Report createdReport = GetCreatedReport(createWeeklyReportDTO, user, currentWeek);
+                        returnReportId = createdReport.Id;
+                    }
+
+                    return returnReportId;
                 }
 
                 //If have => check is have team report or not (because of team leader can create 2 report)
@@ -115,7 +137,13 @@ namespace CapstoneOnGoing.Services.Implements
                     if (isExistedReport.Equals(false))
                     {
                         bool isCreated = CreateWeeklyReport(currentProject, user, createWeeklyReportDTO, currentWeek, currentDateTime);
-                        return isCreated;
+                        if (isCreated)
+                        {
+                            Report createdReport = GetCreatedReport(createWeeklyReportDTO, user, currentWeek);
+                            returnReportId = createdReport.Id;
+                        }
+
+                        return returnReportId;
                     }
                     else
                     {
@@ -189,6 +217,62 @@ namespace CapstoneOnGoing.Services.Implements
 	        {
 		        throw new BadHttpRequestException("You can view this team report");
 	        }
+        }
+
+        public GetWeeklyReportDetailResponse GetReportDetail(Guid teamId, Guid reportId, string email)
+        {
+	        Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
+	        User user = _unitOfWork.User
+		        .Get(x => x.Email.Equals(email) && x.StatusId == (int)UserStatus.Activated).FirstOrDefault();
+	        if (team == null || user == null)
+	        {
+		        throw new BadHttpRequestException("Team or student does not exist");
+	        }
+
+	        if (!team.TeamStudents.Select(x => x.Id).Contains(user.Id) ||
+	            !team.Project.Mentors.Select(x => x.Id).Contains(user.Id))
+	        {
+		        throw new BadHttpRequestException("You don't have permission to view this report");
+	        }
+
+	        Report report = _unitOfWork.Report.Get(x => x.Id == reportId, null, "Reporter,ReportEvidences,Week").FirstOrDefault();
+	        if (report == null)
+	        {
+		        return null;
+	        }
+
+	        User reporter = _unitOfWork.User.Get(x => x.Id == report.ReporterId, null, "Student").FirstOrDefault();
+	        reporter.Student.Semester = _unitOfWork.Semester.GetById(reporter.Student.SemesterId.Value);
+	        GetWeeklyReportDetailResponse getWeeklyReportDetailResponse =
+		        _mapper.Map<GetWeeklyReportDetailResponse>(report);
+            return getWeeklyReportDetailResponse;
+        }
+
+        public bool FeedbackReport(Guid teamId, Guid reportId, string email, FeedbackReportRequest feedbackReportRequest)
+        {
+	        Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
+	        User lecturer = _unitOfWork.User.Get(x => x.Email.Equals(email)).FirstOrDefault();
+	        if (team == null || lecturer == null)
+	        {
+		        throw new BadHttpRequestException("Team does not exist or lecturer does not exist");
+	        }
+
+	        if (!team.Project.Mentors.Select(x => x.Id).Contains(lecturer.Id))
+	        {
+		        throw new BadHttpRequestException("You are not mentors of this team");
+	        }
+			Report report = _unitOfWork.Report.GetById(reportId);
+			if (report == null)
+			{
+				throw new BadHttpRequestException("Report does not exist");
+			}
+			report.Feedbacks.Add(new Feedback()
+			{
+
+			});
+            _unitOfWork.Report.Update(report);
+            bool isSuccessful = _unitOfWork.Save() > 0;
+            return isSuccessful;
         }
 
         public GetWeeklyReportDetailResponse GetReportDetail(Guid teamId, Guid reportId, string email)

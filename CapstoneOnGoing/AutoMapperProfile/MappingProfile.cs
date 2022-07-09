@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Enums;
@@ -199,7 +200,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<ReportEvidenceRequest, ReportEvidenceDTO>();
             CreateMap<Report, GetTeamWeeklyReportResponse>()
 	            .ForMember(dest => dest.Week, src => src.MapFrom(src => src.Week))
-	            .ForMember(dest => dest.ReportEvidences, src => src.MapFrom(src => src.ReportEvidences));
+	            .ForMember(dest => dest.ReportEvidences, src => src.MapFrom(src => src.ReportEvidences))
+                .ForMember(dest => dest.Feedback, src => src.MapFrom(src => new GetFeedbackResponse()));
             CreateMap<Week, GetWeekResponse>();
             CreateMap<User, Reporter>()
 	            .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Student.Code))
@@ -208,6 +210,14 @@ namespace CapstoneOnGoing.AutoMapperProfile
 			            (src.Student.Semester.Year.ToString() + " - " + src.Student.Semester.Season.ToString())))
 	            .ForMember(dest => dest.Status, src => src.MapFrom(src => new UserStatusResponse() { StatusId = src.StatusId, StatusName = src.StatusId.Equals(1) ? UserStatus.Activated.ToString().ToUpper() : UserStatus.Inactivated.ToString().ToUpper() }));
 
+            CreateMap<ReportEvidence, GetTeamWeeklyReportsEvidenceResponse>();
+
+            CreateMap<Report, GetWeeklyReportDetailResponse>()
+                .ForMember(dest => dest.Reporter, src => src.MapFrom(src => new Reporter()))
+                .ForMember(dest=>dest.ReportsEvidences, src=> src.MapFrom(src => new List<GetTeamWeeklyReportsEvidenceResponse>()))
+                .ForMember(dest => dest.Week, src => src.MapFrom(src => new GetWeekResponse()))
+                .ForMember(dest => dest.Feedbacks, src => src.MapFrom(src => new List<GetFeedbackResponse>()));
+            CreateMap<Feedback, GetFeedbackDTO>();
         }
     }
 }

@@ -293,45 +293,12 @@ namespace CapstoneOnGoing.Services.Implements
 	        {
 		        return null;
 	        }
+
 	        User reporter = _unitOfWork.User.Get(x => x.Id == report.ReporterId, null, "Student").FirstOrDefault();
 	        reporter.Student.Semester = _unitOfWork.Semester.GetById(reporter.Student.SemesterId.Value);
-
-            IEnumerable<Feedback> feedbacks = report.Feedbacks;
-            IEnumerable<GetFeedbackDTO> feedbackDtos = null;
-            List<GetFeedbackResponse> feedbackResponses = new List<GetFeedbackResponse>();
-            if (feedbacks is not null)
-            {
-                feedbackDtos = _mapper.Map<IEnumerable<GetFeedbackDTO>>(feedbacks);
-            }
-
-            if (feedbackDtos is not null)
-            {
-                Array.ForEach(feedbackDtos.ToArray(), feedbackDto =>
-                {
-                    GetFeedbackResponse feedbackResponse = new GetFeedbackResponse();
-                    feedbackResponse.Id = feedbackDto.Id;
-                    feedbackResponse.CreatedDateTime = feedbackDto.CreatedDateTime;
-                    feedbackResponse.Content = feedbackDto.Content;
-
-                    if (report.IsTeamReport.Equals(true))
-                    {
-                        feedbackResponse.IsTeamReport = true;
-                    }
-
-                    User lecturer = _lecturerService.GetLecturerById(feedbackDto.AuthorId);
-                    feedbackResponse.Author = _mapper.Map<GetLecturerResponse>(lecturer);
-                    feedbackResponses.Add(feedbackResponse);
-                });
-            }
-
-            Week week = report.Week;
-            GetWeekResponse weekResponse = _mapper.Map<GetWeekResponse>(week);
-
-            IEnumerable<GetTeamWeeklyReportsEvidenceResponse> teamWeeklyReportsEvidenceResponses =
-                _mapper.Map<IEnumerable<GetTeamWeeklyReportsEvidenceResponse>>(report.ReportEvidences);
-
-            GetWeeklyReportDetailResponse getWeeklyReportDetailResponse =
+	        GetWeeklyReportDetailResponse getWeeklyReportDetailResponse =
 		        _mapper.Map<GetWeeklyReportDetailResponse>(report);
+	        _mapper.Map<User, StudentResponse>(reporter, getWeeklyReportDetailResponse.Reporter);
 	        if (report.Feedbacks != null)
 	        {
 		        Array.ForEach(report.Feedbacks.ToArray(), feedback =>

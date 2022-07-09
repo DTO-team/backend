@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -293,7 +293,6 @@ namespace CapstoneOnGoing.Services.Implements
 	        {
 		        return null;
 	        }
-
 	        User reporter = _unitOfWork.User.Get(x => x.Id == report.ReporterId, null, "Student").FirstOrDefault();
 	        reporter.Student.Semester = _unitOfWork.Semester.GetById(reporter.Student.SemesterId.Value);
 
@@ -333,15 +332,26 @@ namespace CapstoneOnGoing.Services.Implements
 
             GetWeeklyReportDetailResponse getWeeklyReportDetailResponse =
 		        _mapper.Map<GetWeeklyReportDetailResponse>(report);
-            getWeeklyReportDetailResponse.Reporter = _mapper.Map<Reporter>(reporter);
-            getWeeklyReportDetailResponse.Week = weekResponse;
-            getWeeklyReportDetailResponse.ReportsEvidences = teamWeeklyReportsEvidenceResponses;
-
-
-            if (feedbackResponses.Any())
-            {
-                getWeeklyReportDetailResponse.Feedbacks = feedbackResponses;
-            }
+	        if (report.Feedbacks != null)
+	        {
+		        Array.ForEach(report.Feedbacks.ToArray(), feedback =>
+		        {
+			        User lecturer = _unitOfWork.User.Get(x => x.Id == feedback.AuthorId, null, "Lecturer")
+				        .FirstOrDefault();
+			        if (lecturer != null)
+			        {
+				        GetLecturerResponse lecturerResponse = _mapper.Map<GetLecturerResponse>(lecturer);
+				        FeedbackResponse feedbackResponse = new FeedbackResponse()
+				        {
+					        Author = lecturerResponse,
+					        Content = feedback.Content,
+					        CreatedDateTime = feedback.CreatedDateTime,
+					        Id = feedback.Id
+				        };
+                        getWeeklyReportDetailResponse.Feedbacks.Add(feedbackResponse);
+			        }
+		        });
+	        }
             return getWeeklyReportDetailResponse;
         }
 
@@ -358,14 +368,22 @@ namespace CapstoneOnGoing.Services.Implements
 	        {
 		        throw new BadHttpRequestException("You are not mentors of this team");
 	        }
-			Report report = _unitOfWork.Report.GetById(reportId);
+	        Report report = _unitOfWork.Report.Get(x => x.Id == reportId,null, "Feedbacks").FirstOrDefault();
 			if (report == null)
 			{
 				throw new BadHttpRequestException("Report does not exist");
 			}
+
+			if (report.Feedbacks.Select(x => x.AuthorId).Contains(lecturer.Id))
+			{
+				throw new BadHttpRequestException("You have already feedback this report");
+			}
 			report.Feedbacks.Add(new Feedback()
 			{
-
+				AuthorId = lecturer.Id,
+                Content = feedbackReportRequest.Value,
+                ReportId = report.Id,
+                CreatedDateTime = DateTimeHelper.ConvertDateTimeToLong(DateTime.Now)
 			});
             _unitOfWork.Report.Update(report);
             bool isSuccessful = _unitOfWork.Save() > 0;

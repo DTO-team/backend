@@ -14,7 +14,7 @@ namespace Models.Response
 		public string NextWeekTasks { get; set; }
 		public string UrgentIssues { get; set; }
 		public string SelfAssessments { get; set; }
-		public IEnumerable<GetFeedbackResponse> Feedbacks { get; set; }
+		public IList<FeedbackResponse> Feedbacks { get; set; }
 		public GetWeekResponse Week { get; set; }
 		public IEnumerable<GetTeamWeeklyReportsEvidenceResponse> ReportsEvidences { get; set; }
     }
@@ -29,5 +29,13 @@ namespace Models.Response
 		public string Semester { get; set; }
 		public string Role { get; set; }
 		public UserStatusResponse Status { get; set; }
+	}
+
+	public class FeedbackResponse
+	{
+		public Guid Id { get; set; }
+		public string Content { get; set; }
+		public GetLecturerResponse Author { get; set; }
+		public long CreatedDateTime { get; set; }
 	}
 }

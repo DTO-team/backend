@@ -25,6 +25,8 @@ namespace Repository
         public virtual DbSet<CouncilProject> CouncilProjects { get; set; }
         public virtual DbSet<Criterion> Criteria { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
+        public virtual DbSet<EvaluationReport> EvaluationReports { get; set; }
+        public virtual DbSet<EvaluationReportDetail> EvaluationReportDetails { get; set; }
         public virtual DbSet<EvaluationSession> EvaluationSessions { get; set; }
         public virtual DbSet<EvaluationSessionCriterion> EvaluationSessionCriteria { get; set; }
         public virtual DbSet<Feedback> Feedbacks { get; set; }
@@ -50,7 +52,6 @@ namespace Repository
         public virtual DbSet<TopicLecturer> TopicLecturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Week> Weeks { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
@@ -196,6 +197,47 @@ namespace Repository
                     .HasMaxLength(255);
             });
 
+            modelBuilder.Entity<EvaluationReport>(entity =>
+            {
+                entity.ToTable("EvaluationReport");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.HasOne(d => d.EvaluationSession)
+                    .WithMany(p => p.EvaluationReports)
+                    .HasForeignKey(d => d.EvaluationSessionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EvaluationReport_EvaluationSessionID");
+
+                entity.HasOne(d => d.Team)
+                    .WithMany(p => p.EvaluationReports)
+                    .HasForeignKey(d => d.TeamId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EvaluationReport_TeamID");
+            });
+
+            modelBuilder.Entity<EvaluationReportDetail>(entity =>
+            {
+                entity.ToTable("EvaluationReportDetail");
+
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Url)
+                    .IsRequired()
+                    .HasMaxLength(2048)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.EvaluationReport)
+                    .WithMany(p => p.EvaluationReportDetails)
+                    .HasForeignKey(d => d.EvaluationReportId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EvaluationReportDetail_EvaluationReportID");
+            });
+
             modelBuilder.Entity<EvaluationSession>(entity =>
             {
                 entity.ToTable("EvaluationSession");
@@ -233,7 +275,7 @@ namespace Repository
             {
                 entity.ToTable("Feedback");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Content)
                     .IsRequired()
@@ -481,11 +523,11 @@ namespace Repository
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Review_CouncilID");
 
-                entity.HasOne(d => d.Lecturer)
+                entity.HasOne(d => d.Project)
                     .WithMany(p => p.Reviews)
-                    .HasForeignKey(d => d.LecturerId)
+                    .HasForeignKey(d => d.ProjectId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Review_LecturerID");
+                    .HasConstraintName("FK_Review_ProjectID");
             });
 
             modelBuilder.Entity<ReviewGrade>(entity =>

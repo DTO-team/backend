@@ -10,6 +10,7 @@ namespace Models.Models
         public EvaluationSession()
         {
             Councils = new HashSet<Council>();
+            EvaluationReports = new HashSet<EvaluationReport>();
             EvaluationSessionCriteria = new HashSet<EvaluationSessionCriterion>();
         }
 
@@ -20,6 +21,7 @@ namespace Models.Models
 
         public virtual Semester Semester { get; set; }
         public virtual ICollection<Council> Councils { get; set; }
+        public virtual ICollection<EvaluationReport> EvaluationReports { get; set; }
         public virtual ICollection<EvaluationSessionCriterion> EvaluationSessionCriteria { get; set; }
     }
 }

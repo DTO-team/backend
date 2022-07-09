@@ -10,6 +10,7 @@ namespace Models.Models
         public Team()
         {
             Applications = new HashSet<Application>();
+            EvaluationReports = new HashSet<EvaluationReport>();
             TeamStudents = new HashSet<TeamStudent>();
         }
 
@@ -24,6 +25,7 @@ namespace Models.Models
         public virtual Student TeamLeader { get; set; }
         public virtual Project Project { get; set; }
         public virtual ICollection<Application> Applications { get; set; }
+        public virtual ICollection<EvaluationReport> EvaluationReports { get; set; }
         public virtual ICollection<TeamStudent> TeamStudents { get; set; }
     }
 }

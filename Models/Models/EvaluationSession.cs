@@ -18,6 +18,8 @@ namespace Models.Models
         public Guid SemesterId { get; set; }
         public int Round { get; set; }
         public bool IsFinal { get; set; }
+        public int Status { get; set; }
+        public long? Deadline { get; set; }
 
         public virtual Semester Semester { get; set; }
         public virtual ICollection<Council> Councils { get; set; }

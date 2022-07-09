@@ -52,6 +52,7 @@ namespace Repository
         public virtual DbSet<TopicLecturer> TopicLecturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Week> Weeks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");

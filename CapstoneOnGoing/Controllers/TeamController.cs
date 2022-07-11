@@ -174,6 +174,8 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet("{id}/reports")]
+		[ProducesResponseType(typeof(GetTeamWeeklyReportResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult GetTeamReport(Guid id, [FromQuery] int week)
 		{
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);

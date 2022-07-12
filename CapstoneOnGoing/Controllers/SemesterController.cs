@@ -101,8 +101,10 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(currentWeekResponse);
 		}
 
-		//[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
 		[HttpGet("{id}/weeks")]
+		[ProducesResponseType(typeof(IEnumerable<GetWeekResponse>),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]
 		public IActionResult GetWeeksOfSemester(Guid id)
 		{
 			IEnumerable<Week> weeksOfSemester = _semesterService.GetWeeksOfSemester(id);

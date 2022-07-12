@@ -8,7 +8,7 @@ namespace Models.Response
 		public Guid Id { get; set; }
 		public Guid ProjectId { get; set; }
 		public bool IsTeamReport { get; set; }
-		public Guid ReporterId { get; set; }
+		public StudentResponse Reporter { get; set; }
 		public string CompletedTasks { get; set; }
 		public string InProgressTasks { get; set; }
 		public string NextWeekTasks { get; set; }

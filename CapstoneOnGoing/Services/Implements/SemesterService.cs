@@ -98,6 +98,17 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 		}
 
+		public IEnumerable<Week> GetWeeksOfSemester(Guid semesterId)
+		{
+			if (!semesterId.Equals(Guid.Empty) || semesterId != null)
+			{
+				IEnumerable<Week> weeks = _unitOfWork.Week.Get(x => x.SemesterId == semesterId);
+				return weeks;
+			}
+
+			return null;
+		}
+
 		private void GenerateWeeksForSemester(Semester semester, UpdateSemesterDTO semesterDto)
 		{
 			DateTime startDateOfSemester = DateTimeHelper.ConvertLongToDateTime(semesterDto.StartDayOfSemester);

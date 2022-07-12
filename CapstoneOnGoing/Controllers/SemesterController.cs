@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
@@ -80,6 +81,8 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
 		[HttpGet("{id}/weeks/current")]
+		[ProducesResponseType(typeof(GetWeekResponse),StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]
 		public IActionResult GetCurrentWeek(Guid id)
 		{
 			DateTime currentDateTime = DateTime.Now;
@@ -95,6 +98,24 @@ namespace CapstoneOnGoing.Controllers
 				});
 			}
 			GetWeekResponse currentWeekResponse = _mapper.Map<GetWeekResponse>(currentWeek);
+			return Ok(currentWeekResponse);
+		}
+
+		//[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+		[HttpGet("{id}/weeks")]
+		public IActionResult GetWeeksOfSemester(Guid id)
+		{
+			IEnumerable<Week> weeksOfSemester = _semesterService.GetWeeksOfSemester(id);
+			if (weeksOfSemester == null || !weeksOfSemester.Any())
+			{
+				return NotFound(new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status404NotFound,
+					Message = "Weeks of semester is not found",
+					TimeStamp = DateTime.Now
+				});
+			}
+			IEnumerable<GetWeekResponse> currentWeekResponse = _mapper.Map<IEnumerable<GetWeekResponse>>(weeksOfSemester);
 			return Ok(currentWeekResponse);
 		}
 	}

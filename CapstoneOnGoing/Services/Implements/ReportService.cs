@@ -23,14 +23,16 @@ namespace CapstoneOnGoing.Services.Implements
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILecturerService _lecturerService;
         private readonly IStudentService _studentService;
+        private readonly ITeamService _teamService;
 
-        public ReportService(ILoggerManager logger, IMapper mapper, IUnitOfWork unitOfWork, ILecturerService lecturerService, IStudentService studentService)
+        public ReportService(ILoggerManager logger, IMapper mapper, IUnitOfWork unitOfWork, ILecturerService lecturerService, IStudentService studentService, ITeamService teamService)
         {
             _logger = logger;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _lecturerService = lecturerService;
             _studentService = studentService;
+            _teamService = teamService;
         }
 
         private bool CreateWeeklyReport(Project currentProject, User user, CreateWeeklyReportDTO createWeeklyReportDTO,
@@ -231,8 +233,11 @@ namespace CapstoneOnGoing.Services.Implements
 	                    {
 		                    studentWeeklyReportResponse.Feedback = FeedbackResponses(studentWeeklyReport.Feedbacks, studentWeeklyReport);
 		                    User reporter = _studentService.GetStudentById(studentWeeklyReport.ReporterId);
-		                    studentWeeklyReportResponse.Reporter = _mapper.Map<StudentResponse>(reporter);
-	                    }
+                            StudentResponse studentDto = _mapper.Map<StudentResponse>(reporter);
+                            GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(studentDto.TeamId);
+                            studentDto.TeamDetail = teamDetailResponse;
+                            studentWeeklyReportResponse.Reporter = studentDto;
+                        }
 
 	                    GetTeamWeeklyReportResponse teamWeeklyReportResponse =
 		                    _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReports);

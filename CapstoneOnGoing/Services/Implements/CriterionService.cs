@@ -21,14 +21,14 @@ namespace CapstoneOnGoing.Services.Implements
             _mapper = mapper;
         }
 
-        public IEnumerable<CriterionDTO> GetAllCriterion()
+        public IEnumerable<CriteriaDTO> GetAllCriteria()
         {
             IEnumerable<Criterion> criterions = _unitOfWork.Criteria.Get(null, null, "Grades,Questions");
-            IEnumerable<CriterionDTO> criterionDtos;
+            IEnumerable<CriteriaDTO> criterionDtos;
 
             if (criterions.Any())
             {
-                criterionDtos = _mapper.Map<IEnumerable<CriterionDTO>>(criterions);
+                criterionDtos = _mapper.Map<IEnumerable<CriteriaDTO>>(criterions);
                 return criterionDtos;
             }
             else
@@ -37,19 +37,19 @@ namespace CapstoneOnGoing.Services.Implements
             }
         }
 
-        public CriterionDTO GetCriterionById(Guid criterionId)
+        public CriteriaDTO GetCriteriaById(Guid criteriaId)
         {
-            Criterion criterion = _unitOfWork.Criteria.Get(null, null, "Grades,Questions").FirstOrDefault();
-            CriterionDTO criterionDto;
+            Criterion criterion = _unitOfWork.Criteria.Get(criteria => criteria.Id.Equals(criteriaId), null, "Grades,Questions").FirstOrDefault();
+            CriteriaDTO criterionDto;
 
             if (criterion is not null)
             {
-                criterionDto = _mapper.Map<CriterionDTO>(criterion);
+                criterionDto = _mapper.Map<CriteriaDTO>(criterion);
                 return criterionDto;
             }
             else
             {
-                throw new BadHttpRequestException($"Criterion with {criterionId} id is not existed!");
+                throw new BadHttpRequestException($"Criterion with {criteriaId} id is not existed!");
             }
         }
     }

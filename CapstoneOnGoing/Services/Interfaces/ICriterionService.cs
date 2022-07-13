@@ -6,7 +6,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 {
     public interface ICriterionService
     {
-        IEnumerable<CriterionDTO> GetAllCriterion();
-        CriterionDTO GetCriterionById(Guid criterionId);
+        IEnumerable<CriteriaDTO> GetAllCriteria();
+        CriteriaDTO GetCriteriaById(Guid criteriaId);
     }
 }

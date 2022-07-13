@@ -27,43 +27,53 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
-
-
         [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<CriterionDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<CriteriaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetAllCriterion()
         {
-            IEnumerable<CriterionDTO> criterions = _criterionService.GetAllCriterion();
+            IEnumerable<CriteriaDTO> criterias = _criterionService.GetAllCriteria();
 
-            if (criterions.Any())
+            if (criterias.Any())
             {
-                return Ok(criterions);
+                return Ok(criterias);
             }
             else
             {
-                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetAllCriterion)}: Fail to get all criterion");
-                return Ok(criterions);
+                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetAllCriterion)}: Get all criteria failed!");
+                return Ok(criterias);
             }
         }
 
         [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(CriterionDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetCriterionById(Guid id)
         {
-            CriterionDTO criterion = _criterionService.GetCriterionById(id);
-
-            if (criterion is not null)
+            if (!id.Equals(Guid.Empty))
             {
-                return Ok(criterion);
+                CriteriaDTO criteria = _criterionService.GetCriteriaById(id);
+
+                if (criteria is not null)
+                {
+                    return Ok(criteria);
+                }
+                else
+                {
+                    _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Get criteria by id failed!");
+                    return Ok(criteria);
+                }
             }
             else
             {
-                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Fail to get criterion by id");
-                return Ok(criterion);
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = 400,
+                    Message = "Criteria id is required!",
+                    TimeStamp = DateTime.Now
+                });
             }
         }
     }

@@ -212,7 +212,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<Grade, GradeDTO>();
             CreateMap<Question, QuestionDTO>();
 
-            CreateMap<Criterion, CriterionDTO>();
+            CreateMap<Criterion, CriteriaDTO>();
         }
     }
 }

@@ -33,7 +33,7 @@ namespace CapstoneOnGoing.Controllers
             _userService = userService;
         }
 
-        [Authorize (Roles = "ADMIN,STUDENT,LECTURER")]
+        // [Authorize (Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetProjectDetailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

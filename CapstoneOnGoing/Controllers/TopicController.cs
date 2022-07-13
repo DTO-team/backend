@@ -120,7 +120,7 @@ using Models.Response;
 			}
 		}
 
-		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
         [HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetTopicsResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]

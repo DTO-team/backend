@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Models.Dtos;
+using Models.Request;
 
 namespace CapstoneOnGoing.Services.Interfaces
 {
     public interface ICriterionService
     {
-        IEnumerable<CriterionDTO> GetAllCriterion();
-        CriterionDTO GetCriterionById(Guid criterionId);
+        IEnumerable<CriteriaDTO> GetAllCriteria();
+        CriteriaDTO GetCriteriaById(Guid criteriaId);
+        CriteriaDTO GetCriteriaByCode(string criteriaCode);
+        bool CreateNewCriteria(CreateCriteriaRequest newCriteriaRequest);
     }
 }

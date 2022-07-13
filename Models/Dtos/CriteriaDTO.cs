@@ -7,7 +7,7 @@ using Models.Models;
 
 namespace Models.Dtos
 {
-    public class CriterionDTO
+    public class CriteriaDTO
     {
         public Guid Id { get; set; }
         public string Code { get; set; }

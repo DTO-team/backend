@@ -8,6 +8,7 @@ using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Models.Dtos;
+using Models.Request;
 using Models.Response;
 
 namespace CapstoneOnGoing.Controllers
@@ -26,6 +27,7 @@ namespace CapstoneOnGoing.Controllers
             _logger = logger;
             _mapper = mapper;
         }
+
 
         [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet]
@@ -48,6 +50,7 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetCriterionById(Guid id)
@@ -72,6 +75,31 @@ namespace CapstoneOnGoing.Controllers
                 {
                     HttpStatus = 400,
                     Message = "Criteria id is required!",
+                    TimeStamp = DateTime.Now
+                });
+            }
+           
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost]
+        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult CreateCriteria([FromBody] CreateCriteriaRequest createCriteriaRequest)
+        {
+            bool isSuccess = _criterionService.CreateNewCriteria(createCriteriaRequest);
+            if (isSuccess)
+            {
+                CriteriaDTO criteriaResponse = _criterionService.GetCriteriaByCode(createCriteriaRequest.Code);
+                return CreatedAtAction("CreateCriteria", criteriaResponse);
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Fail to get criterion by id");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = 400,
+                    Message = "Create new criteria failed!",
                     TimeStamp = DateTime.Now
                 });
             }

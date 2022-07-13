@@ -209,6 +209,11 @@ namespace CapstoneOnGoing.AutoMapperProfile
 	            .ForMember(dest => dest.Feedbacks, src => src.MapFrom(src => src.Feedbacks))
 	            .ForMember(dest => dest.ReportsEvidences, src => src.MapFrom(src => src.ReportEvidences));
             CreateMap<Feedback, GetFeedbackDTO>();
+
+            CreateMap<Grade, GradeDTO>();
+            CreateMap<Question, QuestionDTO>();
+
+            CreateMap<Criterion, CriteriaDTO>();
         }
     }
 }

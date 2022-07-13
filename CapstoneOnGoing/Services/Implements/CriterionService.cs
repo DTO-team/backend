@@ -91,7 +91,7 @@ namespace CapstoneOnGoing.Services.Implements
                     throw new BadHttpRequestException("Grade level only have 4 type: ACCEPTABLE, EXCELLENT, GOOD, FAIL");
                 }
             });
-            
+
             if (existedCriteriaDto is null)
             {
                 Criterion createCriteria = _mapper.Map<Criterion>(newCriteriaRequest);

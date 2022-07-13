@@ -35,37 +35,38 @@ namespace CapstoneOnGoing.Controllers
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetAllCriterion()
         {
-            IEnumerable<CriteriaDTO> criterions = _criterionService.GetAllCriteria();
+            IEnumerable<CriteriaDTO> criterias = _criterionService.GetAllCriteria();
 
-            if (criterions.Any())
+            if (criterias.Any())
             {
-                return Ok(criterions);
+                return Ok(criterias);
             }
             else
             {
-                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetAllCriterion)}: Get all criterion failed!");
-                return Ok(criterions);
+                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetAllCriterion)}: Get all criteria failed!");
+                return Ok(criterias);
             }
         }
 
         [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetCriterionById(Guid id)
         {
             if (!id.Equals(Guid.Empty))
             {
-                CriteriaDTO criterion = _criterionService.GetCriteriaById(id);
+                CriteriaDTO criteria = _criterionService.GetCriteriaById(id);
 
-                if (criterion is not null)
+                if (criteria is not null)
                 {
-                    return Ok(criterion);
+                    return Ok(criteria);
                 }
                 else
                 {
-                    _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Get criterion by id failed!");
-                    return Ok(criterion);
+                    _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Get criteria by id failed!");
+                    return Ok(criteria);
                 }
             }
             else

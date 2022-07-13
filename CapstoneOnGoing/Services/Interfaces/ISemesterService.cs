@@ -16,5 +16,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		bool UpdateSemester(Semester updatedSemester, UpdateSemesterDTO semesterDto);
 
 		Week GetCurrentWeek(Guid semesterId, long currentDateTime);
+
+		IEnumerable<Week> GetWeeksOfSemester(Guid semesterId);
 	}
 }

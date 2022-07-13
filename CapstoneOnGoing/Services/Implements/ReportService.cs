@@ -22,13 +22,15 @@ namespace CapstoneOnGoing.Services.Implements
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILecturerService _lecturerService;
+        private readonly IStudentService _studentService;
 
-        public ReportService(ILoggerManager logger, IMapper mapper, IUnitOfWork unitOfWork, ILecturerService lecturerService)
+        public ReportService(ILoggerManager logger, IMapper mapper, IUnitOfWork unitOfWork, ILecturerService lecturerService, IStudentService studentService)
         {
             _logger = logger;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _lecturerService = lecturerService;
+            _studentService = studentService;
         }
 
         private bool CreateWeeklyReport(Project currentProject, User user, CreateWeeklyReportDTO createWeeklyReportDTO,
@@ -225,14 +227,24 @@ namespace CapstoneOnGoing.Services.Implements
 		                    .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences,Feedbacks").FirstOrDefault();
 	                    GetTeamWeeklyReportResponse studentWeeklyReportResponse =
 		                    _mapper.Map<GetTeamWeeklyReportResponse>(studentWeeklyReport);
-                        studentWeeklyReportResponse.Feedback = FeedbackResponses(studentWeeklyReport.Feedbacks, studentWeeklyReport);
+	                    if (studentWeeklyReport != null && studentWeeklyReport.Feedbacks != null)
+	                    {
+		                    studentWeeklyReportResponse.Feedback = FeedbackResponses(studentWeeklyReport.Feedbacks, studentWeeklyReport);
+		                    User reporter = _studentService.GetStudentById(studentWeeklyReport.ReporterId);
+		                    studentWeeklyReportResponse.Reporter = _mapper.Map<StudentResponse>(reporter);
+	                    }
 
 	                    GetTeamWeeklyReportResponse teamWeeklyReportResponse =
 		                    _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReports);
-                        teamWeeklyReportResponse.Feedback = FeedbackResponses(teamWeeklyReports.Feedbacks, teamWeeklyReports);
+	                    if (teamWeeklyReports != null && teamWeeklyReports.Feedbacks != null)
+	                    {
+		                    teamWeeklyReportResponse.Feedback = FeedbackResponses(teamWeeklyReports.Feedbacks, teamWeeklyReports);
+		                    User reporter = _studentService.GetStudentById(teamWeeklyReports.ReporterId);
+		                    teamWeeklyReportResponse.Reporter = _mapper.Map<StudentResponse>(reporter);
+                        }
 
-	                        teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
-	                        teamWeeklyReportsResponse.Add(teamWeeklyReportResponse);
+	                    teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
+	                    teamWeeklyReportsResponse.Add(teamWeeklyReportResponse);
 	                    break;
                     case (int)RoleEnum.Lecturer:
                     case (int)RoleEnum.Admin:
@@ -243,22 +255,31 @@ namespace CapstoneOnGoing.Services.Implements
                         Report teamWeeklyReport = _unitOfWork.Report
 	                        .Get(x => x.WeekId == currentWeek.Id && x.IsTeamReport == true && x.ProjectId == team.Project.Id, null, "Week,ReportEvidences,Feedbacks").FirstOrDefault();
 	                    IEnumerable<GetTeamWeeklyReportResponse> studentWeeklyReportsResponse =
-		                    _mapper.Map<IEnumerable<GetTeamWeeklyReportResponse>>(studentWeeklyReports);
-                        Array.ForEach(studentWeeklyReportsResponse.ToArray(), studentWeeklyReportResponse =>
-                        {
-                            IEnumerable<GetFeedbackResponse> feedbackResponses = null;
-                            Array.ForEach(studentWeeklyReports.ToArray(), studentWeeklyReport =>
-                            {
-                                ICollection<Feedback> feedbacks = studentWeeklyReport.Feedbacks;
-                                feedbackResponses =
-                                    FeedbackResponses(feedbacks, studentWeeklyReport);
-                            });
-                            studentWeeklyReportResponse.Feedback = feedbackResponses;
-                        });
+		                    studentWeeklyReports != null
+			                    ? _mapper.Map<IEnumerable<GetTeamWeeklyReportResponse>>(studentWeeklyReports)
+			                    : null;
+	                    GetTeamWeeklyReportResponse teamsWeeklyReportResponse = teamWeeklyReport != null
+		                    ? _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReport)
+		                    : null;
+	                    if (studentWeeklyReportsResponse == null && teamsWeeklyReportResponse == null)
+	                    {
+		                    return null;
+	                    }
 
-	                    GetTeamWeeklyReportResponse teamsWeeklyReportResponse =
-		                    _mapper.Map<GetTeamWeeklyReportResponse>(teamWeeklyReport);
-
+	                    if (studentWeeklyReportsResponse != null)
+	                    {
+		                    Array.ForEach(studentWeeklyReportsResponse.ToArray(), studentWeeklyReportResponse =>
+		                    {
+			                    IEnumerable<GetFeedbackResponse> feedbackResponses = null;
+			                    Array.ForEach(studentWeeklyReports.ToArray(), studentWeeklyReport =>
+			                    {
+				                    ICollection<Feedback> feedbacks = studentWeeklyReport.Feedbacks;
+				                    feedbackResponses =
+					                    FeedbackResponses(feedbacks, studentWeeklyReport);
+			                    });
+			                    studentWeeklyReportResponse.Feedback = feedbackResponses;
+		                    });
+                        }
 	                    teamWeeklyReportsResponse.AddRange(studentWeeklyReportsResponse);
 	                    teamWeeklyReportsResponse.Add(teamsWeeklyReportResponse);
                         break;

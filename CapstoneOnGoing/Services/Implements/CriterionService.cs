@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
+using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -34,23 +35,23 @@ namespace CapstoneOnGoing.Services.Implements
             }
             else
             {
-                throw new BadHttpRequestException("Load criterion failed!");
+                throw new BadHttpRequestException("Load criterias failed!");
             }
         }
 
         public CriteriaDTO GetCriteriaById(Guid criteriaId)
         {
-            Criterion criterion = _unitOfWork.Criteria.Get(criteria => criteria.Id.Equals(criteriaId), null, "Grades,Questions").FirstOrDefault();
-            CriteriaDTO criterionDto;
+            Criterion criteria = _unitOfWork.Criteria.Get(criteria => criteria.Id.Equals(criteriaId), null, "Grades,Questions").FirstOrDefault();
+            CriteriaDTO criteriaDto;
 
-            if (criterion is not null)
+            if (criteria is not null)
             {
-                criterionDto = _mapper.Map<CriteriaDTO>(criterion);
-                return criterionDto;
+                criteriaDto = _mapper.Map<CriteriaDTO>(criteria);
+                return criteriaDto;
             }
             else
             {
-                throw new BadHttpRequestException($"Criterion with {criteriaId} id is not existed!");
+                throw new BadHttpRequestException($"Criteria with {criteriaId} id is not existed!");
             }
         }
 
@@ -78,6 +79,19 @@ namespace CapstoneOnGoing.Services.Implements
         public bool CreateNewCriteria(CreateCriteriaRequest newCriteriaRequest)
         {
             CriteriaDTO existedCriteriaDto = GetCriteriaByCode(newCriteriaRequest.Code);
+            
+            Array.ForEach(newCriteriaRequest.GradesRequest.ToArray(), gradeRequest =>
+            {
+                string gradeLevel = gradeRequest.Level.ToUpper();
+                if (!(gradeLevel.Equals(GradeLevels.ACCEPTABLE.ToString())
+                    || gradeLevel.Equals(GradeLevels.EXCELLENT.ToString())
+                    || gradeLevel.Equals(GradeLevels.GOOD.ToString())
+                    || gradeLevel.Equals(GradeLevels.FAIL.ToString())))
+                {
+                    throw new BadHttpRequestException("Grade level only have 4 type: ACCEPTABLE, EXCELLENT, GOOD, FAIL");
+                }
+            });
+            
             if (existedCriteriaDto is null)
             {
                 Criterion createCriteria = _mapper.Map<Criterion>(newCriteriaRequest);

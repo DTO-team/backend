@@ -80,9 +80,9 @@ namespace CapstoneOnGoing.Controllers
            
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult CreateCriteria([FromBody] CreateCriteriaRequest createCriteriaRequest)
         {
@@ -90,7 +90,7 @@ namespace CapstoneOnGoing.Controllers
             if (isSuccess)
             {
                 CriteriaDTO criteriaResponse = _criterionService.GetCriteriaByCode(createCriteriaRequest.Code);
-                return Ok(criteriaResponse);
+                return CreatedAtAction("CreateCriteria", criteriaResponse);
             }
             else
             {

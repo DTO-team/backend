@@ -214,8 +214,10 @@ namespace CapstoneOnGoing.AutoMapperProfile
 
             CreateMap<Criterion, CriteriaDTO>();
 
-            CreateMap<CriterionGradeRequest, Grade>();
-            CreateMap<CriterionQuestionRequest, Question>();
+            CreateMap<CriterionGradeRequest, Grade>()
+                .ForMember(dest => dest.Level, src => src.MapFrom(src => src.Level.ToUpper()));
+            CreateMap<CriterionQuestionRequest, Question>()
+                .ForMember(dest => dest.Priority, src => src.MapFrom(src => src.Priority.ToUpper()));
 
             CreateMap<CreateCriteriaRequest, Criterion>()
                 .ForMember(dest => dest.Grades, src => src.Ignore())

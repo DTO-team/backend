@@ -217,7 +217,7 @@ namespace CapstoneOnGoing.Services.Implements
 		        throw new BadHttpRequestException("User does not exits");
 	        }
             //check if user is student in team or mentor of the team
-	        if (team.TeamStudents.Select(x => x.StudentId).Contains(user.Id) || team.Project.Mentors.Select(x => x.LecturerId).Contains(user.Id))
+	        if (team.TeamStudents.Select(x => x.StudentId).Contains(user.Id) || team.Project.Mentors.Select(x => x.LecturerId).Contains(user.Id) || user.RoleId == (int)RoleEnum.Admin)
 	        {
 		        List<GetTeamWeeklyReportResponse> teamWeeklyReportsResponse = new List<GetTeamWeeklyReportResponse>(); 
 		        switch (user.RoleId)
@@ -294,7 +294,7 @@ namespace CapstoneOnGoing.Services.Implements
 	        }
 	        else
 	        {
-		        throw new BadHttpRequestException("You can view this team report");
+		        throw new BadHttpRequestException("You can not view this team report");
 	        }
         }
 

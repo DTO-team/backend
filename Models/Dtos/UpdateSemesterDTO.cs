@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Models.Request;
 
 namespace Models.Dtos
 {
@@ -15,5 +16,7 @@ namespace Models.Dtos
 		public int Status { get; set; }
 
 		public long StartDayOfSemester { get; set; }
+
+		public IEnumerable<CreateEvaluationSessionRequest> CreateEvaluationSessionRequests { get; set; }
 	}
 }

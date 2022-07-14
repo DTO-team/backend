@@ -8,6 +8,7 @@ using System.Linq;
 using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Helper;
 using Microsoft.AspNetCore.Http;
+using Models.Request;
 using Models.Response;
 
 namespace CapstoneOnGoing.Services.Implements
@@ -65,6 +66,7 @@ namespace CapstoneOnGoing.Services.Implements
 						updatedSemester.Status = semesterDto.Status;
 						//Generate week based on start day of semester
 						GenerateWeeksForSemester(updatedSemester, semesterDto);
+						CreateEvaluationSession(semesterDto);
 						_unitOfWork.Semester.Update(updatedSemester);
 						_unitOfWork.Save();
 						isSuccessful = true;
@@ -135,6 +137,27 @@ namespace CapstoneOnGoing.Services.Implements
 				startDateOfSemester = previousMonday.AddDays(GetNextMonday);
 			}
 			_unitOfWork.Week.InsertRange(weeksOfSemester);
+		}
+
+		private void CreateEvaluationSession(UpdateSemesterDTO updatedSemester)
+		{
+			if (updatedSemester.CreateEvaluationSessionRequests != null)
+			{
+				ICollection<EvaluationSession> evaluationSessions = new List<EvaluationSession>();
+				Array.ForEach(updatedSemester.CreateEvaluationSessionRequests.ToArray(), createEvaluationSessionRequest =>
+				{
+					EvaluationSession evaluationSession = new EvaluationSession()
+					{
+						SemesterId = updatedSemester.Id,
+						Round = createEvaluationSessionRequest.Round,
+						IsFinal = createEvaluationSessionRequest.IsFinal,
+						Status = createEvaluationSessionRequest.Status,
+						Deadline = createEvaluationSessionRequest.Deadline
+					};
+					evaluationSessions.Add(evaluationSession);
+				});
+				_unitOfWork.EvaluationSession.InsertRange(evaluationSessions);
+			}
 		}
 	}
 }

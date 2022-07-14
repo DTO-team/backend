@@ -32,6 +32,7 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet]
+		[ProducesResponseType(typeof(IEnumerable<GetSemesterDTO>),StatusCodes.Status200OK)]
 		public IActionResult GetAllSemester([FromQuery] int page, [FromQuery] int limit)
 		{
 			IEnumerable<Semester> semesters = _semesterService.GetAllSemesters(page, limit);

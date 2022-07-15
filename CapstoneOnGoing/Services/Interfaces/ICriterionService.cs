@@ -11,5 +11,6 @@ namespace CapstoneOnGoing.Services.Interfaces
         CriteriaDTO GetCriteriaById(Guid criteriaId);
         CriteriaDTO GetCriteriaByCode(string criteriaCode);
         bool CreateNewCriteria(CreateCriteriaRequest newCriteriaRequest);
+        bool UpdateCriteria(Guid criteriaId,UpdateCriteriaRequest updateCriteriaRequest);
     }
 }

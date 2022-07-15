@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Models.Models;
 
 namespace Models.Dtos
 {
@@ -14,7 +10,7 @@ namespace Models.Dtos
         public string Name { get; set; }
         public string Evaluation { get; set; }
 
-        public virtual ICollection<GradeDTO> Grades { get; set; }
-        public virtual ICollection<QuestionDTO> Questions { get; set; }
+        public ICollection<GradeDTO> Grades { get; set; }
+        public ICollection<QuestionDTO> Questions { get; set; }
     }
 }

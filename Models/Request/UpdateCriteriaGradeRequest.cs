@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace Models.Dtos
-{
-    public class GradeDTO
+namespace Models.Request
+{ 
+    public class UpdateCriteriaGradeRequest
     {
         public Guid Id { get; set; }
-        public Guid CriteriaId { get; set; }
         public string Level { get; set; }
         public int MinPoint { get; set; }
         public int MaxPoint { get; set; }

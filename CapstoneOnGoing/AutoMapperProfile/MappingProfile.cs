@@ -223,6 +223,14 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<CreateCriteriaRequest, Criterion>()
                 .ForMember(dest => dest.Grades, src => src.Ignore())
                 .ForMember(dest => dest.Questions, src => src.Ignore());
+
+            CreateMap<Grade, UpdateCriteriaGradeRequest>();
+
+            CreateMap<UpdateCriteriaGradeRequest, Grade>();
+            CreateMap<UpdateCriteriaQuestionRequest, Question>();
+            CreateMap<UpdateCriteriaRequest, Criterion>()
+                .ForMember(dest => dest.Grades, src => src.Ignore())
+                .ForMember(dest => dest.Questions, src => src.Ignore());
         }
     }
 }

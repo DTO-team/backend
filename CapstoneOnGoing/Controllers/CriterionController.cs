@@ -50,7 +50,6 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetCriterionById(Guid id)
@@ -95,11 +94,33 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
-                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Fail to get criterion by id");
+                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Fail to create new criteria");
                 return BadRequest(new GenericResponse()
                 {
                     HttpStatus = 400,
                     Message = "Create new criteria failed!",
+                    TimeStamp = DateTime.Now
+                });
+            }
+        }
+
+        [HttpPatch]
+        [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
+        public IActionResult UpdateCriteria([FromQuery] Guid criteriaId,[FromBody] UpdateCriteriaRequest updateCriteriaRequest)
+        {
+            bool isSuccess = _criterionService.UpdateCriteria(criteriaId, updateCriteriaRequest);
+            if (isSuccess)
+            {
+                CriteriaDTO criteriaResponse = _criterionService.GetCriteriaById(criteriaId);
+                return Ok(criteriaResponse);
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(UpdateCriteria)}: Fail to update criteria");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = 400,
+                    Message = "Update criteria failed!",
                     TimeStamp = DateTime.Now
                 });
             }

@@ -25,29 +25,5 @@ namespace CapstoneOnGoing.Controllers
 			_mapper = mapper;
 			_councilService = countService;
 		}
-
-		[Authorize(Roles = "ADMIN")]
-		[HttpPost]
-		public IActionResult CreateCouncil([FromBody] CreateCouncilRequest createCouncilRequest)
-		{
-			bool isSuccessful = _councilService.CreateCouncil(createCouncilRequest);
-			if (!isSuccessful)
-			{
-				_logger.LogWarn($"Controller: {nameof(CouncilController)}, Method: {nameof(CreateCouncil)}: Create Council failed");
-				return BadRequest(new GenericResponse()
-				{
-					HttpStatus = StatusCodes.Status400BadRequest,
-					Message = "Create Council failed",
-					TimeStamp = DateTime.Now
-				});
-			}
-
-			return CreatedAtAction(nameof(CreateCouncil),new GenericResponse()
-			{
-				HttpStatus = StatusCodes.Status201Created,
-				Message = "Create council successfully",
-				TimeStamp = DateTime.Now,
-			});
-		}
 	}
 }

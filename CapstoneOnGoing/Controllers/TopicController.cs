@@ -14,7 +14,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
  using Microsoft.Extensions.Caching.Distributed;
- using Models.Dtos;
+using Microsoft.Extensions.Primitives;
+using Models.Dtos;
  using Models.Request;
 using Models.Response;
  using Newtonsoft.Json;
@@ -50,6 +51,18 @@ using Models.Response;
 			PagedResponse<IEnumerable<GetTopicsResponse>> pagedResponse;
 			string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			string route = Request.Path.Value;
+			var headers = Request.Headers;
+			StringValues currentSemester;
+			if (!headers.Keys.Contains("currentSemester") || !headers.TryGetValue("currentSemester", out currentSemester))
+			{
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllTopics)}: Semester {currentSemester}");
+				return BadRequest(new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status400BadRequest,
+					Message = "Request does not have semester",
+					TimeStamp = DateTime.Now
+				});
+			}
 			PaginationFilter validFilter;
 			if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
 			    string.IsNullOrWhiteSpace(paginationFilter.SearchString))
@@ -72,7 +85,8 @@ using Models.Response;
 			//	var pageResponse =  PaginationHelper<GetTopicsResponse>.CreatePagedResponse(topicsResponse,validFilter,)
 			//	return Ok();
 			//}
-			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(validFilter, email, out int totalRecords);
+			GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentSemester.ToString());
+			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(validFilter, email, semesterDto, out int totalRecords);
 			if (topicsDtos != null)
 			{
 				IEnumerable<GetTopicsResponse> getTopicsResponses = _mapper.Map<IEnumerable<GetTopicsResponse>>(topicsDtos);

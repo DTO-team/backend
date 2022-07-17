@@ -278,7 +278,12 @@ namespace CapstoneOnGoing.Services.Implements
 			                    IEnumerable<GetFeedbackResponse> feedbackResponses = null;
 			                    Array.ForEach(studentWeeklyReports.ToArray(), studentWeeklyReport =>
 			                    {
-				                    ICollection<Feedback> feedbacks = studentWeeklyReport.Feedbacks;
+				                    User reporter = _studentService.GetStudentById(studentWeeklyReport.ReporterId);
+				                    StudentResponse studentDto = _mapper.Map<StudentResponse>(reporter);
+				                    GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(studentDto.TeamId);
+				                    studentDto.TeamDetail = teamDetailResponse;
+				                    studentWeeklyReportResponse.Reporter = studentDto;
+                                    ICollection<Feedback> feedbacks = studentWeeklyReport.Feedbacks;
 				                    feedbackResponses =
 					                    FeedbackResponses(feedbacks, studentWeeklyReport);
 			                    });

@@ -30,7 +30,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
 
-        // [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<CriteriaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -49,7 +49,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -81,7 +81,7 @@ namespace CapstoneOnGoing.Controllers
            
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -105,7 +105,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize (Roles = "ADMIN")]
+        [Authorize (Roles = "ADMIN")]
         [HttpPatch]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
         public IActionResult UpdateCriteria([FromQuery] Guid criteriaId,[FromBody] UpdateCriteriaRequest updateCriteriaRequest)
@@ -128,7 +128,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -152,7 +152,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("{id}/grade")]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -199,7 +199,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-        // [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("{id}/question")]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

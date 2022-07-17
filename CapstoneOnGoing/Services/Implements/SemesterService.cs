@@ -168,22 +168,42 @@ namespace CapstoneOnGoing.Services.Implements
 						{
 							throw new BadHttpRequestException($"No questions or grades for {criteria.Name} criteria");
 						}
-						Array.ForEach(grades.ToArray(), grade =>
-						{
-							
-						});
 						SemesterCriterion semesterCriterion = new SemesterCriterion()
 						{
-							Id = criteria.Id,
+							Id = Guid.NewGuid(),
 							Name = criteria.Name,
 							Code = criteria.Code,
 							SemesterId = updatedSemester.Id,
 							Evaluation = criteria.Evaluation
 						};
+						Array.ForEach(grades.ToArray(), grade =>
+						{
+							GradeCopy gradeCopy = new GradeCopy()
+							{
+								Id = grade.Id,
+								CriteriaId = semesterCriterion.Id,
+								Description = grade.Description,
+								Level = grade.Level,
+								MaxPoint = grade.MaxPoint,
+								MinPoint = grade.MinPoint
+							};
+							gradeCopyList.Add(gradeCopy);
+						});
+						Array.ForEach(questions.ToArray(), question =>
+						{
+							QuestionCopy questionCopy = new QuestionCopy()
+							{
+								Id = question.Id,
+								CriteriaId = semesterCriterion.Id,
+								Description = question.Description,
+								Priority = question.Priority,
+							};
+							questionCopyList.Add(questionCopy);
+						});
 						EvaluationSessionCriterion evaluationSessionCriterion = new EvaluationSessionCriterion()
 						{
 							Id = Guid.NewGuid(),
-							CriteriaId = criteria.Id,
+							CriteriaId = semesterCriterion.Id,
 							EvaluationSessionId = evaluationSession.Id
 						};
 						semesterCriteriaList.Add(semesterCriterion);
@@ -191,6 +211,8 @@ namespace CapstoneOnGoing.Services.Implements
 					});
 					evaluationSessions.Add(evaluationSession);
 				});
+				_unitOfWork.GradeCopy.InsertRange(gradeCopyList);
+				_unitOfWork.QuestionCopy.InsertRange(questionCopyList);
 				_unitOfWork.SememesterCriterion.InsertRange(semesterCriteriaList);
 				_unitOfWork.EvaluationSessionCriterion.InsertRange(evaluationSessionCriteriaList);
 				_unitOfWork.EvaluationSession.InsertRange(evaluationSessions);

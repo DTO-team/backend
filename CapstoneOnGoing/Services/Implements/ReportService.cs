@@ -308,11 +308,18 @@ namespace CapstoneOnGoing.Services.Implements
 		        throw new BadHttpRequestException("Team or student does not exist");
 	        }
 
-	        if (!team.TeamStudents.Select(x => x.StudentId).Contains(user.Id) ||
-	            !team.Project.Mentors.Select(x => x.LecturerId).Contains(user.Id))
+	        if (user.RoleId != (int) RoleEnum.Admin)
 	        {
-		        throw new BadHttpRequestException("You don't have permission to view this report");
-	        }
+		        IEnumerable<Guid> mentors = team.Project.Mentors.Select(x => x.LecturerId);
+		        bool isMentorOfProject = mentors.Contains(user.Id);
+		        IEnumerable<Guid> memberOfProjects = team.TeamStudents.Select(x => x.StudentId);
+		        bool isMemberOfProject = memberOfProjects.Contains(user.Id);
+		        if (!isMentorOfProject &&
+		            !isMemberOfProject)
+		        {
+			        throw new BadHttpRequestException("You don't have permission to view this report");
+		        }
+            }
 
 	        Report report = _unitOfWork.Report.Get(x => x.Id == reportId, null, "Reporter,ReportEvidences,Week,Feedbacks").FirstOrDefault();
 	        if (report == null)
@@ -320,8 +327,9 @@ namespace CapstoneOnGoing.Services.Implements
 		        return null;
 	        }
 
-	        User reporter = _unitOfWork.User.Get(x => x.Id == report.ReporterId, null, "Student").FirstOrDefault();
+	        User reporter = _unitOfWork.User.Get(x => x.Id == report.ReporterId, null, "Student,Role").FirstOrDefault();
 	        reporter.Student.Semester = _unitOfWork.Semester.GetById(reporter.Student.SemesterId.Value);
+	        reporter.Student.TeamStudents = _unitOfWork.TeamStudent.Get(x => x.StudentId == report.ReporterId).ToList();
 	        GetWeeklyReportDetailResponse getWeeklyReportDetailResponse =
 		        _mapper.Map<GetWeeklyReportDetailResponse>(report);
 	        _mapper.Map<User, StudentResponse>(reporter, getWeeklyReportDetailResponse.Reporter);

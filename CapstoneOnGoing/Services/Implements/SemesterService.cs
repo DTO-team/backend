@@ -147,6 +147,8 @@ namespace CapstoneOnGoing.Services.Implements
 				ICollection<EvaluationSessionCriterion> evaluationSessionCriteriaList =
 					new List<EvaluationSessionCriterion>();
 				ICollection<SemesterCriterion> semesterCriteriaList = new List<SemesterCriterion>();
+				ICollection<GradeCopy> gradeCopyList = new List<GradeCopy>();
+				ICollection<QuestionCopy> questionCopyList = new List<QuestionCopy>();
 				Array.ForEach(updatedSemester.CreateEvaluationSessionRequests.ToArray(), createEvaluationSessionRequest =>
 				{
 					EvaluationSession evaluationSession = new EvaluationSession()
@@ -160,6 +162,16 @@ namespace CapstoneOnGoing.Services.Implements
 					};
 					Array.ForEach(createEvaluationSessionRequest.Criterias.ToArray(), criteria =>
 					{
+						IEnumerable<Grade> grades = _unitOfWork.Grade.Get(x => x.CriteriaId == criteria.Id);
+						IEnumerable<Question> questions = _unitOfWork.Question.Get(x => x.CriteriaId == criteria.Id);
+						if (!grades.Any() || !questions.Any())
+						{
+							throw new BadHttpRequestException($"No questions or grades for {criteria.Name} criteria");
+						}
+						Array.ForEach(grades.ToArray(), grade =>
+						{
+							
+						});
 						SemesterCriterion semesterCriterion = new SemesterCriterion()
 						{
 							Id = criteria.Id,

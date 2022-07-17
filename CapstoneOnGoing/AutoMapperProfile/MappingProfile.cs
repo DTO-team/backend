@@ -221,16 +221,29 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.Priority, src => src.MapFrom(src => src.Priority.ToUpper()));
 
             CreateMap<CreateCriteriaRequest, Criterion>()
+                .ForMember(dest => dest.Code, src => src.MapFrom(src => src.Code.ToUpper()))
                 .ForMember(dest => dest.Grades, src => src.Ignore())
                 .ForMember(dest => dest.Questions, src => src.Ignore());
 
             CreateMap<Grade, UpdateCriteriaGradeRequest>();
 
-            CreateMap<UpdateCriteriaGradeRequest, Grade>();
-            CreateMap<UpdateCriteriaQuestionRequest, Question>();
+            CreateMap<UpdateCriteriaGradeRequest, Grade>()
+                .ForMember(dest => dest.Level, src => src.MapFrom(src=> src.Level.ToUpper())); 
+            CreateMap<UpdateCriteriaQuestionRequest, Question>()
+                .ForMember(dest => dest.Priority, src => src.MapFrom(src => src.Priority.ToUpper()));
             CreateMap<UpdateCriteriaRequest, Criterion>()
                 .ForMember(dest => dest.Grades, src => src.Ignore())
                 .ForMember(dest => dest.Questions, src => src.Ignore());
+
+            CreateMap<CreateNewCriteriaGradeRequest, Grade>()
+                .ForMember(dest=> dest.Level, src => src.MapFrom(src=> src.Level.ToUpper()))
+                .ForMember(dest => dest.Id, src => src.Ignore())
+                .ForMember(dest => dest.Criteria, src => src.Ignore());
+
+            CreateMap<CreateNewCriteriaQuestionRequest, Question>()
+                .ForMember(dest=> dest.Priority, src=>src.MapFrom(src => src.Priority.ToUpper()))
+                .ForMember(dest => dest.Id, src => src.Ignore())
+                .ForMember(dest => dest.Criteria, src => src.Ignore());
         }
     }
 }

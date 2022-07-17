@@ -13,5 +13,7 @@ namespace CapstoneOnGoing.Services.Interfaces
         bool CreateNewCriteria(CreateCriteriaRequest newCriteriaRequest);
         bool UpdateCriteria(Guid criteriaId,UpdateCriteriaRequest updateCriteriaRequest);
         bool DeleteCriteria(Guid criteriaId);
+        bool CreateNewCriteriaGrade(Guid criteriaId,CreateNewCriteriaGradeRequest newCriteriaGradeRequest);
+        bool CreateNewQuestionGrade(Guid criteriaId, CreateNewCriteriaQuestionRequest newCriteriaQuestionRequest);
     }
 }

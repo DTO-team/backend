@@ -82,7 +82,7 @@ namespace CapstoneOnGoing.Services.Implements
 
             if (!string.IsNullOrEmpty(newCriteriaRequest.Evaluation))
             {
-                newCriteriaRequest.Evaluation = "-" + newCriteriaRequest.Evaluation;
+                newCriteriaRequest.Evaluation = $"- {newCriteriaRequest.Evaluation}";
             }
             
             Array.ForEach(newCriteriaRequest.GradesRequest.ToArray(), gradeRequest =>
@@ -95,7 +95,24 @@ namespace CapstoneOnGoing.Services.Implements
                 {
                     throw new BadHttpRequestException("Grade level only have 4 type: ACCEPTABLE, EXCELLENT, GOOD, FAIL");
                 }
+                else
+                {
+                    gradeRequest.Level = gradeRequest.Level.ToUpper();
+                }
 
+                if (!gradeRequest.MaxPoint.Equals(0) && !gradeRequest.MinPoint.Equals(0))
+                {
+                    if (gradeRequest.MaxPoint < gradeRequest.MinPoint)
+                    {
+                        int minPoint = gradeRequest.MaxPoint;
+                        gradeRequest.MaxPoint = gradeRequest.MinPoint;
+                        gradeRequest.MinPoint = minPoint;
+                    }
+                }
+                else
+                {
+                    throw new BadHttpRequestException("Max point or Min point is cannot be 0!");
+                }
                 if (gradeRequest.MaxPoint < gradeRequest.MinPoint)
                 {
                     int minPoint = gradeRequest.MaxPoint;
@@ -155,6 +172,10 @@ namespace CapstoneOnGoing.Services.Implements
                             {
                                 throw new BadHttpRequestException($"Grade level on grade with {updateCriteriaGradeRequest.Id} id only have 4 type: ACCEPTABLE, EXCELLENT, GOOD, FAIL");
                             }
+                            else
+                            {
+                                gradeLevel = updateCriteriaGradeRequest.Level.ToUpper();
+                            }
 
                             if (updateCriteriaGradeRequest.MinPoint.Equals(0) || updateCriteriaGradeRequest.MaxPoint.Equals(0))
                             {
@@ -211,7 +232,7 @@ namespace CapstoneOnGoing.Services.Implements
                         else
                         {
                             throw new BadHttpRequestException(
-                                $"Question with {updateCriteriaQuestionRequest.Id} id is not existed in the criteria!"
+                                $"Question with {updateCriteriaQuestionRequest.Id} criteria id is not existed in the criteria!"
                                 );
                         }
                     }
@@ -227,7 +248,77 @@ namespace CapstoneOnGoing.Services.Implements
 
         public bool DeleteCriteria(Guid criteriaId)
         {
-            
+            if (!criteriaId.Equals(Guid.Empty))
+            {
+                CriteriaDTO criteria = GetCriteriaById(criteriaId);
+
+                if (criteria.Grades.Count > 0)
+                {
+                    IEnumerable<Grade> criteriaGrades =
+                        _unitOfWork.Grade.Get(grade => grade.CriteriaId.Equals(criteriaId));
+
+                    foreach (Grade deleteCriteriaGrade in criteriaGrades)
+                    {
+                        _unitOfWork.Grade.Delete(deleteCriteriaGrade);
+                    }
+                }
+
+                if (criteria.Questions.Count > 0)
+                {
+                    IEnumerable<Question> criteriaQuestions =
+                        _unitOfWork.Question.Get(question => question.CriteriaId.Equals(criteriaId));
+
+                    foreach (Question deleteCriteriaQuestion in criteriaQuestions)
+                    {
+                        _unitOfWork.Question.Delete(deleteCriteriaQuestion);
+                    }
+                }
+
+                Criterion deleteCriteria = _unitOfWork.Criteria.GetById(criteriaId);
+                _unitOfWork.Criteria.Delete(deleteCriteria);
+
+                return _unitOfWork.Save() > 0;
+            }
+            else
+            {
+                throw new BadHttpRequestException("Criteria Id to delete is empty!");
+            }
+        }
+
+        public bool CreateNewCriteriaGrade(Guid criteriaId, CreateNewCriteriaGradeRequest newCriteriaGradeRequest)
+        {
+            Criterion criteria = _unitOfWork.Criteria.GetById(criteriaId);
+            if (criteria is not null)
+            {
+                Grade newGrade = _mapper.Map<Grade>(newCriteriaGradeRequest);
+                newGrade.CriteriaId = criteriaId;
+
+                _unitOfWork.Grade.Insert(newGrade);
+                return _unitOfWork.Save() > 0;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Criteria with {criteriaId} is not existed!");
+            }
+        }
+
+        public bool CreateNewQuestionGrade(Guid criteriaId, CreateNewCriteriaQuestionRequest newCriteriaQuestionRequest)
+        {
+            Criterion criteria = _unitOfWork.Criteria.GetById(criteriaId);
+            if (criteria is not null)
+            {
+                newCriteriaQuestionRequest.Priority = newCriteriaQuestionRequest.Priority.ToUpper();
+                Question newQuestion = _mapper.Map<Question>(newCriteriaQuestionRequest);
+                newQuestion.CriteriaId = criteriaId;
+
+                _unitOfWork.Question.Insert(newQuestion);
+
+                return _unitOfWork.Save() > 0;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Criteria with {criteriaId} is not existed!");
+            }
         }
     }
 }

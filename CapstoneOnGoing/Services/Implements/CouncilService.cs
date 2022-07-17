@@ -21,9 +21,8 @@ namespace CapstoneOnGoing.Services.Implements
 			_logger = logger;
 		}
 
-		public bool CreateCouncil(CreateCouncilRequest createCouncilRequest)
+		public void CreateCouncil(CreateCouncilRequest createCouncilRequest)
 		{
-			bool isSuccessful = false;
 			if (createCouncilRequest == null)
 			{
 				throw new BadHttpRequestException("Create Council Request have no data");
@@ -45,27 +44,31 @@ namespace CapstoneOnGoing.Services.Implements
 				throw new BadHttpRequestException("Create Council request has invalid data");
 			}
 			//check if lecturers in councils is mentor of project
-			Array.ForEach(projects.ToArray(), project =>
+			bool isMentorOfProject = false;
+			Array.ForEach(lecturers.ToArray(), lecturer =>
 			{
-				var mentorsOfProject = from lecturer in lecturers join mentor in project.Mentors on lecturer.Id equals mentor.Id select new
+				Array.ForEach(projects.ToArray(), project =>
 				{
-					lecturer.Email,
-					project.Application
-				};
-				if (mentorsOfProject.Any())
-				{
-					throw new BadHttpRequestException(
-						$"Council has {mentorsOfProject.Select(x => x.Email)} are mentor of {project.Application.Topic.Name} project");
-				}
+					isMentorOfProject =  project.Mentors.Select(x => x.LecturerId).Contains(lecturer.Id);
+					if (isMentorOfProject)
+					{
+						throw new BadHttpRequestException(
+							$"Lecturer {lecturer.FullName} is mentor of the {project.Application.Topic.Name} project");
+					}
+				});
 			});
 			//create new council
-			Council newCouncil = new Council();
+			Council newCouncil = new Council()
+			{
+				Id = Guid.NewGuid()
+			};
 			ICollection<CouncilLecturer> councilLecturers = new List<CouncilLecturer>();
 			ICollection<CouncilProject> councilProjects = new List<CouncilProject>();
 			Array.ForEach(lecturers.ToArray(), lecturer =>
 			{
 				councilLecturers.Add(new CouncilLecturer()
 				{
+					Id = Guid.NewGuid(),
 					CouncilId = newCouncil.Id,
 					LecturerId = lecturer.Id,
 				});
@@ -74,6 +77,7 @@ namespace CapstoneOnGoing.Services.Implements
 			{
 				councilProjects.Add(new CouncilProject()
 				{
+					Id = Guid.NewGuid(),
 					CouncilId = newCouncil.Id,
 					ProjectId = project.Id
 				});
@@ -81,8 +85,7 @@ namespace CapstoneOnGoing.Services.Implements
 			newCouncil.EvaluationSessionId = evaluationSession.Id;
 			newCouncil.CouncilProjects = councilProjects;
 			newCouncil.CouncilLecturers = councilLecturers;
-			isSuccessful = _unitOfWork.Save() > 0;
-			return isSuccessful;
+			_unitOfWork.Councils.Insert(newCouncil);
 		}
 	}
 }

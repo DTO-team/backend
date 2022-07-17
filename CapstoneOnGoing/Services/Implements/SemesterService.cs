@@ -144,18 +144,43 @@ namespace CapstoneOnGoing.Services.Implements
 			if (updatedSemester.CreateEvaluationSessionRequests != null)
 			{
 				ICollection<EvaluationSession> evaluationSessions = new List<EvaluationSession>();
+				ICollection<EvaluationSessionCriterion> evaluationSessionCriteriaList =
+					new List<EvaluationSessionCriterion>();
+				ICollection<SemesterCriterion> semesterCriteriaList = new List<SemesterCriterion>();
 				Array.ForEach(updatedSemester.CreateEvaluationSessionRequests.ToArray(), createEvaluationSessionRequest =>
 				{
 					EvaluationSession evaluationSession = new EvaluationSession()
 					{
+						Id = Guid.NewGuid(),
 						SemesterId = updatedSemester.Id,
 						Round = createEvaluationSessionRequest.Round,
 						IsFinal = createEvaluationSessionRequest.IsFinal,
 						Status = createEvaluationSessionRequest.Status,
-						Deadline = createEvaluationSessionRequest.Deadline
+						Deadline = createEvaluationSessionRequest.Deadline,
 					};
+					Array.ForEach(createEvaluationSessionRequest.Criterias.ToArray(), criteria =>
+					{
+						SemesterCriterion semesterCriterion = new SemesterCriterion()
+						{
+							Id = criteria.Id,
+							Name = criteria.Name,
+							Code = criteria.Code,
+							SemesterId = updatedSemester.Id,
+							Evaluation = criteria.Evaluation
+						};
+						EvaluationSessionCriterion evaluationSessionCriterion = new EvaluationSessionCriterion()
+						{
+							Id = Guid.NewGuid(),
+							CriteriaId = criteria.Id,
+							EvaluationSessionId = evaluationSession.Id
+						};
+						semesterCriteriaList.Add(semesterCriterion);
+						evaluationSessionCriteriaList.Add(evaluationSessionCriterion);
+					});
 					evaluationSessions.Add(evaluationSession);
 				});
+				_unitOfWork.SememesterCriterion.InsertRange(semesterCriteriaList);
+				_unitOfWork.EvaluationSessionCriterion.InsertRange(evaluationSessionCriteriaList);
 				_unitOfWork.EvaluationSession.InsertRange(evaluationSessions);
 			}
 		}

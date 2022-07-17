@@ -94,7 +94,7 @@ namespace CapstoneOnGoing.Controllers
             }
             else
             {
-                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Fail to create new criteria");
+                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(GetCriterionById)}: Create new criteria failed");
                 return BadRequest(new GenericResponse()
                 {
                     HttpStatus = 400,
@@ -104,6 +104,7 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
+        [Authorize (Roles = "ADMIN")]
         [HttpPatch]
         [ProducesResponseType(typeof(CriteriaDTO), StatusCodes.Status200OK)]
         public IActionResult UpdateCriteria([FromQuery] Guid criteriaId,[FromBody] UpdateCriteriaRequest updateCriteriaRequest)
@@ -125,5 +126,29 @@ namespace CapstoneOnGoing.Controllers
                 });
             }
         }
+
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult DeleteCriteria([FromQuery] Guid criteriaId)
+        {
+            bool isSuccess = _criterionService.DeleteCriteria(criteriaId);
+
+            if (isSuccess)
+            {
+                return NoContent();
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(CriterionController)},Method: {nameof(DeleteCriteria)}: Fail to delete criteria");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = 400,
+                    Message = "Delete criteria failed!",
+                    TimeStamp = DateTime.Now
+                });
+            }
+        }
+
     }
 }

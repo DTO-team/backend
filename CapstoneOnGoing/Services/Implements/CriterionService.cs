@@ -224,5 +224,10 @@ namespace CapstoneOnGoing.Services.Implements
                 throw new BadHttpRequestException($"Criteria with {criteriaId} id is not existed");
             }
         }
+
+        public bool DeleteCriteria(Guid criteriaId)
+        {
+            
+        }
     }
 }

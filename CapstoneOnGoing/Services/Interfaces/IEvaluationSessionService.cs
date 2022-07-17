@@ -1,9 +1,14 @@
-﻿using Models.Request;
+﻿using System;
+using System.Collections.Generic;
+using Models.Request;
+using Models.Response;
 
 namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface IEvaluationSessionService
 	{
 		bool UpdateEvaluationSessionStatus(UpdateEvaluationSessionRequest updateEvaluationSessionRequest);
+		IEnumerable<GetEvaluationSessionResponse> GetAllEvaluationSession(Guid semesterId);
+		GetEvaluationSessionResponse GetEvaluationSessionById(Guid evaluationId,Guid semesterId);
 	}
 }

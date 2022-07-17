@@ -244,6 +244,9 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest=> dest.Priority, src=>src.MapFrom(src => src.Priority.ToUpper()))
                 .ForMember(dest => dest.Id, src => src.Ignore())
                 .ForMember(dest => dest.Criteria, src => src.Ignore());
+
+            CreateMap<SemesterCriterion, GetSemesterCriteriaResponse>();
+            CreateMap<EvaluationSession, GetEvaluationSessionResponse>();
         }
     }
 }

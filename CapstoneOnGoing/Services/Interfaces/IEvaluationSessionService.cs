@@ -1,7 +1,9 @@
-﻿namespace CapstoneOnGoing.Services.Interfaces
+﻿using Models.Request;
+
+namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface IEvaluationSessionService
 	{
-		
+		bool UpdateEvaluationSessionStatus(UpdateEvaluationSessionRequest updateEvaluationSessionRequest);
 	}
 }

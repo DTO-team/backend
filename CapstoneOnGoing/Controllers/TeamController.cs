@@ -180,10 +180,10 @@ namespace CapstoneOnGoing.Controllers
 		{
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			var headers = Request.Headers;
-			StringValues currentsemester;
-			if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out currentsemester))
+			StringValues currentSemester;
+			if (!headers.Keys.Contains("currentSemester") || !headers.TryGetValue("currentSemester", out currentSemester))
 			{
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetTeamReport)}: Semester {currentsemester}");
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetTeamReport)}: Semester {currentSemester}");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -193,7 +193,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 			else
 			{
-				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
+				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentSemester.ToString());
 				List<GetTeamWeeklyReportResponse> teamWeeklyReportResponses =
 					_reportService.GetTeamWeeklyReport(id, week, semesterDto, userEmail);
 				return Ok(teamWeeklyReportResponses);

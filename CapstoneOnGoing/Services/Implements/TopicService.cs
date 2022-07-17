@@ -84,17 +84,17 @@ namespace CapstoneOnGoing.Services.Implements
 			return isSuccessful;
 		}
 
-		public IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter, string email, out int totalRecords)
+		public IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter, string email,GetSemesterDTO currentSemester, out int totalRecords)
 		{
 			//get current semester 
-			Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
-			if (currentSemester is not null)
+			Semester semester = _unitOfWork.Semester.Get(x => x.Id == currentSemester.Id).FirstOrDefault();
+			if (semester is not null)
 			{
 				if (string.IsNullOrEmpty(validFilter.SearchString) ||
 					string.IsNullOrWhiteSpace(validFilter.SearchString))
 				{
-					totalRecords = _unitOfWork.Topic.Get(x => (x.SemesterId == currentSemester.Id && x.Name.Contains(validFilter.SearchString))).Count();
-					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => (x.SemesterId == currentSemester.Id && x.Name.Contains(validFilter.SearchString)), null, "TopicLecturers", validFilter.PageNumber, validFilter.PageSize);
+					totalRecords = _unitOfWork.Topic.Get(x => (x.SemesterId == semester.Id && x.Name.Contains(validFilter.SearchString))).Count();
+					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => (x.SemesterId == semester.Id && x.Name.Contains(validFilter.SearchString)), null, "TopicLecturers", validFilter.PageNumber, validFilter.PageSize);
 					IEnumerable<GetTopicsDTO> getTopicsDtos = null;
 					if (topics.Any())
 					{
@@ -115,7 +115,7 @@ namespace CapstoneOnGoing.Services.Implements
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
 						}
 					});
-					SetIsRegisteredInGetAllTopics(email, getTopicsDtos, currentSemester);
+					SetIsRegisteredInGetAllTopics(email, getTopicsDtos, semester);
 					return getTopicsDtos;
 				}
 				else
@@ -142,7 +142,7 @@ namespace CapstoneOnGoing.Services.Implements
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
 						}
 					});
-					SetIsRegisteredInGetAllTopics(email, getTopicsDtos, currentSemester);
+					SetIsRegisteredInGetAllTopics(email, getTopicsDtos, semester);
 					return getTopicsDtos;
 				}
 			}

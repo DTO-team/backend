@@ -180,10 +180,10 @@ namespace CapstoneOnGoing.Controllers
 		{
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			var headers = Request.Headers;
-			StringValues currentSemester;
-			if (!headers.Keys.Contains("currentSemester") || !headers.TryGetValue("currentSemester", out currentSemester))
-			{
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetTeamReport)}: Semester {currentSemester}");
+            StringValues currentsemester;
+            if (!string.Equals(headers.Keys.ToString(), "currentsemester", StringComparison.OrdinalIgnoreCase) || !headers.TryGetValue("currentsemester", out currentsemester))
+            {
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetTeamReport)}: Semester {currentsemester}");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -193,7 +193,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 			else
 			{
-				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentSemester.ToString());
+				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
 				List<GetTeamWeeklyReportResponse> teamWeeklyReportResponses =
 					_reportService.GetTeamWeeklyReport(id, week, semesterDto, userEmail);
 				return Ok(teamWeeklyReportResponses);
@@ -240,7 +240,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		// [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		[HttpGet("{id}/reports/{reportId}")]
 		[ProducesResponseType(typeof(GetWeeklyReportDetailResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status404NotFound)]

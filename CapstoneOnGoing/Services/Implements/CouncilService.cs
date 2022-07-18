@@ -4,6 +4,7 @@ using System.Linq;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Repository.Interfaces;
@@ -15,13 +16,13 @@ namespace CapstoneOnGoing.Services.Implements
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILoggerManager _logger;
 
-		public CouncilService(IUnitOfWork unitOfWork, ILoggerManager logger)
-		{
-			_unitOfWork = unitOfWork;
-			_logger = logger;
-		}
+        public CouncilService(IUnitOfWork unitOfWork, ILoggerManager logger)
+        {
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+        }
 
-		public void CreateCouncil(CreateCouncilRequest createCouncilRequest)
+        public void CreateCouncil(CreateCouncilRequest createCouncilRequest)
 		{
 			if (createCouncilRequest == null)
 			{
@@ -87,5 +88,5 @@ namespace CapstoneOnGoing.Services.Implements
 			newCouncil.CouncilLecturers = councilLecturers;
 			_unitOfWork.Councils.Insert(newCouncil);
 		}
-	}
+    }
 }

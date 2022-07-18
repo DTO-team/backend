@@ -103,5 +103,22 @@ namespace CapstoneOnGoing.Services.Implements
             }
             return projectDto;
         }
+
+        public IEnumerable<GetAllProjectsDetailDTO> GetAllCouncilProject(Guid councilId)
+        {
+            Council council = _unitOfWork.Councils.GetCouncilWithProjectAndTeamById(councilId);
+            if (council is not null)
+            {
+                IEnumerable<CouncilProject> councilProjects = council.CouncilProjects;
+
+                foreach (CouncilProject councilProject in councilProjects)
+                {
+                    GetProjectDetailDTO projectDetailDto = GetProjectDetailById(councilProject.ProjectId);
+                    
+                }
+            }
+
+            throw new NotImplementedException();
+        }
     }
 }

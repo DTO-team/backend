@@ -9,5 +9,6 @@ namespace Repository.Interfaces
 {
     public interface ICouncilRepository : IGenericRepository<Council>
     {
+        Council GetCouncilWithProjectAndTeamById(Guid councilId);
     }
 }

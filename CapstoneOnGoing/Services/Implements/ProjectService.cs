@@ -27,10 +27,10 @@ namespace CapstoneOnGoing.Services.Implements
             _teamService = teamService;
         }
 
-        public IEnumerable<GetAllProjectsDetailDTO> GetAllProjectResponse(PaginationFilter validFilter, out int totalRecords)
+        public IEnumerable<GetAllProjectsDetailDTO> GetAllProjectResponse(string SearchString)
         {
             IEnumerable<Project> projects = _unitOfWork.Project
-                .GetAllProjectWithMentorTeamAndTeamStudents(validFilter.SearchString, validFilter.PageNumber, validFilter.PageSize, out totalRecords);
+                .GetAllProjectWithMentorTeamAndTeamStudents(SearchString);
 
             List<GetAllProjectsDetailDTO> allProjectsDetailDetailDtos = new List<GetAllProjectsDetailDTO>();
 

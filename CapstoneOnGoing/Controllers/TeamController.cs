@@ -181,7 +181,7 @@ namespace CapstoneOnGoing.Controllers
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			var headers = Request.Headers;
             StringValues currentsemester;
-            if (!string.Equals(headers.Keys.ToString(), "currentsemester", StringComparison.OrdinalIgnoreCase) || !headers.TryGetValue("currentsemester", out currentsemester))
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out currentsemester))
             {
 				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetTeamReport)}: Semester {currentsemester}");
 				return BadRequest(new GenericResponse()

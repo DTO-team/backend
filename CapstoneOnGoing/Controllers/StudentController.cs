@@ -36,7 +36,7 @@ namespace CapstoneOnGoing.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        // [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<StudentResponse>), StatusCodes.Status200OK)]
         public IActionResult GetAllStudents()

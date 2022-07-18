@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CapstoneOnGoing.Enums;
+using Models.Response;
 
 namespace CapstoneOnGoing.Services.Implements
 {
@@ -30,24 +31,28 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Get list student
-        public IEnumerable<User> GetAllStudents()
+        public IEnumerable<StudentResponse> GetAllStudents()
         {
             IEnumerable<User> students;
+            students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null, "Student");
 
-            students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null);
+            List<StudentResponse> studentResponses = new List<StudentResponse>();
             foreach (User student in students)
             {
-                student.Student = _unitOfWork.Student.GetById(student.Id);
-                if (student.Student != null)
+                if (student.Student is not null)
                 {
-                    if (student.Student.SemesterId != null)
+                    StudentResponse studentResponse = new StudentResponse();
+                    studentResponse.Id = student.Id;
+                    studentResponse.FullName = student.FullName;
+                    studentResponse.Email = student.Email;
+                    studentResponse.Code = student.Student.Code
+
+                    if (!student.Student.SemesterId.Equals(Guid.Empty))
                     {
-                        student.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
+                        Semester studentSemester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
+                        studentResponse.Semester = $"{studentSemester.Year} - {studentSemester.Season}";
                     }
-                    if (student.RoleId != 0)
-                    {
-                        student.Role = _unitOfWork.Role.GetRoleById(student.RoleId);
-                    }
+                    
                 }
             }
             return students;

@@ -172,7 +172,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		// [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet("{id}/reports")]
 		[ProducesResponseType(typeof(GetTeamWeeklyReportResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

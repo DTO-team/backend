@@ -5,12 +5,15 @@ using System.Linq;
 using AutoMapper;
 using CapstoneOnGoing.Filter;
 using CapstoneOnGoing.Helper;
+using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Models.Dtos;
 using Models.Models;
 using Models.Response;
+using Newtonsoft.Json;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -22,14 +25,16 @@ namespace CapstoneOnGoing.Controllers
         private readonly IProjectService _projectService;
         private readonly IUriService _uriService;
         private readonly ITeamService _teamService;
+        private readonly ILoggerManager _logger;
         private readonly IUserService _userService;
 
-        public ProjectController(IMapper mapper, IProjectService projectService, IUriService uriService, ITeamService teamService, IUserService userService)
+        public ProjectController(IMapper mapper, IProjectService projectService, IUriService uriService, ITeamService teamService, ILoggerManager logger, IUserService userService)
         {
             _mapper = mapper;
             _projectService = projectService;
             _uriService = uriService;
             _teamService = teamService;
+            _logger = logger;
             _userService = userService;
         }
 
@@ -39,9 +44,24 @@ namespace CapstoneOnGoing.Controllers
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetProjectById(Guid id)
         {
+
+            var headers = Request.Headers;
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
+            {
+                _logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetProjectById)}: Semester {CurrentSemester}");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Request does not have semester",
+                    TimeStamp = DateTime.Now
+                });
+            }
+
             GetProjectDetailResponse projectResponse = new GetProjectDetailResponse();
 
-            GetProjectDetailDTO projectDetailDto = _projectService.GetProjectDetailById(id);
+            GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
+            GetProjectDetailDTO projectDetailDto = _projectService.GetProjectDetailById(id, semesterDto);
             if (projectDetailDto is not null)
             {
                 GetTopicsResponse topicsResponse = _mapper.Map<GetTopicsResponse>(projectDetailDto.Topics);

@@ -7,7 +7,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface IEvaluationSessionService
 	{
-		bool UpdateEvaluationSessionStatus(UpdateEvaluationSessionRequest updateEvaluationSessionRequest);
+		bool UpdateEvaluationSessionStatus(Guid id,UpdateEvaluationSessionRequest updateEvaluationSessionRequest);
 		IEnumerable<GetEvaluationSessionResponse> GetAllEvaluationSession(Guid semesterId);
 		GetEvaluationSessionResponse GetEvaluationSessionById(Guid evaluationId,Guid semesterId);
 	}

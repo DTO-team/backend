@@ -9,6 +9,8 @@ namespace CapstoneOnGoing.Services.Interfaces
     public interface IProjectService
     {
         IEnumerable<GetAllProjectsDetailDTO> GetAllProjectResponse(PaginationFilter validFilter, out int totalRecords);
-        GetProjectDetailDTO GetProjectDetailById(Guid projectId);
+        GetProjectDetailDTO GetProjectDetailById(Guid projectId, GetSemesterDTO semester);
+        IEnumerable<GetProjectDetailDTO> GetAllCouncilProject(Guid councilId, GetSemesterDTO semester);
+
     }
 }

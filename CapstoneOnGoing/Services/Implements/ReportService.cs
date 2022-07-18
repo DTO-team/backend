@@ -290,6 +290,20 @@ namespace CapstoneOnGoing.Services.Implements
 			                    studentWeeklyReportResponse.Feedback = feedbackResponses;
 		                    });
                         }
+
+	                    if (teamsWeeklyReportResponse != null)
+	                    {
+		                    IEnumerable<GetFeedbackResponse> feedbackResponses = null;
+                            User reporter = _studentService.GetStudentById(teamWeeklyReport.ReporterId);
+		                    StudentResponse studentDto = _mapper.Map<StudentResponse>(reporter);
+		                    GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(studentDto.TeamId);
+		                    studentDto.TeamDetail = teamDetailResponse;
+		                    teamsWeeklyReportResponse.Reporter = studentDto;
+		                    ICollection<Feedback> feedbacks = teamWeeklyReport.Feedbacks;
+		                    feedbackResponses =
+			                    FeedbackResponses(feedbacks, teamWeeklyReport);
+		                    teamsWeeklyReportResponse.Feedback = feedbackResponses;
+	                    }
 	                    teamWeeklyReportsResponse.AddRange(studentWeeklyReportsResponse);
 	                    teamWeeklyReportsResponse.Add(teamsWeeklyReportResponse);
                         break;

@@ -9,6 +9,6 @@ namespace Repository.Interfaces
 {
     public interface IProjectRepository : IGenericRepository<Project>
     {
-        IEnumerable<Project> GetAllProjectWithMentorTeamAndTeamStudents(string searchString, int page, int limit, out int totalRecords);
+        IEnumerable<Project> GetAllProjectWithMentorTeamAndTeamStudents(string searchString);
     }
 }

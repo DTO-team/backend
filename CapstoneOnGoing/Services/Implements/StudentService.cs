@@ -31,29 +31,24 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Get list student
-        public IEnumerable<StudentResponse> GetAllStudents()
+        public IEnumerable<User> GetAllStudents()
         {
             IEnumerable<User> students;
-            students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null, "Student");
 
-            List<StudentResponse> studentResponses = new List<StudentResponse>();
+            students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null);
             foreach (User student in students)
             {
-                if (student.Student is not null)
+                student.Student = _unitOfWork.Student.GetById(student.Id);
+                if (student.Student != null)
                 {
-                    StudentResponse studentResponse = new StudentResponse();
-                    studentResponse.Id = student.Id;
-                    studentResponse.FullName = student.FullName;
-                    studentResponse.Email = student.Email;
-                    studentResponse.Code = student.Student.Code;
-                    studentResponse.TeamId = student.Student
-
-                    if (!student.Student.SemesterId.Equals(Guid.Empty))
+                    if (student.Student.SemesterId != null)
                     {
-                        Semester studentSemester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
-                        studentResponse.Semester = $"{studentSemester.Year} - {studentSemester.Season}";
+                        student.Student.Semester = _unitOfWork.Semester.GetById((Guid)student.Student.SemesterId);
                     }
-                    
+                    if (student.RoleId != 0)
+                    {
+                        student.Role = _unitOfWork.Role.GetRoleById(student.RoleId);
+                    }
                 }
             }
             return students;

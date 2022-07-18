@@ -30,11 +30,11 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Get list student
-        public IEnumerable<User> GetAllStudents(int page, int limit)
+        public IEnumerable<User> GetAllStudents()
         {
             IEnumerable<User> students;
 
-            students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null, page: page, limit: limit);
+            students = _unitOfWork.User.Get(x => (x.Role.Name == "STUDENT" && x.RoleId == 3 && x.StatusId == 1), null);
             foreach (User student in students)
             {
                 student.Student = _unitOfWork.Student.GetById(student.Id);

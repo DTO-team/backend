@@ -32,17 +32,9 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet]
-        public IActionResult GetAllLecturers([FromQuery] int page, [FromQuery] int limit)
+        public IActionResult GetAllLecturers()
         {
-            IEnumerable<GetLecturerResponse> lecturers;
-            if (page == 0 || limit == 0 || page < 0 || limit < 0)
-            {
-                lecturers = _mapper.Map<IEnumerable<GetLecturerResponse>>(_lecturerService.GetAllLecturers(1, 10));
-            }
-            else
-            {
-                lecturers = _mapper.Map<IEnumerable<GetLecturerResponse>>(_lecturerService.GetAllLecturers(page, limit));
-            }
+            IEnumerable<GetLecturerResponse> lecturers = _mapper.Map<IEnumerable<GetLecturerResponse>>(_lecturerService.GetAllLecturers());
             return Ok(lecturers);
         }
 

@@ -45,7 +45,8 @@ namespace CapstoneOnGoing.Services.Implements
                     studentResponse.Id = student.Id;
                     studentResponse.FullName = student.FullName;
                     studentResponse.Email = student.Email;
-                    studentResponse.Code = student.Student.Code
+                    studentResponse.Code = student.Student.Code;
+                    studentResponse.TeamId = student.Student
 
                     if (!student.Student.SemesterId.Equals(Guid.Empty))
                     {

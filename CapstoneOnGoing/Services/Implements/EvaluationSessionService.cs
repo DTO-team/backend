@@ -30,12 +30,12 @@ namespace CapstoneOnGoing.Services.Implements
 			_lecturerService = lecturerService;
 		}
 
-		public bool UpdateEvaluationSessionStatus(UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
+		public bool UpdateEvaluationSessionStatus(Guid id,UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
 		{
 			bool isSuccessful = false;
 			if (updateEvaluationSessionRequest != null)
 			{
-				EvaluationSession updatedEvaluationSession = _unitOfWork.EvaluationSession.GetById(updateEvaluationSessionRequest.Id);
+				EvaluationSession updatedEvaluationSession = _unitOfWork.EvaluationSession.GetById(id);
 				if (updatedEvaluationSession == null) throw new BadHttpRequestException("No Evaluation session found");
 				switch (updateEvaluationSessionRequest.Status)
 				{

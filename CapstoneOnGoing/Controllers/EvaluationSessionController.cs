@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace CapstoneOnGoing.Controllers
 {
-	[Route("api/v1/[controller]")]
+	[Route("api/v1/evaluationsessions")]
 	[ApiController]
 	public class EvaluationSessionController : ControllerBase
 	{
@@ -30,9 +30,9 @@ namespace CapstoneOnGoing.Controllers
 		[HttpPut("{id}")]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
-		public IActionResult UpdateEvaluationSession(UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
+		public IActionResult UpdateEvaluationSession(Guid id, UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
 		{
-			bool isSuccessful = _evaluationSessionService.UpdateEvaluationSessionStatus(updateEvaluationSessionRequest);
+			bool isSuccessful = _evaluationSessionService.UpdateEvaluationSessionStatus(id, updateEvaluationSessionRequest);
 			if (!isSuccessful)
 			{
 				return BadRequest(new GenericResponse()

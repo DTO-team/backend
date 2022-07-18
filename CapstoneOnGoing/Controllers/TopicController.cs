@@ -52,10 +52,10 @@ using Models.Response;
 			string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			string route = Request.Path.Value;
 			var headers = Request.Headers;
-            StringValues currentsemester;
-            if (!string.Equals(headers.Keys.ToString(), "currentsemester", StringComparison.OrdinalIgnoreCase) || !headers.TryGetValue("currentsemester", out currentsemester))
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
             {
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllTopics)}: Semester {currentsemester}");
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllTopics)}: Semester {CurrentSemester}");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -85,7 +85,7 @@ using Models.Response;
 			//	var pageResponse =  PaginationHelper<GetTopicsResponse>.CreatePagedResponse(topicsResponse,validFilter,)
 			//	return Ok();
 			//}
-			GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
+			GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
 			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(validFilter, email, semesterDto, out int totalRecords);
 			if (topicsDtos != null)
 			{

@@ -32,37 +32,37 @@ namespace CapstoneOnGoing.Controllers
 			_councilService = countService;
 		}
 
-        // [HttpGet("{councilId}/projects")]
-        // public IActionResult GetAllCouncilProjects(Guid councilId)
-        // {
-        //     var headers = Request.Headers;
-        //     StringValues CurrentSemester;
-        //     if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
-        //     {
-        //         _logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllCouncilProjects)}: Semester {CurrentSemester}");
-        //         return BadRequest(new GenericResponse()
-        //         {
-        //             HttpStatus = StatusCodes.Status400BadRequest,
-        //             Message = "Request does not have semester",
-        //             TimeStamp = DateTime.Now
-        //         });
-        //     }
-        //
-        //     GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
-        //     IEnumerable<GetProjectDetailDTO> allCouncilProject = _projectService.GetAllCouncilProject(councilId, semesterDto);
-        //     List<GetProjectDetailResponse> allCouncilProjectResponse = new List<GetProjectDetailResponse>();
-        //     if (allCouncilProject.Any())
-        //     {
-        //         allCouncilProjectResponse.ForEach(councilProject =>
-        //         {
-        //
-        //         });
-        //         return Ok();
-        //     }
-        //     else
-        //     {
-        //         return Ok();
-        //     }
-        // }
+		[HttpGet("{councilId}/projects")]
+		public IActionResult GetAllCouncilProjects(Guid councilId)
+		{
+			var headers = Request.Headers;
+			StringValues CurrentSemester;
+			if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
+			{
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllCouncilProjects)}: Semester {CurrentSemester}");
+				return BadRequest(new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status400BadRequest,
+					Message = "Request does not have semester",
+					TimeStamp = DateTime.Now
+				});
+			}
+
+			GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
+			IEnumerable<GetProjectDetailDTO> allCouncilProject = _projectService.GetAllCouncilProject(councilId, semesterDto);
+			List<GetProjectDetailResponse> allCouncilProjectResponse = new List<GetProjectDetailResponse>();
+			if (allCouncilProject.Any())
+			{
+				allCouncilProjectResponse.ForEach(councilProject =>
+				{
+
+				});
+				return Ok();
+			}
+			else
+			{
+				return Ok();
+			}
+		}
 	}
 }

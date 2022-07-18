@@ -67,7 +67,7 @@ namespace CapstoneOnGoing.Services.Implements
 					GetEvaluationSessionById(evaluationSession.Id, semesterGuid);
 				getEvaluationSessionResponses.Add(getEvaluationSessionResponse);
 			});
-			return getEvaluationSessionResponses;
+			return getEvaluationSessionResponses.OrderBy(x => x.DeadLine);
 		}
 
 		public GetEvaluationSessionResponse GetEvaluationSessionById(Guid evaluationId, Guid semesterId)

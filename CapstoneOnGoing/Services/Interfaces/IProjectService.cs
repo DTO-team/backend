@@ -10,5 +10,7 @@ namespace CapstoneOnGoing.Services.Interfaces
     {
         IEnumerable<GetAllProjectsDetailDTO> GetAllProjectResponse(PaginationFilter validFilter, out int totalRecords);
         GetProjectDetailDTO GetProjectDetailById(Guid projectId);
+        IEnumerable<GetAllProjectsDetailDTO> GetAllCouncilProject(Guid councilId);
+
     }
 }

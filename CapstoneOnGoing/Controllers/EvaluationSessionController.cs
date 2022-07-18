@@ -57,10 +57,10 @@ namespace CapstoneOnGoing.Controllers
 		public IActionResult GetAllEvaluationSession()
 		{
 			var headers = Request.Headers;
-			StringValues currentsemester;
-			if (!string.Equals(headers.Keys.ToString(), "currentsemester", StringComparison.OrdinalIgnoreCase) || !headers.TryGetValue("currentsemester", out currentsemester))
+			StringValues CurrentSemester;
+			if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
 			{
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllEvaluationSession)}: Semester {currentsemester}");
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllEvaluationSession)}: Semester {CurrentSemester}");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -70,7 +70,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 			else
 			{
-				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
+				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
 				IEnumerable<GetEvaluationSessionResponse> evaluationSessionResponses =
 					_evaluationSessionService.GetAllEvaluationSession(semesterDto.Id);
 				return Ok(evaluationSessionResponses);
@@ -84,10 +84,10 @@ namespace CapstoneOnGoing.Controllers
 		public IActionResult GetEvaluationSessionById(Guid id)
 		{
 			var headers = Request.Headers;
-            StringValues currentsemester;
-            if (!string.Equals(headers.Keys.ToString(), "currentsemester", StringComparison.OrdinalIgnoreCase) || !headers.TryGetValue("currentsemester", out currentsemester))
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
             {
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetEvaluationSessionById)}: Semester {currentsemester}");
+				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetEvaluationSessionById)}: Semester {CurrentSemester}");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -97,7 +97,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 			else
 			{
-				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(currentsemester.ToString());
+				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
 				GetEvaluationSessionResponse evaluationSessionResponses =
 					_evaluationSessionService.GetEvaluationSessionById(id,semesterDto.Id);
 				return Ok(evaluationSessionResponses);

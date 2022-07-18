@@ -64,7 +64,7 @@ namespace CapstoneOnGoing.Services.Implements
             return new List<GetAllProjectsDetailDTO>();
         }
 
-        public GetProjectDetailDTO GetProjectDetailById(Guid projectId)
+        public GetProjectDetailDTO GetProjectDetailById(Guid projectId, GetSemesterDTO semester)
         {
             GetProjectDetailDTO projectDto = new GetProjectDetailDTO();
             Project project = _unitOfWork.Project.GetById(projectId);
@@ -72,7 +72,7 @@ namespace CapstoneOnGoing.Services.Implements
             if (project is not null)
             {
                 projectDto.ProjectId = project.Id;
-                Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Preparing).FirstOrDefault();
+                GetSemesterDTO currentSemester = semester;
 
                 Application projectApplication =
                     _unitOfWork.Applications.GetApplicationWithTeamTopicProject(project.ApplicationId);
@@ -104,21 +104,31 @@ namespace CapstoneOnGoing.Services.Implements
             return projectDto;
         }
 
-        public IEnumerable<GetAllProjectsDetailDTO> GetAllCouncilProject(Guid councilId)
+        public IEnumerable<GetProjectDetailDTO> GetAllCouncilProject(Guid councilId, GetSemesterDTO semester)
         {
             Council council = _unitOfWork.Councils.GetCouncilWithProjectAndTeamById(councilId);
+
+            List<GetProjectDetailDTO> allProjectsDetailDtos = new List<GetProjectDetailDTO>();
+
             if (council is not null)
             {
                 IEnumerable<CouncilProject> councilProjects = council.CouncilProjects;
 
                 foreach (CouncilProject councilProject in councilProjects)
                 {
-                    GetProjectDetailDTO projectDetailDto = GetProjectDetailById(councilProject.ProjectId);
-                    
+                    GetProjectDetailDTO projectDetailDto = GetProjectDetailById(councilProject.ProjectId, semester);
+                    if (projectDetailDto is not null)
+                    {
+                        allProjectsDetailDtos.Add(projectDetailDto);
+                    }
                 }
-            }
 
-            throw new NotImplementedException();
+                return allProjectsDetailDtos;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Council with {councilId} id is not existed!");
+            }
         }
     }
 }

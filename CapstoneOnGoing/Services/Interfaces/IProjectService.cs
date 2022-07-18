@@ -8,7 +8,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 {
     public interface IProjectService
     {
-        IEnumerable<GetAllProjectsDetailDTO> GetAllProjectResponse(PaginationFilter validFilter, out int totalRecords);
+        IEnumerable<GetAllProjectsDetailDTO> GetAllProjectResponse(string SearchString);
         GetProjectDetailDTO GetProjectDetailById(Guid projectId, GetSemesterDTO semester);
         IEnumerable<GetProjectDetailDTO> GetAllCouncilProject(Guid councilId, GetSemesterDTO semester);
 

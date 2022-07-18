@@ -39,17 +39,9 @@ namespace CapstoneOnGoing.Controllers
         [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<StudentResponse>), StatusCodes.Status200OK)]
-        public IActionResult GetAllStudents([FromQuery] int page, [FromQuery] int limit)
+        public IActionResult GetAllStudents()
         {
-            IEnumerable<StudentResponse> students;
-            if (page == 0 || limit == 0 || page < 0 || limit < 0)
-            {
-                students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(1, 10));
-            }
-            else
-            {
-                students = _mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents(page, limit));
-            }
+            IEnumerable<StudentResponse> students =_mapper.Map<IEnumerable<StudentResponse>>(_studentService.GetAllStudents());
             return Ok(students);
         }
 

@@ -13,7 +13,7 @@ namespace Repository.Implementations
         {
         }
 
-        public IEnumerable<Project> GetAllProjectWithMentorTeamAndTeamStudents(string searchString, int page, int limit, out int totalRecords)
+        public IEnumerable<Project> GetAllProjectWithMentorTeamAndTeamStudents(string searchString)
         {
             if (string.IsNullOrEmpty(searchString) || string.IsNullOrWhiteSpace(searchString))
             {
@@ -22,10 +22,8 @@ namespace Repository.Implementations
                     .Include(project => project.Team).ThenInclude(team => team.TeamStudents)
                     .AsNoTracking()
                     .ToList();
-                totalRecords = result.Count();
-                int offset = (page - 1) * limit;
-                IEnumerable<Project> projects = result.Skip(offset).Take(limit);
-                return projects;
+                
+                return result;
             }
             else
             {
@@ -35,10 +33,7 @@ namespace Repository.Implementations
                     .Where(team => team.Team.Name.Contains(searchString))
                     .AsNoTracking()
                     .ToList();
-                totalRecords = result.Count();
-                int offset = (page - 1) * limit;
-                IEnumerable<Project> projects = result.Skip(offset).Take(limit);
-                return projects;
+                return result;
             }
         }
     }

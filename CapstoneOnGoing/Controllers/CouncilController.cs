@@ -65,7 +65,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpGet]
 		[ProducesResponseType(typeof(IEnumerable<GetCouncilResponse>),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
@@ -89,7 +89,7 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(councilResponses);
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetCouncilResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

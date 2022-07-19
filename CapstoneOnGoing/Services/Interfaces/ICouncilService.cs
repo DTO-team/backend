@@ -13,5 +13,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		IEnumerable<GetCouncilResponse> GetAllCouncils(GetSemesterDTO semester);
 
 		GetCouncilResponse GetCouncilById(Guid councilId, GetSemesterDTO semester);
+
+		bool UpdateCouncil(Guid id,UpdateCouncilRequest updateCouncilRequest);
 	}
 }

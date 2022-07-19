@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutoMapper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
+using Models.Response;
 using Repository.Interfaces;
 
 namespace CapstoneOnGoing.Services.Implements
@@ -15,14 +17,20 @@ namespace CapstoneOnGoing.Services.Implements
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILoggerManager _logger;
+		private readonly ILecturerService _lecturerService;
+		private readonly IProjectService _projectService;
+		private readonly IMapper _mapper;
 
-        public CouncilService(IUnitOfWork unitOfWork, ILoggerManager logger)
-        {
-            _unitOfWork = unitOfWork;
-            _logger = logger;
-        }
+		public CouncilService(IUnitOfWork unitOfWork, ILoggerManager logger, ILecturerService lecturerService, IProjectService projectService, IMapper mapper)
+		{
+			_unitOfWork = unitOfWork;
+			_logger = logger;
+			_lecturerService = lecturerService;
+			_projectService = projectService;
+			_mapper = mapper;
+		}
 
-        public void CreateCouncil(CreateCouncilRequest createCouncilRequest)
+		public void CreateCouncil(CreateCouncilRequest createCouncilRequest)
 		{
 			if (createCouncilRequest == null)
 			{
@@ -88,5 +96,62 @@ namespace CapstoneOnGoing.Services.Implements
 			newCouncil.CouncilLecturers = councilLecturers;
 			_unitOfWork.Councils.Insert(newCouncil);
 		}
-    }
-}
+
+        public IEnumerable<GetCouncilResponse> GetAllCouncils(GetSemesterDTO semester)
+        {
+	        IEnumerable<Council> councils = _unitOfWork.Councils.Get();
+			List<GetCouncilResponse> councilResponsesList = new List<GetCouncilResponse>();
+			Array.ForEach(councils.ToArray(), council =>
+			{
+				GetCouncilResponse councilResponse = GetCouncilById(council.Id, semester);
+				councilResponsesList.Add(councilResponse);
+			});
+	        return councilResponsesList;
+        }
+
+        public GetCouncilResponse GetCouncilById(Guid councilId, GetSemesterDTO semester)
+        {
+	        Council council = _unitOfWork.Councils.Get(x => x.Id == councilId,null, "CouncilLecturers,CouncilProjects,EvaluationSession").FirstOrDefault();
+	        if (council == null) throw new BadHttpRequestException("No council is found");
+			EvaluationSession evaluationSession = _unitOfWork.EvaluationSession
+				.Get(x => x.Id == council.EvaluationSessionId && x.SemesterId == semester.Id, null, "Semester,EvaluationSessionCriteria,Councils").FirstOrDefault();
+			if (evaluationSession == null)
+			{
+				throw new BadHttpRequestException("No evaluation session found");
+			}
+
+			GetEvaluationSessionResponse evaluationSessionResponse =
+				_mapper.Map<GetEvaluationSessionResponse>(evaluationSession);
+			if (evaluationSession.EvaluationSessionCriteria.Any())
+			{
+				evaluationSessionResponse.SemesterCriterias = new List<GetSemesterCriteriaResponse>();
+				Array.ForEach(evaluationSession.EvaluationSessionCriteria.ToArray(), evaluationSessionCriteria =>
+				{
+					IEnumerable<SemesterCriterion> semesterCriterion =
+						_unitOfWork.SememesterCriterion.Get(x => x.Id == evaluationSessionCriteria.CriteriaId);
+					IEnumerable<GetSemesterCriteriaResponse> semesterCriteriaResponses =
+						_mapper.Map<IEnumerable<GetSemesterCriteriaResponse>>(semesterCriterion);
+					evaluationSessionResponse.SemesterCriterias.AddRange(semesterCriteriaResponses);
+				});
+			}
+			List<GetLecturerResponse> lecturerResponses = new List<GetLecturerResponse>();
+	        List<GetProjectDetailDTO> projectDetailDtos = new List<GetProjectDetailDTO>();
+			Array.ForEach(council.CouncilLecturers.ToArray(), councilLecturer =>
+			{
+				GetLecturerResponse lecturerResponse =
+					_mapper.Map<GetLecturerResponse>(_lecturerService.GetLecturerById(councilLecturer.LecturerId));
+				lecturerResponses.Add(lecturerResponse);
+			});
+			Array.ForEach(council.CouncilProjects.ToArray(), councilProject =>
+			{
+				GetProjectDetailDTO projectDetailDTO = _projectService.GetProjectDetailById(councilProject.ProjectId,semester);
+				projectDetailDtos.Add(projectDetailDTO);
+			});
+			GetCouncilResponse councilResponse = _mapper.Map<GetCouncilResponse>(council);
+			councilResponse.Lecturers = lecturerResponses;
+			councilResponse.EvaluationSession = evaluationSessionResponse;
+			councilResponse.Projects = projectDetailDtos;
+			return councilResponse;
+        }
+	}
+} 

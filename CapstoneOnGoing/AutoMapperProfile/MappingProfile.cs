@@ -247,6 +247,7 @@ namespace CapstoneOnGoing.AutoMapperProfile
 
             CreateMap<SemesterCriterion, GetSemesterCriteriaResponse>();
             CreateMap<EvaluationSession, GetEvaluationSessionResponse>();
+            CreateMap<Council, GetCouncilResponse>();
         }
     }
 }

@@ -98,26 +98,12 @@ namespace CapstoneOnGoing.Controllers
 
         [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResponse<IEnumerable<GetAllProjectDetailResponse>>), StatusCodes.Status200OK)]
-        public IActionResult GetAllProjects([FromQuery] PaginationFilter paginationFilter)
+        [ProducesResponseType(typeof(IEnumerable<GetAllProjectDetailResponse>), StatusCodes.Status200OK)]
+        public IActionResult GetAllProjects([FromQuery] string SearchString)
         {
-            string route = Request.Path.Value;
-            PaginationFilter validFilter;
-            if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
-                string.IsNullOrWhiteSpace(paginationFilter.SearchString))
-            {
-                validFilter =
-                    new PaginationFilter(String.Empty, paginationFilter.PageNumber, paginationFilter.PageSize);
-            }
-            else
-            {
-                validFilter =
-                    new PaginationFilter(paginationFilter.SearchString, paginationFilter.PageNumber, paginationFilter.PageSize);
-            }
-
             List<GetAllProjectDetailResponse> projectDetailResponses = new List<GetAllProjectDetailResponse>();
 
-            IEnumerable<GetAllProjectsDetailDTO> projectsDetailDtos = _projectService.GetAllProjectResponse(validFilter, out int totalRecords);
+            IEnumerable<GetAllProjectsDetailDTO> projectsDetailDtos = _projectService.GetAllProjectResponse(SearchString);
             if (projectsDetailDtos != null)
             {
                 Array.ForEach(projectsDetailDtos.ToArray(), projectsDetailDto =>
@@ -175,10 +161,7 @@ namespace CapstoneOnGoing.Controllers
 
             if (projectDetailResponses.Any())
             {
-                PagedResponse<IEnumerable<GetAllProjectDetailResponse>> pagedResponse =
-                    PaginationHelper<GetAllProjectDetailResponse>.CreatePagedResponse(projectDetailResponses, validFilter,
-                        totalRecords, _uriService, route);
-                return Ok(pagedResponse);
+                return Ok(projectDetailResponses);
             }
             else
             {

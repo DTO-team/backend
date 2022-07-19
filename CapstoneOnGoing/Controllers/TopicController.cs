@@ -42,13 +42,12 @@ using Models.Response;
 			_redisService = redisService;
 		}
 
-		[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
+		//[Authorize(Roles = "ADMIN,STUDENT,LECTURER,COMPANY")]
 		[HttpGet]
 		[ProducesResponseType(typeof(PagedResponse<IEnumerable<GetTopicsResponse>>),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status404NotFound)]
-		public async Task<IActionResult> GetAllTopics([FromQuery] PaginationFilter paginationFilter)
+		public async Task<IActionResult> GetAllTopics([FromQuery] string searchString)
 		{
-			PagedResponse<IEnumerable<GetTopicsResponse>> pagedResponse;
 			string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			string route = Request.Path.Value;
 			var headers = Request.Headers;
@@ -63,17 +62,7 @@ using Models.Response;
 					TimeStamp = DateTime.Now
 				});
 			}
-			PaginationFilter validFilter;
-			if (string.IsNullOrEmpty(paginationFilter.SearchString) ||
-			    string.IsNullOrWhiteSpace(paginationFilter.SearchString))
-			{
-				validFilter = new PaginationFilter(String.Empty,paginationFilter.PageNumber,paginationFilter.PageSize);
-			}
-			else
-			{
-				validFilter = new PaginationFilter(paginationFilter.SearchString,paginationFilter.PageNumber,paginationFilter.PageSize);
-			}
-			//get list from Redis
+            //get list from Redis
 			//var serializedResponseRedis = await _redisService.GetAsync(PAGEREPONSEREDIS);
 			//if (serializedResponseRedis != null)
 			//{
@@ -86,18 +75,15 @@ using Models.Response;
 			//	return Ok();
 			//}
 			GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
-			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(validFilter, email, semesterDto, out int totalRecords);
+			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(searchString, email, semesterDto);
 			if (topicsDtos != null)
 			{
 				IEnumerable<GetTopicsResponse> getTopicsResponses = _mapper.Map<IEnumerable<GetTopicsResponse>>(topicsDtos);
-				pagedResponse =
-					PaginationHelper<GetTopicsResponse>.CreatePagedResponse(getTopicsResponses, validFilter,
-						totalRecords, _uriService, route);
-				string serializedPageResponse = JsonConvert.SerializeObject(getTopicsResponses);
-				byte[] redisPageResponse = Encoding.UTF8.GetBytes(serializedPageResponse);
-				var options = new DistributedCacheEntryOptions();
-				await _redisService.SetAsync(PAGEREPONSEREDIS, redisPageResponse, options);
-				return Ok(pagedResponse);
+				//string serializedPageResponse = JsonConvert.SerializeObject(getTopicsResponses);
+				//byte[] redisPageResponse = Encoding.UTF8.GetBytes(serializedPageResponse);
+				//var options = new DistributedCacheEntryOptions();
+				//await _redisService.SetAsync(PAGEREPONSEREDIS, redisPageResponse, options);
+				return Ok(getTopicsResponses);
 			}
 			else
 			{

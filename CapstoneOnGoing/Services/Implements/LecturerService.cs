@@ -43,10 +43,10 @@ namespace CapstoneOnGoing.Services.Implements
         }
 
         //Get Lecturer list
-        public IEnumerable<User> GetAllLecturers(int page, int limit)
+        public IEnumerable<User> GetAllLecturers()
         {
             IEnumerable<User> lecturers;
-            lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER" && x.StatusId == 1), page: page, limit: limit);
+            lecturers = _unitOfWork.User.Get(x => (x.Role.Id == 2 && x.Role.Name == "LECTURER" && x.StatusId == 1));
             foreach (User lecturer in lecturers)
             {
                 lecturer.Lecturer = _unitOfWork.Lecturer.GetById(lecturer.Id);

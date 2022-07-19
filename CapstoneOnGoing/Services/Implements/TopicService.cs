@@ -84,17 +84,16 @@ namespace CapstoneOnGoing.Services.Implements
 			return isSuccessful;
 		}
 
-		public IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter, string email,GetSemesterDTO currentSemester, out int totalRecords)
+		public IEnumerable<GetTopicsDTO> GetAllTopics(string searchString, string email,GetSemesterDTO currentSemester)
 		{
 			//get current semester 
 			Semester semester = _unitOfWork.Semester.Get(x => x.Id == currentSemester.Id).FirstOrDefault();
 			if (semester is not null)
 			{
-				if (string.IsNullOrEmpty(validFilter.SearchString) ||
-					string.IsNullOrWhiteSpace(validFilter.SearchString))
+				if (!string.IsNullOrEmpty(searchString) ||
+					!string.IsNullOrWhiteSpace(searchString))
 				{
-					totalRecords = _unitOfWork.Topic.Get(x => (x.SemesterId == semester.Id && x.Name.Contains(validFilter.SearchString))).Count();
-					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => (x.SemesterId == semester.Id && x.Name.Contains(validFilter.SearchString)), null, "TopicLecturers", validFilter.PageNumber, validFilter.PageSize);
+					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => (x.SemesterId == semester.Id && x.Name.Contains(searchString)), null, "TopicLecturers");
 					IEnumerable<GetTopicsDTO> getTopicsDtos = null;
 					if (topics.Any())
 					{
@@ -102,7 +101,6 @@ namespace CapstoneOnGoing.Services.Implements
 					}
 					else
 					{
-						totalRecords = 0;
 						return null;
 					}
 					Array.ForEach(getTopicsDtos.ToArray(), getTopicsDto =>
@@ -115,13 +113,12 @@ namespace CapstoneOnGoing.Services.Implements
 							getTopicsDto.CompanyDto = _mapper.Map<GetCompanyDTO>(companyUser);
 						}
 					});
-					SetIsRegisteredInGetAllTopics(email, getTopicsDtos, semester);
+					//SetIsRegisteredInGetAllTopics(email, getTopicsDtos, semester);
 					return getTopicsDtos;
 				}
 				else
 				{
-					totalRecords = _unitOfWork.Topic.Get(x => x.SemesterId == currentSemester.Id).Count();
-					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => x.SemesterId == currentSemester.Id, null, "TopicLecturers", validFilter.PageNumber, validFilter.PageSize);
+					IEnumerable<Topic> topics = _unitOfWork.Topic.Get(x => x.SemesterId == currentSemester.Id, null, "TopicLecturers");
 					IEnumerable<GetTopicsDTO> getTopicsDtos = null;
 					if (topics.Any())
 					{
@@ -129,7 +126,6 @@ namespace CapstoneOnGoing.Services.Implements
 					}
 					else
 					{
-						totalRecords = 0;
 						return null;
 					}
 					Array.ForEach(getTopicsDtos.ToArray(), getTopicsDto =>
@@ -148,7 +144,6 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 			else
 			{
-				totalRecords = 0;
 				return null;
 			}
 		}
@@ -184,7 +179,7 @@ namespace CapstoneOnGoing.Services.Implements
 				return;
 			}
 
-			Team team = _unitOfWork.Team.Get(x => student.Student.TeamStudents.Select(x => x.TeamId).Contains(x.Id) && x.SemesterId == currentSemester.Id)
+			Team team = _unitOfWork.Team.Get(x => student.Student.TeamStudents.Select(x => x.TeamId).Contains(x.Id))
 				.FirstOrDefault();
 			if (team == null)
 			{

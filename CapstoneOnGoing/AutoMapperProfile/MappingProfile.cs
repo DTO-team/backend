@@ -248,6 +248,12 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<SemesterCriterion, GetSemesterCriteriaResponse>();
             CreateMap<EvaluationSession, GetEvaluationSessionResponse>();
             CreateMap<Council, GetCouncilResponse>();
+
+            CreateMap<GetTopicsDTO, GetTopicAllProjectResponse>()
+                .ForMember(dest => dest.TopicName, src => src.MapFrom(src => src.Name))
+                .ForMember(dest => dest.TopicId, src => src.MapFrom(src => src.TopicId))
+                .ForMember(dest => dest.LecturersDetails, src => src.MapFrom(src => src.LecturerDtos))
+                .ForMember(dest => dest.CompanyDetail, src => src.MapFrom(src => src.CompanyDto));
         }
     }
 }

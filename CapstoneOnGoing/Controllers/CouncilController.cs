@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Models.Dtos;
+using Models.Models;
 using Models.Request;
 using Models.Response;
 using Newtonsoft.Json;
@@ -24,15 +25,21 @@ namespace CapstoneOnGoing.Controllers
 		private readonly IMapper _mapper;
 		private readonly ICouncilService _councilService;
         private readonly IProjectService _projectService;
+        private readonly ITeamService _teamService;
+        private readonly IUserService _userService;
 
-		public CouncilController( ILoggerManager logger, IMapper mapper, ICouncilService countService)
-		{
-			_logger = logger;
-			_mapper = mapper;
-			_councilService = countService;
-		}
+        public CouncilController(ILoggerManager logger, IMapper mapper, ICouncilService councilService, IProjectService projectService, ITeamService teamService, IUserService userService)
+        {
+            _logger = logger;
+            _mapper = mapper;
+            _councilService = councilService;
+            _projectService = projectService;
+            _teamService = teamService;
+            _userService = userService;
+        }
 
-		[HttpGet("{councilId}/projects")]
+        [Authorize(Roles = "LECTURER")]
+        [HttpGet("{councilId}/projects")]
 		public IActionResult GetAllCouncilProjects(Guid councilId)
 		{
 			var headers = Request.Headers;
@@ -50,18 +57,61 @@ namespace CapstoneOnGoing.Controllers
 
 			GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
 			IEnumerable<GetProjectDetailDTO> allCouncilProject = _projectService.GetAllCouncilProject(councilId, semesterDto);
-			List<GetProjectDetailResponse> allCouncilProjectResponse = new List<GetProjectDetailResponse>();
-			if (allCouncilProject.Any())
-			{
-				allCouncilProjectResponse.ForEach(councilProject =>
-				{
+			List<GetAllProjectDetailResponse> allCouncilProjectResponse = new List<GetAllProjectDetailResponse>();
+            if (allCouncilProject.Any())
+            {
+                foreach (GetProjectDetailDTO councilGetProjectDetailDto in allCouncilProject)
+                {
+                    GetAllProjectDetailResponse allProjectDetailResponse = new GetAllProjectDetailResponse();
+                    GetProjectDetailDTO projectDetailDto =
+                        _projectService.GetProjectDetailById(councilGetProjectDetailDto.ProjectId, semesterDto);
+                    if (projectDetailDto is not null)
+                    {
+                        GetTopicAllProjectResponse topicsResponse =
+                            _mapper.Map<GetTopicAllProjectResponse>(projectDetailDto.Topics);
+                        List<GetLecturerResponse> lecturerResponses = new List<GetLecturerResponse>();
 
-				});
-				return Ok();
-			}
+
+                        if (projectDetailDto.Topics.LecturerIds.Any())
+                        {
+                            Array.ForEach(projectDetailDto.Topics.LecturerIds.ToArray(), lecturerId =>
+                            {
+                                User lecturerUser = _userService.GetUserWithRoleById(lecturerId);
+                                if (lecturerUser is not null)
+                                {
+                                    GetLecturerResponse lecturerResponse =
+                                        _mapper.Map<GetLecturerResponse>(lecturerUser);
+                                    lecturerResponses.Add(lecturerResponse);
+                                }
+                            });
+                        }
+
+                        User company = _userService.GetUserWithRoleById(projectDetailDto.Topics.CompanyId);
+                        GetCompanyDTO companyDto = _mapper.Map<GetCompanyDTO>(company);
+                        GetCompanyResponse companyResponse = _mapper.Map<GetCompanyResponse>(companyDto);
+
+                        GetTeamDetailResponse teamDetailResponse = projectDetailDto.TeamDetailResponse;
+
+                        allProjectDetailResponse.ProjectId = projectDetailDto.ProjectId;
+                        allProjectDetailResponse.TopicsResponse = topicsResponse;
+                        allProjectDetailResponse.TopicsResponse.LecturersDetails = lecturerResponses;
+                        allProjectDetailResponse.TopicsResponse.CompanyDetail = companyResponse;
+                        allProjectDetailResponse.TeamDetailResponse = teamDetailResponse;
+
+                        allCouncilProjectResponse.Add(allProjectDetailResponse);
+                    }
+                }
+                return Ok(allCouncilProjectResponse);
+            }
 			else
 			{
-				return Ok();
+                _logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllCouncilProjects)}: Semester {CurrentSemester}");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Request does not have semester",
+                    TimeStamp = DateTime.Now
+                });
 			}
 		}
 

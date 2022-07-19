@@ -116,5 +116,10 @@ namespace CapstoneOnGoing.Services.Implements
 			}
 			return evaluationSessionResponse;
 		}
-	}
+
+        public bool CreateNewReviewOfCouncilEvaluationSession(CreateNewReviewRequest newReviewRequest)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

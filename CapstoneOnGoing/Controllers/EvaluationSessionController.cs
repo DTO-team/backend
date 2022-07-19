@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Models.Dtos;
+using Models.Models;
 using Models.Request;
 using Models.Response;
 using Newtonsoft.Json;
@@ -60,7 +61,7 @@ namespace CapstoneOnGoing.Controllers
 			StringValues CurrentSemester;
 			if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
 			{
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllEvaluationSession)}: Semester {CurrentSemester}");
+				_logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetAllEvaluationSession)}: Semester {CurrentSemester}");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -87,7 +88,7 @@ namespace CapstoneOnGoing.Controllers
             StringValues CurrentSemester;
             if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
             {
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetEvaluationSessionById)}: Semester {CurrentSemester}");
+				_logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetEvaluationSessionById)}: Semester {CurrentSemester}");
 				return BadRequest(new GenericResponse()
 				{
 					HttpStatus = StatusCodes.Status400BadRequest,
@@ -103,5 +104,27 @@ namespace CapstoneOnGoing.Controllers
 				return Ok(evaluationSessionResponses);
 			}
 		}
+
+		[HttpPost]
+        [ProducesResponseType(typeof(Review), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+		public IActionResult CreateNewReviewOfEvaluationSession([FromQuery] CreateNewReviewRequest newReviewRequest)
+        {
+            bool isSuccess = _evaluationSessionService.CreateNewReviewOfCouncilEvaluationSession(newReviewRequest);
+            if (isSuccess)
+            {
+                return CreatedAtAction("CreateNewReviewOfEvaluationSession", newReviewRequest.CouncilId);
+            }
+            else
+            {
+				_logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(CreateNewReviewOfEvaluationSession)}: Create new review failed!");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Create new review failed!",
+                    TimeStamp = DateTime.Now
+                });
+			}
+        }
 	}
 }

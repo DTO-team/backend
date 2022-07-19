@@ -162,5 +162,27 @@ namespace CapstoneOnGoing.Controllers
 			GetCouncilResponse councilResponse = _councilService.GetCouncilById(id, semesterDto);
 			return Ok(councilResponse);
 		}
+
+		[Authorize(Roles = "ADMIN")]
+		[HttpPut("{id}")]
+		public IActionResult UpdateCouncil(Guid id, UpdateCouncilRequest updateCouncilRequest)
+		{
+			bool isSuccessful = _councilService.UpdateCouncil(id, updateCouncilRequest);
+			if (!isSuccessful)
+			{
+				return BadRequest(new GenericResponse()
+				{
+					HttpStatus = StatusCodes.Status400BadRequest,
+					Message = "Update council failed",
+					TimeStamp = DateTime.Now
+				});
+			}
+			return Ok(new GenericResponse()
+			{
+				HttpStatus = StatusCodes.Status400BadRequest,
+				Message = "Update council successfully",
+				TimeStamp = DateTime.Now
+			});
+		}
 	}
 }

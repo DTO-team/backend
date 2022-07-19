@@ -54,52 +54,21 @@ namespace CapstoneOnGoing.Controllers
 		[HttpGet]
 		[ProducesResponseType(typeof(IEnumerable<GetEvaluationSessionResponse>),StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
-		public IActionResult GetAllEvaluationSession()
+		public IActionResult GetAllEvaluationSession([FromQuery] Guid semesterId)
 		{
-			var headers = Request.Headers;
-			StringValues CurrentSemester;
-			if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
-			{
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllEvaluationSession)}: Semester {CurrentSemester}");
-				return BadRequest(new GenericResponse()
-				{
-					HttpStatus = StatusCodes.Status400BadRequest,
-					Message = "Request does not have semester",
-					TimeStamp = DateTime.Now
-				});
-			}
-			else
-			{
-				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
-				IEnumerable<GetEvaluationSessionResponse> evaluationSessionResponses =
-					_evaluationSessionService.GetAllEvaluationSession(semesterDto.Id);
+			IEnumerable<GetEvaluationSessionResponse> evaluationSessionResponses =
+					_evaluationSessionService.GetAllEvaluationSession(semesterId);
 				return Ok(evaluationSessionResponses);
-			}
 		}
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetEvaluationSessionResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
-		public IActionResult GetEvaluationSessionById(Guid id)
+		public IActionResult GetEvaluationSessionById(Guid id,[FromQuery]Guid semesterId)
 		{
-			var headers = Request.Headers;
-            StringValues CurrentSemester;
-            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
-            {
-				_logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetEvaluationSessionById)}: Semester {CurrentSemester}");
-				return BadRequest(new GenericResponse()
-				{
-					HttpStatus = StatusCodes.Status400BadRequest,
-					Message = "Request does not have semester",
-					TimeStamp = DateTime.Now
-				});
-			}
-			else
-			{
-				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
-				GetEvaluationSessionResponse evaluationSessionResponses =
-					_evaluationSessionService.GetEvaluationSessionById(id,semesterDto.Id);
+			GetEvaluationSessionResponse evaluationSessionResponses =
+					_evaluationSessionService.GetEvaluationSessionById(id, semesterId);
 				return Ok(evaluationSessionResponses);
 			}
 		}

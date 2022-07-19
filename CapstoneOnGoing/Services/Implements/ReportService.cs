@@ -315,9 +315,12 @@ namespace CapstoneOnGoing.Services.Implements
 	                    }
 	                    Array.ForEach(studentWeeklyReportsResponse.ToArray(), studentWeeklyReportResponse =>
 	                    {
-		                    teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
+		                    if (studentWeeklyReportResponse != null)
+		                    {
+			                    teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
+                            }
 
-                        });
+	                    });
 	                    if (teamsWeeklyReportResponse != null)
 	                    {
 		                    teamWeeklyReportsResponse.Add(teamsWeeklyReportResponse);

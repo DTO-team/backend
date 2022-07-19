@@ -28,8 +28,8 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpPut("{id}")]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status200OK)]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult UpdateEvaluationSession(Guid id, UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
 		{
 			bool isSuccessful = _evaluationSessionService.UpdateEvaluationSessionStatus(id, updateEvaluationSessionRequest);
@@ -52,25 +52,24 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpGet]
-		[ProducesResponseType(typeof(IEnumerable<GetEvaluationSessionResponse>),StatusCodes.Status200OK)]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(IEnumerable<GetEvaluationSessionResponse>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult GetAllEvaluationSession([FromQuery] Guid semesterId)
 		{
 			IEnumerable<GetEvaluationSessionResponse> evaluationSessionResponses =
 					_evaluationSessionService.GetAllEvaluationSession(semesterId);
-				return Ok(evaluationSessionResponses);
+			return Ok(evaluationSessionResponses);
 		}
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetEvaluationSessionResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
-		public IActionResult GetEvaluationSessionById(Guid id,[FromQuery]Guid semesterId)
+		public IActionResult GetEvaluationSessionById(Guid id, [FromQuery] Guid semesterId)
 		{
 			GetEvaluationSessionResponse evaluationSessionResponses =
 					_evaluationSessionService.GetEvaluationSessionById(id, semesterId);
-				return Ok(evaluationSessionResponses);
-			}
+			return Ok(evaluationSessionResponses);
 		}
 	}
 }

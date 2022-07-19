@@ -12,7 +12,7 @@ namespace CapstoneOnGoing.Services.Interfaces
     {
         Topic GetTopicById(Guid id);
 		bool ImportTopics(IEnumerable<ImportTopicsRequest> importTopicsRequest);
-		IEnumerable<GetTopicsDTO> GetAllTopics(PaginationFilter validFilter,string email,GetSemesterDTO currentSemester,out int totalRecords);
+		IEnumerable<GetTopicsDTO> GetAllTopics(string searchString,string email,GetSemesterDTO currentSemester);
 		GetTopicsDTO GetTopicDetails(Guid topicId);
 	}
 }

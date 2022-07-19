@@ -153,5 +153,23 @@ namespace CapstoneOnGoing.Services.Implements
 			councilResponse.Projects = projectDetailDtos;
 			return councilResponse;
         }
+
+        public bool UpdateCouncil(Guid id, UpdateCouncilRequest updateCouncilRequest)
+        {
+	        if (updateCouncilRequest == null)
+	        {
+		        throw new BadHttpRequestException("In valid value");
+	        }
+
+	        if (!updateCouncilRequest.LecturerIds.Any() && !updateCouncilRequest.ProjectIds.Any())
+	        {
+		        throw new BadHttpRequestException("No value for update");
+	        }
+
+	        IEnumerable<CouncilLecturer> councilLecturers = _unitOfWork.CouncilLecturer.Get(x => x.CouncilId == id);
+	        IEnumerable<CouncilProject> councilProjects = _unitOfWork.CouncilProject.Get(x => x.CouncilId == id);
+
+	        return true;
+        }
 	}
 } 

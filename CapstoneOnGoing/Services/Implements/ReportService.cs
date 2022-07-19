@@ -248,8 +248,17 @@ namespace CapstoneOnGoing.Services.Implements
 		                    teamWeeklyReportResponse.Reporter = _mapper.Map<StudentResponse>(reporter);
                         }
 
-	                    teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
-	                    teamWeeklyReportsResponse.Add(teamWeeklyReportResponse);
+	                    if (studentWeeklyReportResponse != null)
+	                    {
+		                    teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
+
+                        }
+
+	                    if (teamWeeklyReportResponse != null)
+	                    {
+		                    teamWeeklyReportsResponse.Add(teamWeeklyReportResponse);
+
+                        }
 	                    break;
                     case (int)RoleEnum.Lecturer:
                     case (int)RoleEnum.Admin:
@@ -304,9 +313,19 @@ namespace CapstoneOnGoing.Services.Implements
 			                    FeedbackResponses(feedbacks, teamWeeklyReport);
 		                    teamsWeeklyReportResponse.Feedback = feedbackResponses;
 	                    }
-	                    teamWeeklyReportsResponse.AddRange(studentWeeklyReportsResponse);
-	                    teamWeeklyReportsResponse.Add(teamsWeeklyReportResponse);
-                        break;
+	                    Array.ForEach(studentWeeklyReportsResponse.ToArray(), studentWeeklyReportResponse =>
+	                    {
+		                    if (studentWeeklyReportResponse != null)
+		                    {
+			                    teamWeeklyReportsResponse.Add(studentWeeklyReportResponse);
+                            }
+
+	                    });
+	                    if (teamsWeeklyReportResponse != null)
+	                    {
+		                    teamWeeklyReportsResponse.Add(teamsWeeklyReportResponse);
+                        }
+	                    break;
 		        }
 		        return teamWeeklyReportsResponse;
 

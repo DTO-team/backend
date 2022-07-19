@@ -156,6 +156,7 @@ namespace CapstoneOnGoing.Services.Implements
 
         public bool UpdateCouncil(Guid id, UpdateCouncilRequest updateCouncilRequest)
         {
+	        bool isSuccessful = false;
 	        if (updateCouncilRequest == null)
 	        {
 		        throw new BadHttpRequestException("In valid value");
@@ -165,11 +166,45 @@ namespace CapstoneOnGoing.Services.Implements
 	        {
 		        throw new BadHttpRequestException("No value for update");
 	        }
+	        Council council = _unitOfWork.Councils.Get(x => x.Id == id, null, "CouncilLecturers,CouncilProjects").FirstOrDefault();
 
-	        IEnumerable<CouncilLecturer> councilLecturers = _unitOfWork.CouncilLecturer.Get(x => x.CouncilId == id);
-	        IEnumerable<CouncilProject> councilProjects = _unitOfWork.CouncilProject.Get(x => x.CouncilId == id);
+	        if (updateCouncilRequest.LecturerIds.Any())
+	        {
+				Array.ForEach(council.CouncilLecturers.ToArray(), councilLecturer =>
+				{
+					_unitOfWork.CouncilLecturer.Delete(councilLecturer);
+				});
+				Array.ForEach(updateCouncilRequest.LecturerIds.ToArray(), lectuerId =>
+				{
+					CouncilLecturer newCouncilLecturer = new CouncilLecturer()
+					{
+						Id = Guid.NewGuid(),
+						CouncilId = council.Id,
+						LecturerId = lectuerId,
+					};
+					_unitOfWork.CouncilLecturer.Insert(newCouncilLecturer);
+				});
+	        }
+	        if (updateCouncilRequest.ProjectIds.Any())
+	        {
+		        Array.ForEach(council.CouncilProjects.ToArray(), councilProject =>
+		        {
+			        _unitOfWork.CouncilProject.Delete(councilProject);
+		        });
+		        Array.ForEach(updateCouncilRequest.ProjectIds.ToArray(), projectId =>
+		        {
+			        CouncilProject newCouncilProject = new CouncilProject()
+			        {
+						Id = Guid.NewGuid(),
+						CouncilId = council.Id,
+						ProjectId = projectId,
+			        };
+			        _unitOfWork.CouncilProject.Insert(newCouncilProject);
+				});
+	        }
 
-	        return true;
+	        isSuccessful = _unitOfWork.Save() > 0;
+			return isSuccessful;
         }
 	}
 } 

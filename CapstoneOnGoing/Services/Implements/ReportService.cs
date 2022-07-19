@@ -384,7 +384,7 @@ namespace CapstoneOnGoing.Services.Implements
 		        throw new BadHttpRequestException("Team does not exist or lecturer does not exist");
 	        }
 
-	        if (!team.Project.Mentors.Select(x => x.Id).Contains(lecturer.Id))
+	        if (!team.Project.Mentors.Select(x => x.LecturerId).Contains(lecturer.Id))
 	        {
 		        throw new BadHttpRequestException("You are not mentors of this team");
 	        }

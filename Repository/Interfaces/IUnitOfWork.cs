@@ -40,6 +40,7 @@ namespace Repository.Interfaces
         IReportRepository Report { get; }
         IWeekRepository Week { get; }
         IFeedbackRepository Feedback { get; }
+        IEvaluationReportRepository EvaluationReport { get; }
         public int Save();
     }
 }

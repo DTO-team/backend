@@ -11,5 +11,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 		IEnumerable<GetEvaluationSessionResponse> GetAllEvaluationSession(Guid semesterId);
 		GetEvaluationSessionResponse GetEvaluationSessionById(Guid evaluationId,Guid semesterId);
         bool CreateNewReviewOfCouncilEvaluationSession(CreateNewReviewRequest newReviewRequest);
+        bool CreateNewEvaluationSessionReport(Guid evaluationSessionId, CreateNewEvaluationReportRequest newEvaluationReportRequest);
     }
 }

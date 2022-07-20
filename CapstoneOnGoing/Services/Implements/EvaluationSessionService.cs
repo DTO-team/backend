@@ -201,5 +201,39 @@ namespace CapstoneOnGoing.Services.Implements
             _unitOfWork.Review.Insert(newReview);
             return _unitOfWork.Save() > 0;
         }
+
+        public bool CreateNewEvaluationSessionReport(Guid evaluationSessionId, CreateNewEvaluationReportRequest newEvaluationReportRequest)
+        {
+            EvaluationSession evaluationSession = _unitOfWork.EvaluationSession.GetById(evaluationSessionId);
+            Team team = _unitOfWork.Team.GetById(newEvaluationReportRequest.TeamId);
+
+            if (evaluationSession is null)
+            {
+                throw new BadHttpRequestException($"Evaluation Session with {evaluationSessionId} id is not existed!");
+            }
+
+            if (team is null)
+            {
+                throw new BadHttpRequestException($"Team with {newEvaluationReportRequest.TeamId} id is not existed!");
+            }
+
+            if (!newEvaluationReportRequest.EvaluationReportDetailsRequest.Any())
+            {
+                throw new BadHttpRequestException($"Evaluation report detail is required!");
+            }
+
+            EvaluationReport newEvaluationReport = new EvaluationReport();
+            newEvaluationReport.EvaluationSessionId = evaluationSessionId;
+            newEvaluationReport.TeamId = newEvaluationReportRequest.TeamId;
+
+            ICollection<EvaluationReportDetail> evaluationReportDetailsRequest =
+                _mapper.Map<ICollection<EvaluationReportDetail>>(newEvaluationReportRequest
+                    .EvaluationReportDetailsRequest);
+
+            newEvaluationReport.EvaluationReportDetails = evaluationReportDetailsRequest;
+
+            _unitOfWork.EvaluationReport.Insert(newEvaluationReport);
+            return _unitOfWork.Save() > 0;
+        }
     }
 }

@@ -59,7 +59,8 @@ namespace CapstoneOnGoing.Extensions
             services.AddScoped<ICriterionService, CriterionService>();
             services.AddScoped<ICouncilService, CouncilService>();
             services.AddScoped<IEvaluationSessionService, EvaluationSessionService>();
-		}
+            services.AddScoped<IEvaluationReportRepository, EvaluationReportRepository>();
+        }
 
 		public static void AddConfigUriForPagination(this IServiceCollection services)
 		{

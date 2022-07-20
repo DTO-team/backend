@@ -262,6 +262,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<CreateNewReviewRequest, Review>()
                 .ForMember(dest => dest.ReviewGrades, src => src.Ignore())
                 .ForMember(dest => dest.ReviewQuestions, src => src.Ignore());
+
+            CreateMap<EvaluationReportDetailRequest, EvaluationReportDetail>();
         }
     }
 }

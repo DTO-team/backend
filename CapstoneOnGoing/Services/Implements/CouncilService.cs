@@ -157,8 +157,9 @@ namespace CapstoneOnGoing.Services.Implements
         public bool UpdateCouncil(Guid id, UpdateCouncilRequest updateCouncilRequest)
         {
 	        bool isSuccessful = false;
-
+          
 			if (updateCouncilRequest == null)
+
 	        {
 		        throw new BadHttpRequestException("In valid value");
 	        }
@@ -168,6 +169,7 @@ namespace CapstoneOnGoing.Services.Implements
 		        throw new BadHttpRequestException("No value for update");
 	        }
 	        Council council = _unitOfWork.Councils.Get(x => x.Id == id, null, "CouncilLecturers,CouncilProjects").FirstOrDefault();
+
 	        if (council == null)
 	        {
 		        throw new BadHttpRequestException("No council found");
@@ -265,7 +267,6 @@ namespace CapstoneOnGoing.Services.Implements
 						CheckIsMentorOfProjet(newLecturer,newProject);
 					}
 				}
-				
 				Array.ForEach(council.CouncilLecturers.ToArray(), councilLecturer =>
 				{
 					_unitOfWork.CouncilLecturer.Delete(councilLecturer);

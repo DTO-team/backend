@@ -38,9 +38,10 @@ namespace CapstoneOnGoing.Controllers
             _userService = userService;
         }
 
-        [Authorize(Roles = "LECTURER")]
+        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet("{councilId}/projects")]
-		public IActionResult GetAllCouncilProjects(Guid councilId)
+        [ProducesResponseType(typeof(IEnumerable<GetAllProjectDetailResponse>), StatusCodes.Status200OK)]
+        public IActionResult GetAllCouncilProjects(Guid councilId)
 		{
 			var headers = Request.Headers;
 			StringValues CurrentSemester;

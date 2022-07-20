@@ -126,5 +126,29 @@ namespace CapstoneOnGoing.Controllers
                 });
 			}
         }
+
+        [HttpPost("{id}/evaluationreport")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+		public IActionResult CreateNewEvaluationReport(Guid id,
+            [FromBody] CreateNewEvaluationReportRequest newEvaluationReportRequest)
+        {
+            bool isSuccess = _evaluationSessionService.CreateNewEvaluationSessionReport(id, newEvaluationReportRequest);
+            if (isSuccess)
+            {
+                return CreatedAtAction("CreateNewReviewOfEvaluationSession", "Create successfully!");
+            }
+            else
+            {
+				_logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(CreateNewEvaluationReport)}: Create new evaluation report failed!");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Create new evaluation report failed!",
+                    TimeStamp = DateTime.Now
+                });
+			}
+		}
+
 	}
 }

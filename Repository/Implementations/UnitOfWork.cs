@@ -37,6 +37,7 @@ namespace Repository.Implementations
         private readonly IReportRepository _reportRepository;
         private readonly IWeekRepository _weekRepository;
         private readonly IFeedbackRepository _feedbackRepository;
+        private readonly IEvaluationReportRepository _evaluationReportRepository;
         private bool _disposed = false;
 
         public UnitOfWork(CAPSTONEONGOINGContext context,
@@ -70,7 +71,8 @@ namespace Repository.Implementations
                           IDepartmentRepository departmentRepository,
                           IReportRepository reportRepository,
                           IWeekRepository weekRepository,
-                          IFeedbackRepository feedbackRepository)
+                          IFeedbackRepository feedbackRepository,
+                          IEvaluationReportRepository evaluationReportRepository)
         {
             _context = context;
             _applicationRepository = applicationRepository;
@@ -104,6 +106,7 @@ namespace Repository.Implementations
             _reportRepository = reportRepository;
             _weekRepository = weekRepository;
             _feedbackRepository = feedbackRepository;
+            _evaluationReportRepository = evaluationReportRepository;
         }
 
         public IApplicationRepository Applications => _applicationRepository;
@@ -167,6 +170,7 @@ namespace Repository.Implementations
 
         public IWeekRepository Week => _weekRepository;
         public IFeedbackRepository Feedback => _feedbackRepository;
+        public IEvaluationReportRepository EvaluationReport => _evaluationReportRepository;
 
         public void Dispose()
         {

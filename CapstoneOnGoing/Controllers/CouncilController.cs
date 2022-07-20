@@ -163,7 +163,7 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(councilResponse);
 		}
 
-		//[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN")]
 		[HttpPut("{id}")]
 		public IActionResult UpdateCouncil(Guid id, UpdateCouncilRequest updateCouncilRequest)
 		{

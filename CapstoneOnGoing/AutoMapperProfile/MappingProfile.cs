@@ -254,6 +254,14 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.TopicId, src => src.MapFrom(src => src.TopicId))
                 .ForMember(dest => dest.LecturersDetails, src => src.MapFrom(src => src.LecturerDtos))
                 .ForMember(dest => dest.CompanyDetail, src => src.MapFrom(src => src.CompanyDto));
+
+            CreateMap<ReviewGradeRequest, ReviewGrade>()
+                .ForMember(dest => dest.Id, src => src.Ignore());
+            CreateMap<ReviewQuestionRequest, ReviewQuestion>()
+                .ForMember(dest => dest.Id, src => src.Ignore()); ;
+            CreateMap<CreateNewReviewRequest, Review>()
+                .ForMember(dest => dest.ReviewGrades, src => src.Ignore())
+                .ForMember(dest => dest.ReviewQuestions, src => src.Ignore());
         }
     }
 }

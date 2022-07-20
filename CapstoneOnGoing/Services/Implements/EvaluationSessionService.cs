@@ -7,6 +7,7 @@ using CapstoneOnGoing.Helper;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
@@ -20,13 +21,15 @@ namespace CapstoneOnGoing.Services.Implements
         private readonly ICouncilService _councilService;
         private readonly IMapper _mapper;
         private readonly ILecturerService _lecturerService;
+        private readonly IProjectService _projectService;
 
-        public EvaluationSessionService(IUnitOfWork unitOfWork, ICouncilService councilService, IMapper mapper, ILecturerService lecturerService)
+        public EvaluationSessionService(IUnitOfWork unitOfWork, ICouncilService councilService, IMapper mapper, ILecturerService lecturerService, IProjectService projectService)
         {
             _unitOfWork = unitOfWork;
             _councilService = councilService;
             _mapper = mapper;
             _lecturerService = lecturerService;
+            _projectService = projectService;
         }
 
         public bool UpdateEvaluationSessionStatus(Guid id, UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
@@ -96,11 +99,12 @@ namespace CapstoneOnGoing.Services.Implements
             if (evaluationSession.Councils.Any())
             {
                 evaluationSessionResponse.LecturerInCouncils = new List<GetLecturerInCouncil>();
+                evaluationSessionResponse.Projects = new List<GetProjectDetailDTO>();
                 Array.ForEach(evaluationSession.Councils.ToArray(), council =>
                 {
                     GetLecturerInCouncil getLecturerInCouncil = new GetLecturerInCouncil();
                     getLecturerInCouncil.Lecturers = new List<GetLecturerResponse>();
-                    IEnumerable<Council> councils = _unitOfWork.Councils.Get(x => x.Id == council.Id, null, "CouncilLecturers");
+                    IEnumerable<Council> councils = _unitOfWork.Councils.Get(x => x.Id == council.Id, null, "CouncilLecturers,CouncilProjects");
                     Array.ForEach(councils.ToArray(), council =>
                     {
                         Array.ForEach(council.CouncilLecturers.ToArray(), councilLecturer =>
@@ -108,6 +112,12 @@ namespace CapstoneOnGoing.Services.Implements
                             User lecturer = _lecturerService.GetLecturerById(councilLecturer.LecturerId);
                             GetLecturerResponse lecturerResponse = _mapper.Map<GetLecturerResponse>(lecturer);
                             getLecturerInCouncil.Lecturers.Add(lecturerResponse);
+                        });
+                        Array.ForEach(council.CouncilProjects.ToArray(), councilProject =>
+                        {
+	                        GetProjectDetailDTO project = _projectService.GetProjectDetailById(councilProject.ProjectId,
+		                        new GetSemesterDTO() {Id = semesterId});
+                            if(project != null) evaluationSessionResponse.Projects.Add(project);
                         });
                     });
                     evaluationSessionResponse.LecturerInCouncils.Add(getLecturerInCouncil);

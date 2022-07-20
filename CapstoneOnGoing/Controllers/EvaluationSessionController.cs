@@ -29,8 +29,8 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpPut("{id}")]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status200OK)]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult UpdateEvaluationSession(Guid id, UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
 		{
 			bool isSuccessful = _evaluationSessionService.UpdateEvaluationSessionStatus(id, updateEvaluationSessionRequest);
@@ -53,9 +53,9 @@ namespace CapstoneOnGoing.Controllers
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpGet]
-		[ProducesResponseType(typeof(IEnumerable<GetEvaluationSessionResponse>),StatusCodes.Status200OK)]
-		[ProducesResponseType(typeof(GenericResponse),StatusCodes.Status400BadRequest)]
-		public IActionResult GetAllEvaluationSession()
+		[ProducesResponseType(typeof(IEnumerable<GetEvaluationSessionResponse>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+		public IActionResult GetAllEvaluationSession([FromQuery] Guid semesterId)
 		{
 			var headers = Request.Headers;
 			StringValues CurrentSemester;
@@ -105,10 +105,10 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
-		[HttpPost]
+		[HttpPost("review")]
         [ProducesResponseType(typeof(Review), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
-		public IActionResult CreateNewReviewOfEvaluationSession([FromQuery] CreateNewReviewRequest newReviewRequest)
+		public IActionResult CreateNewReviewOfEvaluationSession([FromBody] CreateNewReviewRequest newReviewRequest)
         {
             bool isSuccess = _evaluationSessionService.CreateNewReviewOfCouncilEvaluationSession(newReviewRequest);
             if (isSuccess)

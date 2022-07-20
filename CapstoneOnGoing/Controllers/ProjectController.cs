@@ -96,7 +96,7 @@ namespace CapstoneOnGoing.Controllers
             return Ok(projectResponse);
         }
 
-        [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
+        // [Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<GetAllProjectDetailResponse>), StatusCodes.Status200OK)]
         public IActionResult GetAllProjects([FromQuery] string SearchString)

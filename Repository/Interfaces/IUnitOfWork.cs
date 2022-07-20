@@ -35,12 +35,12 @@ namespace Repository.Interfaces
         ITopicLecturerRepository TopicLecturer { get; }
         ITopicRepository Topic { get; }
         IUserRepository User { get; }
-
         IDepartmentRepository Department { get; }
         IReportRepository Report { get; }
         IWeekRepository Week { get; }
         IFeedbackRepository Feedback { get; }
         IEvaluationReportRepository EvaluationReport { get; }
+        IEvaluationReportDetailRepository EvaluationReportDetail { get; }
         public int Save();
     }
 }

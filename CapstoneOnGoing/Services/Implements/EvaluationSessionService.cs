@@ -235,5 +235,41 @@ namespace CapstoneOnGoing.Services.Implements
             _unitOfWork.EvaluationReport.Insert(newEvaluationReport);
             return _unitOfWork.Save() > 0;
         }
+
+        public bool UpdateEvaluationSessionReport(Guid evaluationReportId,
+            UpdateEvaluationReportDetailRequest newEvaluationReportDetailRequest)
+        {
+            EvaluationReport existedEvaluationReport = _unitOfWork.EvaluationReport.Get(report =>
+                    report.Id.Equals(evaluationReportId))
+                .FirstOrDefault();
+            if (existedEvaluationReport is null)
+            {
+                throw new BadHttpRequestException(
+                    $"Evaluation Report with {evaluationReportId} evaluation report id is not existed!");
+            }
+
+            EvaluationReportDetail evaluationReportDetail =
+                _unitOfWork.EvaluationReportDetail.Get(reportDetail => reportDetail.Id.Equals(newEvaluationReportDetailRequest.evaluationReportDetailId) && reportDetail.EvaluationReportId.Equals(evaluationReportId)).FirstOrDefault();
+            if (evaluationReportDetail is not null)
+            {
+                if (!string.IsNullOrEmpty(newEvaluationReportDetailRequest.updateNewEvaluationReportDetail.Name))
+                { 
+                    evaluationReportDetail.Name = newEvaluationReportDetailRequest.updateNewEvaluationReportDetail.Name;
+                }
+
+                if (!string.IsNullOrEmpty(newEvaluationReportDetailRequest.updateNewEvaluationReportDetail.Url))
+                {
+                    evaluationReportDetail.Url = newEvaluationReportDetailRequest.updateNewEvaluationReportDetail.Url;
+                }
+                _unitOfWork.EvaluationReportDetail.Update(evaluationReportDetail);
+                return _unitOfWork.Save() > 0;
+            }
+            else
+            {
+                throw new BadHttpRequestException(
+                    $"Evaluation Report Detail with {newEvaluationReportDetailRequest.evaluationReportDetailId} id is not existed!");
+            }
+        }
+
     }
 }

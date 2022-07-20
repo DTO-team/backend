@@ -57,26 +57,11 @@ namespace CapstoneOnGoing.Controllers
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult GetAllEvaluationSession([FromQuery] Guid semesterId)
 		{
-			var headers = Request.Headers;
-			StringValues CurrentSemester;
-			if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
-			{
-				_logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetAllEvaluationSession)}: Semester {CurrentSemester}");
-				return BadRequest(new GenericResponse()
-				{
-					HttpStatus = StatusCodes.Status400BadRequest,
-					Message = "Request does not have semester",
-					TimeStamp = DateTime.Now
-				});
-			}
-			else
-			{
-				GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
-				IEnumerable<GetEvaluationSessionResponse> evaluationSessionResponses =
-					_evaluationSessionService.GetAllEvaluationSession(semesterDto.Id);
+			IEnumerable<GetEvaluationSessionResponse> evaluationSessionResponses =
+					_evaluationSessionService.GetAllEvaluationSession(semesterId);
 				return Ok(evaluationSessionResponses);
-			}
 		}
+
 
 		[Authorize(Roles = "ADMIN")]
 		[HttpGet("{id}")]

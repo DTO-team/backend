@@ -14,6 +14,7 @@ namespace Models.Response
 		public long DeadLine { get; set; }
 		public List<GetSemesterCriteriaResponse> SemesterCriterias { get; set; }
 		public List<GetLecturerInCouncil> LecturerInCouncils { get; set; }
+		public List<GetProjectDetailDTO> Projects { get; set; }
 	}
 
 	public class GetLecturerInCouncil

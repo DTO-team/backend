@@ -106,14 +106,14 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		[HttpPost("review")]
-        [ProducesResponseType(typeof(Review), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult CreateNewReviewOfEvaluationSession([FromBody] CreateNewReviewRequest newReviewRequest)
         {
             bool isSuccess = _evaluationSessionService.CreateNewReviewOfCouncilEvaluationSession(newReviewRequest);
             if (isSuccess)
             {
-                return CreatedAtAction("CreateNewReviewOfEvaluationSession", newReviewRequest.CouncilId);
+                return CreatedAtAction("CreateNewReviewOfEvaluationSession", "Create successfully!");
             }
             else
             {

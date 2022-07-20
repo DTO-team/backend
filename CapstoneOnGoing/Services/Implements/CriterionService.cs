@@ -80,11 +80,6 @@ namespace CapstoneOnGoing.Services.Implements
         {
             CriteriaDTO existedCriteriaDto = GetCriteriaByCode(newCriteriaRequest.Code);
 
-            if (!string.IsNullOrEmpty(newCriteriaRequest.Evaluation))
-            {
-                newCriteriaRequest.Evaluation = $"- {newCriteriaRequest.Evaluation}";
-            }
-            
             Array.ForEach(newCriteriaRequest.GradesRequest.ToArray(), gradeRequest =>
             {
                 string gradeLevel = gradeRequest.Level.ToUpper();

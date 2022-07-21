@@ -133,6 +133,19 @@ namespace CapstoneOnGoing.Services.Implements
                             _unitOfWork.Applications.Update(sameTopicApp);
                         }
 
+                        //Change status of another application of team to rejected
+                        IEnumerable<Application> anotherTeamApplication = _unitOfWork.Applications.Get(app =>
+                            app.TeamId.Equals(application.TeamId) &&
+                            !app.StatusId.Equals((int)ApplicationStatus.Approved));
+                        if (anotherTeamApplication.Any())
+                        {
+                            foreach (Application anotherApp in anotherTeamApplication)
+                            {
+                                anotherApp.StatusId = (int)ApplicationStatus.Rejected;
+                                _unitOfWork.Applications.Update(anotherApp);
+                            }
+                        }
+                        
                         //Create new project with the application's topic after approve 1 application
                         Project project = new Project();
                         if (application.TeamId == Guid.Empty)

@@ -15,7 +15,6 @@ namespace CapstoneOnGoing.Services.Interfaces
         bool CreateNewEvaluationSessionReport(Guid evaluationSessionId, CreateNewEvaluationReportRequest newEvaluationReportRequest);
         bool UpdateEvaluationSessionReport(Guid evaluationReportId, UpdateEvaluationReportDetailRequest newEvaluationReportDetailRequest);
         GetAllEvaluationReportResponse GetAllEvaluationReportById(Guid evaluationReportId, GetSemesterDTO semesterDto);
-
         GetEvaluationReportDetailResponse GetEvaluationReportDetailById(Guid evaluationReportId, Guid evaluationReportDetailId, 
             GetSemesterDTO semesterDto);
     }

@@ -100,12 +100,10 @@ namespace CapstoneOnGoing.Services.Implements
 
             if (evaluationSession.Councils.Any())
             {
-                evaluationSessionResponse.LecturerInCouncils = new List<GetLecturerInCouncil>();
-                evaluationSessionResponse.Projects = new List<GetProjectDetailDTO>();
+	            evaluationSessionResponse.Projects = new List<GetProjectDetailDTO>();
                 Array.ForEach(evaluationSession.Councils.ToArray(), council =>
                 {
-                    GetLecturerInCouncil getLecturerInCouncil = new GetLecturerInCouncil();
-                    getLecturerInCouncil.Lecturers = new List<GetLecturerResponse>();
+                    List<GetLecturerResponse> getLecturerInCouncil = new List<GetLecturerResponse>();
                     IEnumerable<Council> councils = _unitOfWork.Councils.Get(x => x.Id == council.Id, null, "CouncilLecturers,CouncilProjects");
                     Array.ForEach(councils.ToArray(), council =>
                     {
@@ -113,7 +111,13 @@ namespace CapstoneOnGoing.Services.Implements
                         {
                             User lecturer = _lecturerService.GetLecturerById(councilLecturer.LecturerId);
                             GetLecturerResponse lecturerResponse = _mapper.Map<GetLecturerResponse>(lecturer);
-                            getLecturerInCouncil.Lecturers.Add(lecturerResponse);
+                            getLecturerInCouncil.Add(lecturerResponse);
+                        });
+                        Array.ForEach(council.CouncilProjects.ToArray(), councilProject =>
+                        {
+	                        GetProjectDetailDTO project = _projectService.GetProjectDetailById(councilProject.ProjectId,
+		                        new GetSemesterDTO() {Id = semesterId});
+                            if(project != null) evaluationSessionResponse.Projects.Add(project);
                         });
                         Array.ForEach(council.CouncilProjects.ToArray(), councilProject =>
                         {
@@ -122,7 +126,7 @@ namespace CapstoneOnGoing.Services.Implements
                             if(project != null) evaluationSessionResponse.Projects.Add(project);
                         });
                     });
-                    evaluationSessionResponse.LecturerInCouncils.Add(getLecturerInCouncil);
+                    evaluationSessionResponse.LecturerInCouncils = getLecturerInCouncil;
                 });
             }
             return evaluationSessionResponse;

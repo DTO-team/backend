@@ -4,7 +4,7 @@ using Models.Dtos;
 
 namespace Models.Response
 {
-	public class GetEvaluationSessionResponse
+	public class GetCouncilOfTeamResponse
 	{
 		public Guid Id { get; set; }
 		public GetSemesterDTO Semester { get; set; }
@@ -13,7 +13,6 @@ namespace Models.Response
 		public int Status { get; set; }
 		public long DeadLine { get; set; }
 		public List<GetSemesterCriteriaResponse> SemesterCriterias { get; set; }
-		public List<GetLecturerResponse> LecturerInCouncils { get; set; }
-		public List<GetProjectDetailDTO> Projects { get; set; }
+		public List<GetLecturerResponse> Lecturers { get; set; }
 	}
 }

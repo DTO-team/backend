@@ -112,6 +112,7 @@ namespace CapstoneOnGoing.Controllers
 			}
         }
 
+        //evaluationSessionId
         [HttpPost("{id}/evaluationreport")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
@@ -121,7 +122,7 @@ namespace CapstoneOnGoing.Controllers
             bool isSuccess = _evaluationSessionService.CreateNewEvaluationSessionReport(id, newEvaluationReportRequest);
             if (isSuccess)
             {
-                return CreatedAtAction("CreateNewReviewOfEvaluationSession", "Create successfully!");
+                return CreatedAtAction("CreateNewEvaluationReport", "Create successfully!");
             }
             else
             {
@@ -133,6 +134,28 @@ namespace CapstoneOnGoing.Controllers
                     TimeStamp = DateTime.Now
                 });
 			}
+		}
+
+		//evaluationSessionId
+        [HttpPut("evaluationreport/{evaluationReportId}")]
+        public IActionResult UpdateEvaluationReport(Guid evaluationReportId,
+            UpdateEvaluationReportDetailRequest newEvaluationReportDetailRequest)
+        {
+            bool isSuccess = _evaluationSessionService.UpdateEvaluationSessionReport(evaluationReportId, newEvaluationReportDetailRequest);
+            if (isSuccess)
+            {
+                return Ok("Update successfully!");
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(UpdateEvaluationReport)}: Update evaluation report detail failed!");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Update evaluation report detail failed!",
+                    TimeStamp = DateTime.Now
+                });
+            }
 		}
 
 	}

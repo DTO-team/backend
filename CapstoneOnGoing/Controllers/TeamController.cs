@@ -299,8 +299,7 @@ namespace CapstoneOnGoing.Controllers
         public IActionResult FeedbackReport(Guid id, Guid reportId, [FromBody] FeedbackReportRequest feedbackReportRequest)
         {
             string email = HttpContext.User.FindFirstValue(ClaimTypes.Email);
-            feedbackReportRequest.Path.Remove(0);
-            if (!feedbackReportRequest.Op.Equals("add") || !feedbackReportRequest.Path.Equals("feedbacks") || string.IsNullOrWhiteSpace(feedbackReportRequest.Value) || string.IsNullOrEmpty(feedbackReportRequest.Value))
+            if (!feedbackReportRequest.Op.Equals("add") || !feedbackReportRequest.Path.Equals("feedback") || string.IsNullOrWhiteSpace(feedbackReportRequest.Value) || string.IsNullOrEmpty(feedbackReportRequest.Value))
             {
                 _logger.LogWarn($"Controller: {nameof(TeamController)}, Method: {nameof(FeedbackReport)}: Value is invalid {feedbackReportRequest.Op} - {feedbackReportRequest.Path} - {feedbackReportRequest.Value}");
                 return BadRequest(new GenericResponse()
@@ -329,9 +328,9 @@ namespace CapstoneOnGoing.Controllers
                 TimeStamp = DateTime.Now
             });
         }
-        //
-        // [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
-        [HttpGet("{id}/council")]
+		//
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		[HttpGet("{id}/council")]
         [ProducesResponseType(typeof(IEnumerable<GetCouncilOfTeamResponse>), StatusCodes.Status200OK)]
         public IActionResult GetCouncilOfTeam(Guid id)
         {

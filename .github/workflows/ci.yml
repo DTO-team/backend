@@ -41,6 +41,6 @@ jobs:
     - name: Test api
       uses: matt-ball/newman-action@master
       with:
-        apiKey: ${{secrets.POSTMAN_API_KEY}}
-        collection: ${{secrets.POSTMAN_COLLECTION_ID}}
-        environment: ${{secrets.POSTMAN_ENVIRONMENT_ID}}
+        apiKey: PMAK-62d8cd6723a07f66ddd26dbc-0d9ae225dcdb53cfe4b132e22fbbd60f8d
+        collection: d06dcfb4-c609-4c51-8287-9b46a7fd9766
+        environment: e38c0ca2-6222-4f92-b451-f12143fdf074

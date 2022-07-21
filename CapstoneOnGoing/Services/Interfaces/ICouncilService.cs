@@ -17,5 +17,6 @@ namespace CapstoneOnGoing.Services.Interfaces
 		bool UpdateCouncil(Guid id,UpdateCouncilRequest updateCouncilRequest);
 
 		IEnumerable<GetCouncilOfTeamResponse> GetCouncilOfTeamById(Guid teamId);
-	}
+        IEnumerable<Guid> GetCouncilIdByLecturerId(Guid lecturerId);
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CapstoneOnGoing.Logger;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -136,6 +137,7 @@ namespace CapstoneOnGoing.Controllers
 			}
 		}
 
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
 		//evaluationSessionId
         [HttpPut("evaluationreports/{evaluationReportId}")]
         public IActionResult UpdateEvaluationReport(Guid evaluationReportId,
@@ -158,6 +160,7 @@ namespace CapstoneOnGoing.Controllers
             }
 		}
 
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
         [HttpGet("evaluationreports/{evaluationReportId}")]
         [ProducesResponseType(typeof(GetAllEvaluationReportResponse), StatusCodes.Status200OK)]
         public IActionResult GetAllEvaluationReportDetailByEvaluationReportId(Guid evaluationReportId)
@@ -189,6 +192,7 @@ namespace CapstoneOnGoing.Controllers
             }
 		}
 
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
         [HttpGet("evaluationreports/{evaluationReportId}/evaluationreportdetail")]
         [ProducesResponseType(typeof(GetEvaluationReportDetailResponse), StatusCodes.Status200OK)]
         public IActionResult GetEvaluationReportDetailByEvaluationReportIdAndEvaluationReportDetailId(
@@ -221,5 +225,45 @@ namespace CapstoneOnGoing.Controllers
             }
         }
 
-	}
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
+        [HttpGet("evaluationreports/reviews/{projectId}")]
+        [ProducesResponseType(typeof(GetCouncilReviewOnProjectResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult GetAllReviewOnProjectById(Guid projectId)
+        {
+            IEnumerable<GetCouncilReviewOnProjectResponse> reviewsOnProject = _evaluationSessionService.GetAllReviewsOnProject(projectId);
+            if (reviewsOnProject.Any())
+            {
+                return Ok(reviewsOnProject);
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetReviewOnProjectById)}: Get Review On Project By Id failed!");
+                return Ok(reviewsOnProject);
+            }
+        }
+
+        [Authorize(Roles = "ADMIN,LECTURER,STUDENT,COMPANY")]
+        [HttpGet("evaluationreports/reviews/{reviewId}/reviewDetail")]
+        [ProducesResponseType(typeof(GetCouncilReviewOnProjectResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult GetReviewOnProjectById(Guid reviewId)
+        {
+            GetCouncilReviewOnProjectResponse reviewOnProject = _evaluationSessionService.GetReviewOnProjectById(reviewId);
+            if (reviewOnProject is not null)
+            {
+                return Ok(reviewOnProject);
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetReviewOnProjectById)}: Get Review On Project By Id failed!");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Get Review On Project By Id failed!",
+                    TimeStamp = DateTime.Now
+                });
+            }
+        }
+    }
 }

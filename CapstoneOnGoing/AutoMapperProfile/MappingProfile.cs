@@ -267,6 +267,11 @@ namespace CapstoneOnGoing.AutoMapperProfile
             CreateMap<Council, GetCouncilOfTeamResponse>();
             CreateMap<EvaluationReportDetail, EvaluationReportDetailResponse>();
 
+            CreateMap<GradeCopy, GetGradeCopyResponse>();
+            CreateMap<QuestionCopy, GetQuestionCopyResponse>();
+            CreateMap<Review, GetCouncilReviewOnProjectResponse>()
+                .ForMember(dest => dest.GradeCopyResponses, src=> src.Ignore())
+                .ForMember(dest => dest.QuestionCopyResponses, src => src.Ignore());
         }
     }
 }

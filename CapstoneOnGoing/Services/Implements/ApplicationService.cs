@@ -124,19 +124,10 @@ namespace CapstoneOnGoing.Services.Implements
                         application.StatusId = (int)ApplicationStatus.Approved;
                         _unitOfWork.Applications.Update(application);
 
-                        //Get all ANOTHER application with the same topic to reject
-                        IEnumerable<Application> sameTopicApplications = _unitOfWork.Applications.Get(app =>
-                            (app.TopicId == application.TopicId && app.Id != application.Id && app.StatusId != (int)ApplicationStatus.Deleted));
-                        foreach (Application sameTopicApp in sameTopicApplications)
-                        {
-                            sameTopicApp.StatusId = (int)ApplicationStatus.Rejected;
-                            _unitOfWork.Applications.Update(sameTopicApp);
-                        }
-
                         //Change status of another application of team to rejected
                         IEnumerable<Application> anotherTeamApplication = _unitOfWork.Applications.Get(app =>
                             app.TeamId.Equals(application.TeamId) &&
-                            !app.StatusId.Equals((int)ApplicationStatus.Approved));
+                            !app.TopicId.Equals(application.TopicId));
                         if (anotherTeamApplication.Any())
                         {
                             foreach (Application anotherApp in anotherTeamApplication)
@@ -145,6 +136,16 @@ namespace CapstoneOnGoing.Services.Implements
                                 _unitOfWork.Applications.Update(anotherApp);
                             }
                         }
+
+                        //Get all ANOTHER application with the same topic to reject
+                        IEnumerable<Application> sameTopicApplications = _unitOfWork.Applications.Get(app =>
+                            (app.TopicId == application.TopicId && app.Id != application.Id && app.StatusId != (int)ApplicationStatus.Deleted && app.StatusId != (int)ApplicationStatus.Approved));
+                        foreach (Application sameTopicApp in sameTopicApplications)
+                        {
+                            sameTopicApp.StatusId = (int)ApplicationStatus.Rejected;
+                            _unitOfWork.Applications.Update(sameTopicApp);
+                        }
+
                         
                         //Create new project with the application's topic after approve 1 application
                         Project project = new Project();

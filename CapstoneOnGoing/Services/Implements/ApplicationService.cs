@@ -146,7 +146,6 @@ namespace CapstoneOnGoing.Services.Implements
                             _unitOfWork.Applications.Update(sameTopicApp);
                         }
 
-                        
                         //Create new project with the application's topic after approve 1 application
                         Project project = new Project();
                         if (application.TeamId == Guid.Empty)

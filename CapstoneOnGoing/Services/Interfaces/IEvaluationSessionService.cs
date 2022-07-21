@@ -17,5 +17,7 @@ namespace CapstoneOnGoing.Services.Interfaces
         GetAllEvaluationReportResponse GetAllEvaluationReportById(Guid evaluationReportId, GetSemesterDTO semesterDto);
         GetEvaluationReportDetailResponse GetEvaluationReportDetailById(Guid evaluationReportId, Guid evaluationReportDetailId, 
             GetSemesterDTO semesterDto);
+        GetCouncilReviewOnProjectResponse GetReviewOnProjectById(Guid reviewId);
+        IEnumerable<GetCouncilReviewOnProjectResponse> GetAllReviewsOnProject(Guid projectId);
     }
 }

@@ -336,5 +336,68 @@ namespace CapstoneOnGoing.Services.Implements
                 throw new BadHttpRequestException("Get all evaluation report detail failed!");
             }
         }
+
+        public GetCouncilReviewOnProjectResponse GetReviewOnProjectById(Guid reviewId)
+        {
+            Review reportReview = _unitOfWork.Review.Get(review => review.Id.Equals(reviewId),null,
+                "ReviewGrades,ReviewQuestions").FirstOrDefault();
+            if (reportReview is not null)
+            {
+                GetCouncilReviewOnProjectResponse reviewOnProject =
+                    _mapper.Map<GetCouncilReviewOnProjectResponse>(reportReview);
+                if (reportReview.ReviewGrades.Any())
+                {
+                    List<GetGradeCopyResponse> gradeCopyResponses = new List<GetGradeCopyResponse>(); 
+                    foreach (ReviewGrade reportReviewReviewGrade in reportReview.ReviewGrades)
+                    {
+                        GradeCopy grade = _unitOfWork.GradeCopy.GetById(reportReviewReviewGrade.GradeId);
+                        GetGradeCopyResponse gradeCopyResponse = _mapper.Map<GetGradeCopyResponse>(grade);
+                        gradeCopyResponses.Add(gradeCopyResponse);
+                    }
+
+                    reviewOnProject.GradeCopyResponses = gradeCopyResponses;
+                }
+
+                if (reportReview.ReviewQuestions.Any())
+                {
+                    List<GetQuestionCopyResponse> questionCopyResponses = new List<GetQuestionCopyResponse>();
+                    foreach (ReviewQuestion reportReviewReviewQuestion in reportReview.ReviewQuestions)
+                    {
+                        QuestionCopy question = _unitOfWork.QuestionCopy.GetById(reportReviewReviewQuestion.QuestionId);
+                        GetQuestionCopyResponse questionCopyResponse = _mapper.Map<GetQuestionCopyResponse>(question);
+                        questionCopyResponses.Add(questionCopyResponse);
+                    }
+
+                    reviewOnProject.QuestionCopyResponses = questionCopyResponses;
+                }
+
+                return reviewOnProject;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Review with {reviewId} id is not existed!");
+            }
+        }
+
+        public IEnumerable<GetCouncilReviewOnProjectResponse> GetAllReviewsOnProject(Guid projectId)
+        {
+            List<GetCouncilReviewOnProjectResponse> allReview = new List<GetCouncilReviewOnProjectResponse>();
+            IEnumerable<Review> reportOnProjectReview =
+                _unitOfWork.Review.Get(report => report.ProjectId.Equals(projectId));
+            if (reportOnProjectReview.Any())
+            {
+                foreach (Review review in reportOnProjectReview)
+                {
+                    GetCouncilReviewOnProjectResponse reviewResponse = GetReviewOnProjectById(review.Id);
+                    allReview.Add(reviewResponse);
+                }
+                return allReview;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Project with {projectId} id is not exist any review");
+            }
+        }
+
     }
 }

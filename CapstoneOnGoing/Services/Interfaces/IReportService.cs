@@ -9,7 +9,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface IReportService
 	{
-		Guid? CreateWeeklyReport(Guid teamId, string studentEmail,CreateWeeklyReportDTO createWeeklyReportDTO);
+		Guid? CreateWeeklyReport(GetSemesterDTO semester, Guid teamId, string studentEmail,CreateWeeklyReportDTO createWeeklyReportDTO);
 
 		List<GetTeamWeeklyReportResponse> GetTeamWeeklyReport(Guid teamId, int week, GetSemesterDTO currentSemester, string email);
 

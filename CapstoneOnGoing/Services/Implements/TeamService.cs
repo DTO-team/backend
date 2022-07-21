@@ -6,6 +6,7 @@ using CapstoneOnGoing.Enums;
 using CapstoneOnGoing.Services.Interfaces;
 using CapstoneOnGoing.Utils;
 using Microsoft.AspNetCore.Http;
+using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
@@ -24,10 +25,8 @@ namespace CapstoneOnGoing.Services.Implements
             _unitOfWork = unitOfWork;
         }
 
-        public bool CreateTeam(CreateTeamRequest createTeamRequest, string userEmail, out CreatedTeamResponse createdTeamResponse)
+        public bool CreateTeam(GetSemesterDTO semester, CreateTeamRequest createTeamRequest, string userEmail, out CreatedTeamResponse createdTeamResponse)
         {
-            //get Current Semester
-            Semester currentSemester = _unitOfWork.Semester.Get(x => x.Status == (int)TeamStatus.Active).FirstOrDefault();
             //get User with role student
             User user = _unitOfWork.User.Get(x => (x.Email.Equals(userEmail) && x.RoleId == (int)RoleEnum.Student), null, "Student").FirstOrDefault();
             if (user != null)
@@ -47,7 +46,7 @@ namespace CapstoneOnGoing.Services.Implements
                         Team newTeam = new Team()
                         {
                             Name = createTeamRequest.TeamName,
-                            SemesterId = currentSemester.Id,
+                            SemesterId = semester.Id,
                             Status = (int)TeamStatus.Active,
                             TeamLeaderId = user.Id,
                             JoinCode = GenerateUtil.GenerateJoinString(),

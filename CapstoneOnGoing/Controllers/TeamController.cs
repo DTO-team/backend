@@ -45,8 +45,22 @@ namespace CapstoneOnGoing.Controllers
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult CreateTeam(CreateTeamRequest createTeamRequest)
 		{
+            var headers = Request.Headers;
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
+            {
+                _logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(CreateTeam)}: Semester {CurrentSemester}");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Request does not have semester",
+                    TimeStamp = DateTime.Now
+                });
+            }
+
+            GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
-			bool isSuccessful = _teamService.CreateTeam(createTeamRequest, userEmail, out CreatedTeamResponse createdTeamResponse);
+			bool isSuccessful = _teamService.CreateTeam(semesterDto, createTeamRequest, userEmail, out CreatedTeamResponse createdTeamResponse);
 			if (isSuccessful)
 			{
 				return CreatedAtAction(nameof(CreateTeam), createdTeamResponse);
@@ -208,13 +222,27 @@ namespace CapstoneOnGoing.Controllers
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult CreateWeeklyReport(Guid id, CreateWeeklyReportRequest createWeeklyReportRequest)
 		{
+            var headers = Request.Headers;
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
+            {
+                _logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(CreateWeeklyReport)}: Semester {CurrentSemester}");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Request does not have semester",
+                    TimeStamp = DateTime.Now
+                });
+            }
+
+            GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
 			Guid? reportId;
 			string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
 			CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
 
 			User userByEmail = _userService.GetUserWithRoleByEmail(userEmail);
 			bool isTeamLeader = _teamService.IsTeamLeader(userByEmail.Id);
-			reportId = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
+			reportId = _reportService.CreateWeeklyReport(semesterDto, id, userEmail, createWeeklyReportDto);
 			if (reportId is not null)
 			{
 				return CreatedAtAction(nameof(CreateWeeklyReport), new GenericResponse()

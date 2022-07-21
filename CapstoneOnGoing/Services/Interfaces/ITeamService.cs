@@ -2,13 +2,14 @@
 using Models.Request;
 using Models.Response;
 using System.Collections.Generic;
+using Models.Dtos;
 using Models.Models;
 
 namespace CapstoneOnGoing.Services.Interfaces
 {
 	public interface ITeamService
 	{
-		bool CreateTeam(CreateTeamRequest createTeamRequest, string userEmail, out CreatedTeamResponse createdTeamResponse);
+		bool CreateTeam(GetSemesterDTO semester, CreateTeamRequest createTeamRequest, string userEmail, out CreatedTeamResponse createdTeamResponse);
 		bool DeleteTeam(Guid deletedTeamId, string userEmail);
 		IEnumerable<GetTeamResponse> GetAllTeams(string teamName = null, int page = 1, int limit = 10);
 		bool JoinTeam(string studentEmail,string joinCode, out GetTeamDetailResponse getTeamDetailResponse);

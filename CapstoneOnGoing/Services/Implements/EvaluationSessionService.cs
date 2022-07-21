@@ -22,14 +22,16 @@ namespace CapstoneOnGoing.Services.Implements
         private readonly IMapper _mapper;
         private readonly ILecturerService _lecturerService;
         private readonly IProjectService _projectService;
+        private readonly ITeamService _teamService;
 
-        public EvaluationSessionService(IUnitOfWork unitOfWork, ICouncilService councilService, IMapper mapper, ILecturerService lecturerService, IProjectService projectService)
+        public EvaluationSessionService(IUnitOfWork unitOfWork, ICouncilService councilService, IMapper mapper, ILecturerService lecturerService, IProjectService projectService, ITeamService teamService)
         {
             _unitOfWork = unitOfWork;
             _councilService = councilService;
             _mapper = mapper;
             _lecturerService = lecturerService;
             _projectService = projectService;
+            _teamService = teamService;
         }
 
         public bool UpdateEvaluationSessionStatus(Guid id, UpdateEvaluationSessionRequest updateEvaluationSessionRequest)
@@ -271,5 +273,64 @@ namespace CapstoneOnGoing.Services.Implements
             }
         }
 
+        public GetAllEvaluationReportResponse GetAllEvaluationReportById(Guid evaluationReportId, GetSemesterDTO semesterDto)
+        {
+            GetAllEvaluationReportResponse reportsResponse = new GetAllEvaluationReportResponse();
+            EvaluationReport evaluationReport = _unitOfWork.EvaluationReport.GetById(evaluationReportId);
+            if (evaluationReport is null)
+            {
+                throw new BadHttpRequestException($"Evaluation report with {evaluationReportId} id is not existed!");
+            }
+
+            GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(evaluationReport.TeamId);
+            GetEvaluationSessionResponse evaluationSessionResponse =
+                GetEvaluationSessionById(evaluationReport.EvaluationSessionId, semesterDto.Id);
+
+            IEnumerable<EvaluationReportDetail> reportsDetail =
+                _unitOfWork.EvaluationReportDetail.Get(report => report.EvaluationReportId.Equals(evaluationReportId));
+
+            if (reportsDetail.Any())
+            {
+                reportsResponse.TeamDetail = teamDetailResponse;
+                reportsResponse.EvaluationSession = evaluationSessionResponse;
+                reportsResponse.EvaluationReportsDetail = _mapper.Map<IEnumerable<EvaluationReportDetailResponse>>(reportsDetail);
+                return reportsResponse;
+            }
+            else
+            {
+                throw new BadHttpRequestException("Get all evaluation report detail failed!");
+            }
+        }
+
+        public GetEvaluationReportDetailResponse GetEvaluationReportDetailById(Guid evaluationReportId, Guid evaluationReportDetailId,
+            GetSemesterDTO semesterDto)
+        {
+            GetEvaluationReportDetailResponse reportResponse = new GetEvaluationReportDetailResponse();
+            EvaluationReport evaluationReport = _unitOfWork.EvaluationReport.GetById(evaluationReportId);
+            if (evaluationReport is null)
+            {
+                throw new BadHttpRequestException($"Evaluation report with {evaluationReportId} id is not existed!");
+            }
+
+            GetTeamDetailResponse teamDetailResponse = _teamService.GetTeamDetail(evaluationReport.TeamId);
+            GetEvaluationSessionResponse evaluationSessionResponse =
+                GetEvaluationSessionById(evaluationReport.EvaluationSessionId, semesterDto.Id);
+
+            EvaluationReportDetail reportDetail =
+                _unitOfWork.EvaluationReportDetail.Get(report => 
+                    report.EvaluationReportId.Equals(evaluationReportId) && report.Id.Equals(evaluationReportDetailId)).FirstOrDefault();
+
+            if (reportDetail is not null)
+            {
+                reportResponse.TeamDetail = teamDetailResponse;
+                reportResponse.EvaluationSession = evaluationSessionResponse;
+                reportResponse.EvaluationReportDetail = _mapper.Map<EvaluationReportDetailResponse>(reportDetail);
+                return reportResponse;
+            }
+            else
+            {
+                throw new BadHttpRequestException("Get all evaluation report detail failed!");
+            }
+        }
     }
 }

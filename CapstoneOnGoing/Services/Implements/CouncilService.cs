@@ -19,15 +19,17 @@ namespace CapstoneOnGoing.Services.Implements
 		private readonly ILoggerManager _logger;
 		private readonly ILecturerService _lecturerService;
 		private readonly IProjectService _projectService;
+		private readonly ITeamService _teamService;
 		private readonly IMapper _mapper;
 
-		public CouncilService(IUnitOfWork unitOfWork, ILoggerManager logger, ILecturerService lecturerService, IProjectService projectService, IMapper mapper)
+		public CouncilService(IUnitOfWork unitOfWork, ILoggerManager logger, ILecturerService lecturerService, IProjectService projectService, IMapper mapper, ITeamService teamService)
 		{
 			_unitOfWork = unitOfWork;
 			_logger = logger;
 			_lecturerService = lecturerService;
 			_projectService = projectService;
 			_mapper = mapper;
+			_teamService = teamService;
 		}
 
 		public void CreateCouncil(CreateCouncilRequest createCouncilRequest)
@@ -366,6 +368,62 @@ namespace CapstoneOnGoing.Services.Implements
 			//      isSuccessful = _unitOfWork.Save() > 0;
 			//return isSuccessful;
 			return isSuccessful;
+        }
+
+        public IEnumerable<GetCouncilOfTeamResponse> GetCouncilOfTeamById(Guid teamId)
+        {
+	        Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
+	        IEnumerable<CouncilProject> councilProjects = _unitOfWork.CouncilProject.Get(x => x.ProjectId == team.Project.Id,null);
+	        List<GetCouncilOfTeamResponse> councilOfTeamResponses = new List<GetCouncilOfTeamResponse>();
+	        foreach (var councilProject in councilProjects)
+	        {
+				if (councilProject == null || team == null)
+				{
+					throw new BadHttpRequestException("Invalid Data");
+				}
+
+				Council council = _unitOfWork.Councils.Get(x => x.Id == councilProject.CouncilId, null, "CouncilLecturers").FirstOrDefault();
+				if (council == null)
+				{
+					return null;
+				}
+				//Get lecturers 
+				GetCouncilOfTeamResponse councilOfTeamResponse = _mapper.Map<GetCouncilOfTeamResponse>(council);
+				councilOfTeamResponse.Lecturers = new List<GetLecturerResponse>();
+				Array.ForEach(council.CouncilLecturers.ToArray(), councilLecturer =>
+				{
+					User lecturer = _lecturerService.GetLecturerById(councilLecturer.LecturerId);
+					GetLecturerResponse lecturerResponse = _mapper.Map<GetLecturerResponse>(lecturer);
+					councilOfTeamResponse.Lecturers.Add(lecturerResponse);
+				});
+
+				//Get evaluation session
+				EvaluationSession evaluationSession = _unitOfWork.EvaluationSession
+					.Get(x => x.Id == council.EvaluationSessionId, null, "Semester,EvaluationSessionCriteria").FirstOrDefault();
+				if (evaluationSession == null)
+				{
+					throw new BadHttpRequestException("No evaluation session found");
+				}
+
+				GetEvaluationSessionResponse evaluationSessionResponse =
+					_mapper.Map<GetEvaluationSessionResponse>(evaluationSession);
+				if (evaluationSession.EvaluationSessionCriteria.Any())
+				{
+					evaluationSessionResponse.SemesterCriterias = new List<GetSemesterCriteriaResponse>();
+					Array.ForEach(evaluationSession.EvaluationSessionCriteria.ToArray(), evaluationSessionCriteria =>
+					{
+						IEnumerable<SemesterCriterion> semesterCriterion =
+							_unitOfWork.SememesterCriterion.Get(x => x.Id == evaluationSessionCriteria.CriteriaId);
+						IEnumerable<GetSemesterCriteriaResponse> semesterCriteriaResponses =
+							_mapper.Map<IEnumerable<GetSemesterCriteriaResponse>>(semesterCriterion);
+						evaluationSessionResponse.SemesterCriterias.AddRange(semesterCriteriaResponses);
+					});
+				}
+
+				councilOfTeamResponse.EvaluationSession = evaluationSessionResponse;
+				councilOfTeamResponses.Add(councilOfTeamResponse);
+			}
+			return councilOfTeamResponses;
         }
 
         private void CheckIsMentorOfProjet(User lecturer, Project project)

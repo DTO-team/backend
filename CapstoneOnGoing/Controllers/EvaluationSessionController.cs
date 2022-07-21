@@ -51,7 +51,7 @@ namespace CapstoneOnGoing.Controllers
 			});
 		}
 
-		[Authorize(Roles = "ADMIN")]
+		[Authorize(Roles = "ADMIN,STUDENT,LECTURER")]
 		[HttpGet]
 		[ProducesResponseType(typeof(IEnumerable<GetEvaluationSessionResponse>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]

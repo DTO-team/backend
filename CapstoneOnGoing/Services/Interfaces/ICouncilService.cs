@@ -15,5 +15,7 @@ namespace CapstoneOnGoing.Services.Interfaces
 		GetCouncilResponse GetCouncilById(Guid councilId, GetSemesterDTO semester);
 
 		bool UpdateCouncil(Guid id,UpdateCouncilRequest updateCouncilRequest);
+
+		IEnumerable<GetCouncilOfTeamResponse> GetCouncilOfTeamById(Guid teamId);
 	}
 }

@@ -264,7 +264,9 @@ namespace CapstoneOnGoing.AutoMapperProfile
                 .ForMember(dest => dest.ReviewQuestions, src => src.Ignore());
 
             CreateMap<EvaluationReportDetailRequest, EvaluationReportDetail>();
+            CreateMap<Council, GetCouncilOfTeamResponse>();
             CreateMap<EvaluationReportDetail, EvaluationReportDetailResponse>();
+
         }
     }
 }

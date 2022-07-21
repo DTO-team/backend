@@ -7,10 +7,12 @@ using AutoMapper;
 using CapstoneOnGoing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Models.Dtos;
 using Models.Models;
 using Models.Request;
 using Models.Response;
+using Newtonsoft.Json;
 
 namespace CapstoneOnGoing.Controllers
 {
@@ -37,6 +39,20 @@ namespace CapstoneOnGoing.Controllers
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
         public IActionResult CreatePersonalOrTeamWeeklyReport([FromBody] CreateWeeklyReportRequest createWeeklyReportRequest, Guid id)
         {
+            var headers = Request.Headers;
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
+            {
+                // _logger.LogWarn($"Controller: {nameof(TeamController)},Method: {nameof(GetAllCouncilProjects)}: Semester {CurrentSemester}");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Request does not have semester",
+                    TimeStamp = DateTime.Now
+                });
+            }
+
+            GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
             string userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
             User studentUser = _studentService.GetStudentByEmail(userEmail);
             if (studentUser is not null)
@@ -50,7 +66,7 @@ namespace CapstoneOnGoing.Controllers
                 CreateWeeklyReportDTO createWeeklyReportDto = _mapper.Map<CreateWeeklyReportDTO>(createWeeklyReportRequest);
                 createWeeklyReportDto.ReportEvidences = reportEvidenceDto;
 
-                Guid? reportId = _reportService.CreateWeeklyReport(id, userEmail, createWeeklyReportDto);
+                Guid? reportId = _reportService.CreateWeeklyReport(semesterDto, id, userEmail, createWeeklyReportDto);
                 if (reportId is not null)
                 {
                     GetWeeklyReportDetailResponse weeklyReportDetailResponse =

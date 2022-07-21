@@ -90,14 +90,13 @@ namespace CapstoneOnGoing.Services.Implements
             }
         }
 
-        public Guid? CreateWeeklyReport(Guid teamId, string studentEmail, CreateWeeklyReportDTO createWeeklyReportDTO)
+        public Guid? CreateWeeklyReport(GetSemesterDTO semester, Guid teamId, string studentEmail, CreateWeeklyReportDTO createWeeklyReportDTO)
         {
             Guid? returnReportId = null;
             //check team is exist
-            Semester currentSemester =
-                _unitOfWork.Semester.Get(x => x.Status == (int)SemesterStatus.Ongoing).FirstOrDefault();
+           
             Team team = _unitOfWork.Team
-                .Get(x => (x.Id == teamId && x.SemesterId == currentSemester.Id), null, "TeamStudents")
+                .Get(x => (x.Id == teamId), null, "TeamStudents")
                 .FirstOrDefault();
             if (team == null)
             {

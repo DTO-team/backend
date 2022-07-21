@@ -373,6 +373,10 @@ namespace CapstoneOnGoing.Services.Implements
         public IEnumerable<GetCouncilOfTeamResponse> GetCouncilOfTeamById(Guid teamId)
         {
 	        Team team = _unitOfWork.Team.GetTeamWithProject(teamId);
+            if (team.Project == null)
+            {
+                return null;
+            }
 	        IEnumerable<CouncilProject> councilProjects = _unitOfWork.CouncilProject.Get(x => x.ProjectId == team.Project.Id,null);
 	        List<GetCouncilOfTeamResponse> councilOfTeamResponses = new List<GetCouncilOfTeamResponse>();
 	        foreach (var councilProject in councilProjects)

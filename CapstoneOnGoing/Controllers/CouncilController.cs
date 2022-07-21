@@ -140,6 +140,16 @@ namespace CapstoneOnGoing.Controllers
 			return Ok(councilResponses);
 		}
 
+        // [Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+        [HttpGet("lecturer/{lecturerId}")]
+        [ProducesResponseType(typeof(IEnumerable<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
+        public IActionResult GetCouncilIdByLecturerId(Guid lecturerId)
+        {
+            IEnumerable<Guid> councilIds = _councilService.GetCouncilIdByLecturerId(lecturerId);
+            return Ok(councilIds);
+        }
+
 		[Authorize(Roles = "ADMIN")]
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetCouncilResponse), StatusCodes.Status200OK)]

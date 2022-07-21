@@ -436,5 +436,28 @@ namespace CapstoneOnGoing.Services.Implements
 			        $"Lecturer {lecturer.FullName} is mentor of {project.Application.Topic.Name} project");
 	        }
         }
+
+        public IEnumerable<Guid> GetCouncilIdByLecturerId(Guid lecturerId)
+        {
+            IEnumerable<CouncilLecturer> councilLecturers =
+                _unitOfWork.CouncilLecturer.Get(lecturer => lecturer.LecturerId.Equals(lecturerId));
+            List<Guid> councilIds = new List<Guid>();
+
+            if (councilLecturers.Any())
+            {
+                foreach (CouncilLecturer councilLecturer in councilLecturers)
+                {
+                    Guid councilId = councilLecturer.CouncilId;
+					councilIds.Add(councilId);
+                }
+
+                return councilIds;
+            }
+            else
+            {
+                throw new BadHttpRequestException($"Lecturer with {lecturerId} id is not existed in any council");
+            }
+        }
+
 	}
 } 

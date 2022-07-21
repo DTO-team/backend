@@ -35,7 +35,8 @@ jobs:
       run: dotnet restore
 
     - name: Run
-      run: dotnet run --project CapstoneOnGoing -nowarn
+      run: |
+        nohup dotnet run --project CapstoneOnGoing -nowarn & sleep 30
       
     - name: Test api
       uses: matt-ball/newman-action@master

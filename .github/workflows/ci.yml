@@ -4,6 +4,22 @@ on:
   pull_request:
     branches: main
 
+env:
+  CAPSTONEONGOING_COGNITO_APPCLIENTID: ${{secrets.CAPSTONEONGOING_COGNITO_APPCLIENTID}}
+  CAPSTONEONGOING_COGNITO_POOLID: ${{secrets.CAPSTONEONGOING_COGNITO_POOLID}}
+  CAPSTONEONGOING_COGNITO_REGION: ${{secrets.CAPSTONEONGOING_COGNITO_REGION}}
+  CAPSTONEONGOING_DATABASE_HOST: ${{secrets.CAPSTONEONGOING_DATABASE_HOST}}
+  CAPSTONEONGOING_DATABASE_NAME: ${{secrets.CAPSTONEONGOING_DATABASE_NAME}}
+  CAPSTONEONGOING_DATABASE_PASSWORD: ${{secrets.CAPSTONEONGOING_DATABASE_PASSWORD}}
+  CAPSTONEONGOING_DATABASE_PORT: ${{secrets.CAPSTONEONGOING_DATABASE_PORT}}
+  CAPSTONEONGOING_DATABASE_USERNAME: ${{secrets.CAPSTONEONGOING_DATABASE_USERNAME}}
+  CAPSTONEONGOING_JWT_ISSUER: ${{secrets.CAPSTONEONGOING_JWT_ISSUER}}
+  CAPSTONEONGOING_JWT_SECRET_KEY: ${{secrets.CAPSTONEONGOING_JWT_SECRET_KEY}}
+  CAPSTONEONGOING_JWT_TOKEN_EXPIRE_TIME_IN_MINUTES: ${{secrets.CAPSTONEONGOING_JWT_TOKEN_EXPIRE_TIME_IN_MINUTES}}
+  CAPSTONEONGOING_REDIS_HOST: ${{secrets.CAPSTONEONGOING_REDIS_HOST}}
+  CAPSTONEONGOING_REDIS_PORT: ${{secrets.CAPSTONEONGOING_REDIS_PORT}}
+  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,14 +34,13 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
-      run: dotnet build -c Release --no-restore
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Run test
-      run: dotnet test -c Release --no-build
+    - name: Run
+      run: |
+        nohup dotnet run --project CapstoneOnGoing -nowarn & sleep 15
+      
+    - name: Test api
+      uses: matt-ball/newman-action@master
+      with:
+        apiKey: ${{secrets.POSTMAN_API_KEY}}
+        collection: ${{secrets.POSTMAN_COLLECTION_ID}}
+        environment: ${{secrets.POSTMAN_ENVIRONMENT_ID}}

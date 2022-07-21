@@ -76,9 +76,10 @@ using Models.Response;
 			//}
 			GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
 			IEnumerable<GetTopicsDTO> topicsDtos =  _topicService.GetAllTopics(searchString, email, semesterDto);
+            IEnumerable<GetTopicsResponse> getTopicsResponses = new List<GetTopicsResponse>();
 			if (topicsDtos != null)
 			{
-				IEnumerable<GetTopicsResponse> getTopicsResponses = _mapper.Map<IEnumerable<GetTopicsResponse>>(topicsDtos);
+				getTopicsResponses = _mapper.Map<IEnumerable<GetTopicsResponse>>(topicsDtos);
 				//string serializedPageResponse = JsonConvert.SerializeObject(getTopicsResponses);
 				//byte[] redisPageResponse = Encoding.UTF8.GetBytes(serializedPageResponse);
 				//var options = new DistributedCacheEntryOptions();
@@ -88,13 +89,8 @@ using Models.Response;
 			else
 			{
 				_logger.LogWarn($"Controller: {nameof(TopicController)},Method: {nameof(GetAllTopics)}: Can not load topic for semester");
-				return NotFound(new GenericResponse()
-				{
-					HttpStatus = StatusCodes.Status404NotFound,
-					Message = "No topics found. Cause no Semester is not in current in-progress or No topic in current semester",
-					TimeStamp = DateTime.Now,
-				});
-			}
+                return Ok(getTopicsResponses);
+            }
 		}
 
 		[Authorize(Roles = "ADMIN")]

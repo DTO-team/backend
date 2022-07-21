@@ -27,14 +27,16 @@ namespace CapstoneOnGoing.Controllers
 		private readonly IReportService _reportService;
 		private readonly IUserService _userService;
 		private readonly IMapper _mapper;
+		private readonly ICouncilService _councilService;
 
-		public TeamController(ILoggerManager logger, ITeamService teamService, IReportService reportService, IUserService userService, IMapper mapper)
+		public TeamController(ILoggerManager logger, ITeamService teamService, IReportService reportService, IUserService userService, IMapper mapper,ICouncilService councilService)
 		{
 			_logger = logger;
 			_teamService = teamService;
 			_reportService = reportService;
 			_userService = userService;
 			_mapper = mapper;
+			_councilService = councilService;
 		}
 
 		[Authorize(Roles = "STUDENT")]
@@ -297,6 +299,15 @@ namespace CapstoneOnGoing.Controllers
 				Message = "Feedback for report successful",
 				TimeStamp = DateTime.Now
 			});
+		}
+
+		[Authorize(Roles = "ADMIN,LECTURER,STUDENT")]
+		[HttpGet("{id}/council")]
+		[ProducesResponseType(typeof(IEnumerable<GetCouncilOfTeamResponse>),StatusCodes.Status200OK)]
+		public IActionResult GetCouncilOfTeam(Guid id)
+		{
+			IEnumerable<GetCouncilOfTeamResponse> councilOfTeamResponse = _councilService.GetCouncilOfTeamById(id);
+			return Ok(councilOfTeamResponse);
 		}
 	}
 }

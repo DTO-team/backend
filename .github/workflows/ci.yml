@@ -18,14 +18,12 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
-      run: dotnet build -c Release --no-restore
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Run test
-      run: dotnet test -c Release --no-build
+    - name: Run
+      run: dotnet run --project CapstoneOnGoing 
+      
+    - name: Test api
+      uses: matt-ball/newman-action@master
+      with:
+        apiKey: ${{secrets.POSTMAN_API_KEY}}
+        collection: ${{secrets.POSTMAN_COLLECTION_ID}}
+        environment: ${{secrets.}}

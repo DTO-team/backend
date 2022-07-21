@@ -265,6 +265,8 @@ namespace CapstoneOnGoing.AutoMapperProfile
 
             CreateMap<EvaluationReportDetailRequest, EvaluationReportDetail>();
             CreateMap<Council, GetCouncilOfTeamResponse>();
+            CreateMap<EvaluationReportDetail, EvaluationReportDetailResponse>();
+
         }
     }
 }

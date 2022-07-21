@@ -113,7 +113,7 @@ namespace CapstoneOnGoing.Controllers
         }
 
         //evaluationSessionId
-        [HttpPost("{id}/evaluationreport")]
+        [HttpPost("{id}/evaluationreports")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(GenericResponse), StatusCodes.Status400BadRequest)]
 		public IActionResult CreateNewEvaluationReport(Guid id,
@@ -137,7 +137,7 @@ namespace CapstoneOnGoing.Controllers
 		}
 
 		//evaluationSessionId
-        [HttpPut("evaluationreport/{evaluationReportId}")]
+        [HttpPut("evaluationreports/{evaluationReportId}")]
         public IActionResult UpdateEvaluationReport(Guid evaluationReportId,
             UpdateEvaluationReportDetailRequest newEvaluationReportDetailRequest)
         {
@@ -157,6 +157,69 @@ namespace CapstoneOnGoing.Controllers
                 });
             }
 		}
+
+        [HttpGet("evaluationreports/{evaluationReportId}")]
+        [ProducesResponseType(typeof(GetAllEvaluationReportResponse), StatusCodes.Status200OK)]
+        public IActionResult GetAllEvaluationReportDetailByEvaluationReportId(Guid evaluationReportId)
+        {
+            var headers = Request.Headers;
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
+            {
+                _logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetEvaluationSessionById)}: Semester {CurrentSemester}");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Request does not have semester",
+                    TimeStamp = DateTime.Now
+                });
+            }
+
+            GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
+            GetAllEvaluationReportResponse reportsResponse =
+                _evaluationSessionService.GetAllEvaluationReportById(evaluationReportId, semesterDto);
+            if (reportsResponse is not null)
+            {
+                return Ok(reportsResponse);
+            }
+            else
+            {
+				_logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetAllEvaluationReportDetailByEvaluationReportId)}: Get all evaluation report detail failed!");
+                return Ok(reportsResponse);
+            }
+		}
+
+        [HttpGet("evaluationreports/{evaluationReportId}/evaluationreportdetail")]
+        [ProducesResponseType(typeof(GetEvaluationReportDetailResponse), StatusCodes.Status200OK)]
+        public IActionResult GetEvaluationReportDetailByEvaluationReportIdAndEvaluationReportDetailId(
+            Guid evaluationReportId, [FromQuery] Guid evaluationReportDetailId)
+        {
+            var headers = Request.Headers;
+            StringValues CurrentSemester;
+            if (!headers.Keys.Contains("currentsemester") || !headers.TryGetValue("currentsemester", out CurrentSemester))
+            {
+                _logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetEvaluationSessionById)}: Semester {CurrentSemester}");
+                return BadRequest(new GenericResponse()
+                {
+                    HttpStatus = StatusCodes.Status400BadRequest,
+                    Message = "Request does not have semester",
+                    TimeStamp = DateTime.Now
+                });
+            }
+
+            GetSemesterDTO semesterDto = JsonConvert.DeserializeObject<GetSemesterDTO>(CurrentSemester.ToString());
+            GetEvaluationReportDetailResponse reportResponse =
+                _evaluationSessionService.GetEvaluationReportDetailById(evaluationReportId, evaluationReportDetailId,semesterDto);
+            if (reportResponse is not null)
+            {
+                return Ok(reportResponse);
+            }
+            else
+            {
+                _logger.LogWarn($"Controller: {nameof(EvaluationSessionController)},Method: {nameof(GetAllEvaluationReportDetailByEvaluationReportId)}: Get all evaluation report detail failed!");
+                return Ok(reportResponse);
+            }
+        }
 
 	}
 }
